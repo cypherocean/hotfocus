@@ -13,7 +13,7 @@
     
     <link href="{{ asset('assets/css/dropify.min.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/css/sweetalert2.bundle.css') }}" rel="stylesheet">
-
+ 
     <style> 
         .select2-container--default .select2-selection--single{
             height: 35px;

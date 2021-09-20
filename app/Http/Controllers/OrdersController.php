@@ -211,13 +211,13 @@
                 $id = base64_decode($id);
 
                 $products = Product::select('id', 'name')->get();
-                $customers = Customer::select('id', 'party_name', 'billing_name', 'contact_person', 'mobile_number', 'billing_address', 'delivery_address', 'office_contact_person')
-                                        ->where(['status' => 'active'])
-                                        ->get();
+                $customer = collect();
 
                 $data = Order::select('id', 'name', 'file', 'remark', 'order_date')->where(['id' => $id])->first();
                 
                 if($data){
+                    $customer = Customer::where(['party_name' => $data->name])->first();
+
                     $order_details = DB::table('orders_details as od')
                                         ->select('od.id', 'od.product_id', 'od.quantity', 'od.price', 'od.remark', 'p.name as product_name')
                                         ->leftjoin('products as p', 'p.id', 'od.product_id')
@@ -229,7 +229,7 @@
                     else
                         $data->order_details = collect();
                     
-                       return view('orders.view', ['products' => $products, 'data' => $data, 'customers' => $customers]);
+                       return view('orders.view', ['products' => $products, 'data' => $data, 'customer' => $customer]);
                 }else{
                     return redirect()->route('orders')->with('error', 'No data found');
                 }

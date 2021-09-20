@@ -7,7 +7,7 @@
     use App\Models\User;
     use Illuminate\Support\Str;
     use App\Http\Requests\ProductsRequest;
-    use Auth, Validator, DB, Mail, DataTables;
+    use Auth, Validator, DB, Mail, DataTables, File;
 
     class ProductsController extends Controller{
         /** index */
@@ -82,17 +82,52 @@
                         'updated_by' => auth()->user()->id
                     ];
 
+                    if(!empty($request->file('file'))){
+                        $file = $request->file('file');
+                        $filenameWithExtension = $request->file('file')->getClientOriginalName();
+                        $filename = pathinfo($filenameWithExtension, PATHINFO_FILENAME);
+                        $extension = $request->file('file')->getClientOriginalExtension();
+                        $filenameToStore = time()."_".$filename.'.'.$extension;
+
+                        $folder_to_upload = public_path().'/uploads/products/';
+
+                        if (!File::exists($folder_to_upload))
+                            File::makeDirectory($folder_to_upload, 0777, true, true);
+
+                        $crud["file"] = $filenameToStore;
+                    }
+
                     $last_id = Product::insertGetId($crud);
                     
-                    if($last_id)
+                    if($last_id){
+                        if(!empty($request->file('file')))
+                            $file->move($folder_to_upload, $filenameToStore);
+                        
                         return redirect()->route('products')->with('success', 'Product created successfully.');
-                    else
+                    }else{
                         return redirect()->back()->with('error', 'Faild to create product!')->withInput();
+                    }
                 }else{
                     return redirect()->route('products')->with('error', 'Something went wrong');
                 }
             }
         /** insert */
+
+        /** view */
+            public function view(Request $request, $id=''){
+                if($id == '')
+                    return redirect()->route('products')->with('error', 'Something went wrong');
+
+                $id = base64_decode($id);
+
+                $data = Product::select('id', 'name', 'code', 'unit', 'price', 'note', 'file')->where(['id' => $id])->first();
+                
+                if($data)
+                    return view('products.view')->with('data', $data);
+                else
+                    return redirect()->route('products')->with('error', 'No product found');
+            }
+        /** view */
 
         /** edit */
             public function edit(Request $request, $id=''){
@@ -101,7 +136,7 @@
 
                 $id = base64_decode($id);
 
-                $data = Product::select('id', 'name', 'code', 'unit', 'price', 'note')->where(['id' => $id])->first();
+                $data = Product::select('id', 'name', 'code', 'unit', 'price', 'note', 'file')->where(['id' => $id])->first();
                 
                 if($data)
                     return view('products.edit')->with('data', $data);
@@ -125,33 +160,36 @@
                         'updated_by' => auth()->user()->id
                     ];
 
+                    if(!empty($request->file('file'))){
+                        $file = $request->file('file');
+                        $filenameWithExtension = $request->file('file')->getClientOriginalName();
+                        $filename = pathinfo($filenameWithExtension, PATHINFO_FILENAME);
+                        $extension = $request->file('file')->getClientOriginalExtension();
+                        $filenameToStore = time()."_".$filename.'.'.$extension;
+
+                        $folder_to_upload = public_path().'/uploads/products/';
+
+                        if (!File::exists($folder_to_upload))
+                            File::makeDirectory($folder_to_upload, 0777, true, true);
+
+                        $crud["file"] = $filenameToStore;
+                    }
+
                     $update = Product::where(['id' => $request->id])->update($crud);
 
-                    if($update)
+                    if($update){
+                        if(!empty($request->file('file')))
+                            $file->move($folder_to_upload, $filenameToStore);
+
                         return redirect()->route('products')->with('success', 'Product updated successfully.');
-                    else
+                    }else{
                         return redirect()->back()->with('error', 'Faild to update product!')->withInput();
+                    }
                 }else{
                     return redirect()->back()->with('error', 'Something went wrong')->withInput();
                 }
             }
-        /** update */
-
-        /** view */
-            public function view(Request $request, $id=''){
-                if($id == '')
-                    return redirect()->route('products')->with('error', 'Something went wrong');
-
-                $id = base64_decode($id);
-
-                $data = Product::select('id', 'name', 'code', 'unit', 'price', 'note')->where(['id' => $id])->first();
-                
-                if($data)
-                    return view('products.view')->with('data', $data);
-                else
-                    return redirect()->route('products')->with('error', 'No product found');
-            }
-        /** view */ 
+        /** update */ 
 
         /** delete */
             public function delete(Request $request){

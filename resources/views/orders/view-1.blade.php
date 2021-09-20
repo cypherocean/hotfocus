@@ -24,18 +24,13 @@
                 display: none;
             }
         }
-
-        .table>tbody>tr>td{
-            border-top: none !important;
-            padding: 0.50rem;
-        }
     </style>
 @endsection
 
 @section('content')
     <div class="page-content fade-in-up">
         <div class="row" id="printableArea">
-            <div class="col-md-12 hide" id="mainArea">
+            <div class="col-md-12">
                 <div class="ibox">
                     <div class="ibox-head">
                         <div class="ibox-title">View Order</div>
@@ -118,77 +113,6 @@
                     </div>
                 </div>
             </div>
-            
-            <div class="col-md-12" id="subArea" style="display:none">
-                <div class="ibox">
-                    <div class="ibox-head">
-                        <div class="ibox-title">View Order</div>
-                    </div>
-                    <div class="ibox-body">
-                        <table class="table">
-                            <tr>
-                                <td>Name: {{ $data->name ?? '' }}</td>
-                                <td>Order Date: {{ $data->order_date ?? '' }}</td>
-                            </tr>
-                            <tr class="mt-5">
-                                <td>Billing Name: {{ $customer->billing_name ?? '' }}</td>
-                            </tr>
-                            <tr>
-                                <td>Contact Person: {{ $customer->contact_person ?? '' }}</td>
-                                <td>Mobile Number: {{ $customer->mobile_number ?? '' }}</td>
-                            </tr>
-                            <tr>
-                                <td>Billing Address: {{ $customer->billing_address ?? '' }}</td>
-                                <td>Delivery Address: {{ $customer->delivery_address ?? '' }}</td>
-                            </tr>
-                            <tr>
-                                <td>Electrician: {{ $customer->electrician ?? '' }}</td>
-                                <td>Electrician Number: {{ $customer->electrician_number ?? '' }}</td>
-                            </tr>
-                            <tr>
-                                <td colspan="2">
-                                    Remark: <br/> 
-                                    {{ $data->remark ?? '' }}
-                                </td>
-                            </tr>
-                        </table>
-                        @if(isset($data->order_details) && $data->order_details->isNotEmpty())
-                            <div class="row" id="table" style="display:block">
-                        @else
-                            <div class="row" id="table" style="display:none">
-                        @endif
-                            <div class="col-sm-12">
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th style="width:05%">Sr. No</th>
-                                            <th style="width:45%">Product</th>
-                                            <th style="width:15%">Quantity</th>
-                                            <th style="width:10%">Price</th>
-                                            <th style="width:25%">Remark</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @if(isset($data->order_details) && $data->order_details->isNotEmpty())
-                                            @php $i=1; @endphp
-                                            @foreach($data->order_details as $row)
-                                                <tr class="clone" id="clone_{{ $i }}">
-                                                    <th style="width:05%">{{ $i }}</th>
-                                                    <th style="width:45%">{{ $row->product_name }}</th>
-                                                    <th style="width:15%">{{ $row->quantity }}</th>
-                                                    <th style="width:10%">{{ $row->price }}</th>
-                                                    <th style="width:25%">{{ $row->remark ?? '' }}</th>
-                                                </tr>
-                                                @php $i++; @endphp
-                                            @endforeach
-                                        @endif
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
         <div class="row">
             <div class="col-md-12 text-center">
@@ -229,7 +153,7 @@
                 format: 'dd-mm-yyyy',
                 autoclose: true
             });
-        });
+        }); 
 
         function _customer_details(name){
             $.ajax({
@@ -240,6 +164,7 @@
                 async: false,
                 success : function(json){
                     $("#customer_details").append(
+                        '<div class="form-group col-md-6"><span style="font-weight: bold; padding-left:16px;">Name: </span><span>'+json.data.party_name+'</span></div>'+
                         '<div class="form-group col-md-6"><span style="font-weight: bold; padding-left:16px;">Billing Name: </span><span>'+json.data.billing_name+'</span></div>'+
                         '<div class="form-group col-md-6"><span style="font-weight: bold; padding-left:16px;">Contact Person: </span><span>'+json.data.contact_person+'</span></div>'+
                         '<div class="form-group col-md-6"><span style="font-weight: bold; padding-left:16px;">Mobile Number: </span><span>'+json.data.mobile_number+'</span></div>'+
@@ -252,7 +177,6 @@
         }
 
         function printDiv(divName) {
-            $('#subArea').css('display', 'block');
             var printContents = document.getElementById(divName).innerHTML;
             var originalContents = document.body.innerHTML;
 
@@ -261,7 +185,6 @@
             window.print();
 
             document.body.innerHTML = originalContents;
-            $('#subArea').css('display', 'none');
         }
     </script>
 @endsection

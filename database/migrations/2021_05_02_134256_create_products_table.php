@@ -21,6 +21,7 @@ class CreateProductsTable extends Migration
             $table->string('unit')->nullable();
             $table->string('price')->nullable();
             $table->text('note')->nullable();
+            $table->string('file')->nullable();
             $table->timestamps();
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();

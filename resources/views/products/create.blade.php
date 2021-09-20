@@ -8,6 +8,8 @@
 @endsection
 
 @section('styles')
+    <link href="{{ asset('assets/css/dropify.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/css/sweetalert2.bundle.css') }}" rel="stylesheet">
 @endsection
 
 @section('content')
@@ -48,6 +50,12 @@
                                     <input type="text" name="note" id="note" class="form-control" placeholder="Plese enter note" value="{{ @old('note') }}" />
                                     <span class="kt-form__help error note"></span>
                                 </div>
+                                <div class="form-group col-sm-6"></div>
+                                <div class="form-group col-sm-12">
+                                    <label for="file">Attechment <span class="text-danger"></span></label>
+                                    <input type="file" name="file" id="file" class="form-control dropify" placeholder="Plese select attachment" />
+                                    <span class="kt-form__help error file"></span>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <button type="submit" class="btn btn-primary">Submit</button>
@@ -62,6 +70,10 @@
 @endsection
 
 @section('scripts')
+    <script src="{{ asset('assets/js/dropify.min.js') }}"></script>
+    <script src="{{ asset('assets/js/promise.min.js') }}"></script>
+    <script src="{{ asset('assets/js/sweetalert2.bundle.js') }}"></script>
+
     <script>
         $(document).ready(function () {
             $('.digits').keyup(function(e){
@@ -69,7 +81,16 @@
                     this.value = this.value.replace(/\D/g, '');
                 }
             });
-        });
+        
+            $('.dropify').dropify({
+                messages: {
+                    'default': 'Drag and drop file here or click',
+                    'remove':  'Remove',
+                    'error':   'Ooops, something wrong happended.'
+                }
+            });
+            var drEvent = $('.dropify').dropify();
+        }); 
     </script>
 
     <script>
