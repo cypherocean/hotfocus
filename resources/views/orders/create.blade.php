@@ -63,6 +63,7 @@
                             </div>
                             <div class="row" id="table">
                                 <div class="col-sm-12">
+                                    <h4>Products</h4>
                                     <table class="table table-bordered">
                                         <thead>
                                             <tr>
@@ -109,6 +110,7 @@
                             </div>
                             <div class="row" id="st_table">
                                 <div class="col-sm-12">
+                                    <h4>Strip Lights</h4>
                                     <table class="table table-bordered">
                                         <thead>
                                             <tr>

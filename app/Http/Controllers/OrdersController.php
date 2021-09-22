@@ -273,7 +273,7 @@
                     $customer = Customer::where(['party_name' => $data->name])->first();
 
                     $order_details = DB::table('orders_details as od')
-                                        ->select('od.id', 'od.product_id', 'od.quantity', 'od.price', 'od.remark', 'p.name as product_name')
+                                        ->select('od.id', 'od.product_id', 'od.quantity', 'od.price', 'od.remark','p.file', 'p.name as product_name')
                                         ->leftjoin('products as p', 'p.id', 'od.product_id')
                                         ->where(['od.order_id' => $data->id])
                                         ->get();
@@ -283,6 +283,17 @@
                     else
                         $data->order_details = collect();
                     
+                    $order_strips = DB::table('orders_strips as os')
+                                        ->select('os.id', 'os.strip_id', 'os.quantity', 'os.unit', 'os.choke', 'os.calc', 'os.price', 'os.remark', 's.file', 's.name as strip_name')
+                                        ->leftjoin('strips as s', 's.id', 'os.strip_id')
+                                        ->where(['os.order_id' => $data->id])
+                                        ->get();
+
+                    if($order_strips->isNotEmpty())
+                        $data->order_strips = $order_strips;
+                    else
+                        $data->order_strips = collect();
+
                        return view('orders.view', ['products' => $products, 'data' => $data, 'customer' => $customer, 'strips' => $strips]);
                 }else{
                     return redirect()->route('orders')->with('error', 'No data found');
@@ -316,6 +327,17 @@
                         $data->order_details = $order_details;
                     else
                         $data->order_details = collect();
+
+                    $order_strips = DB::table('orders_strips as os')
+                                        ->select('os.id', 'os.strip_id', 'os.quantity', 'os.unit', 'os.choke', 'os.calc', 'os.price', 'os.remark', 's.name as strip_name')
+                                        ->leftjoin('strips as s', 's.id', 'os.strip_id')
+                                        ->where(['os.order_id' => $data->id])
+                                        ->get();
+
+                    if($order_strips->isNotEmpty())
+                        $data->order_strips = $order_strips;
+                    else
+                        $data->order_strips = collect();
 
                     return view('orders.edit', ['products' => $products, 'data' => $data, 'customers' => $customers, 'strips' => $strips]);
                 }else{
@@ -393,6 +415,56 @@
                                             ];
 
                                             OrderDetails::insertGetId($order_detail_crud);
+                                        }
+                                    }
+                                }
+                            }
+
+                            $strip_id = $request->strip_id ?? NULL;
+                            $st_quantity = $request->st_quantity ?? NULL;
+                            $st_unit = $request->st_unit ?? NULL;
+                            $st_choke = $request->st_choke ?? NULL;
+                            $st_calc = $request->st_calc ?? NULL;
+                            $st_price = $request->st_price ?? NULL;
+                            $st_remarks = $request->st_remarks ?? NULL;
+
+                            if($strip_id != null){
+                                for($i=0; $i<count($strip_id); $i++){
+                                    if($strip_id[$i] != null){
+                                        $exst_detail = OrderStrips::select('id')->where(['order_id' => $request->id, 'strip_id' => $strip_id[$i]])->first();
+
+                                        if(!empty($exst_detail)){
+                                            $order_strip_crud = [
+                                                'order_id' => $request->id,
+                                                'strip_id' => $strip_id[$i] ?? NULL,
+                                                'quantity' => $st_quantity[$i] ?? NULL,
+                                                'unit' => $st_unit[$i] ?? NULL,
+                                                'choke' => $st_choke[$i] ?? NULL,
+                                                'calc' => $st_calc[$i] ?? NULL,
+                                                'price' => $st_price[$i] ?? NULL,
+                                                'remark' => $st_remarks[$i] ?? NULL,
+                                                'updated_at' => date('Y-m-d H:i:s'),
+                                                'updated_by' => auth()->user()->id
+                                            ];
+
+                                            OrderStrips::where(['id' => $exst_detail->id])->update($order_strip_crud);
+                                        }else{
+                                            $order_strip_crud = [
+                                                'order_id' => $request->id,
+                                                'strip_id' => $strip_id[$i] ?? NULL,
+                                                'quantity' => $st_quantity[$i] ?? NULL,
+                                                'unit' => $st_unit[$i] ?? NULL,
+                                                'choke' => $st_choke[$i] ?? NULL,
+                                                'calc' => $st_calc[$i] ?? NULL,
+                                                'price' => $st_price[$i] ?? NULL,
+                                                'remark' => $st_remarks[$i] ?? NULL,
+                                                'created_at' => date('Y-m-d H:i:s'),
+                                                'created_by' => auth()->user()->id,
+                                                'updated_at' => date('Y-m-d H:i:s'),
+                                                'updated_by' => auth()->user()->id
+                                            ];
+                                        
+                                            OrderStrips::insertGetId($order_strip_crud);
                                         }
                                     }
                                 }

@@ -53,21 +53,6 @@
                                 <span class="kt-form__help error order_date"></span>
                             </div>
                             <div class="row" id="customer_details"></div>
-                            <div class="form-group col-sm-12">
-                                <label for="remark">Remark <span class="text-danger"></span></label>
-                                <textarea name="remark" id="remark" cols="30" rows="5" class="form-control" placeholder="Plese enter remark" disabled>{{ $data->remark ?? '' }}</textarea>
-                                <span class="kt-form__help error remark"></span>
-                            </div>
-                            <div class="form-group col-sm-12">
-                                @if(isset($data->file) && !empty($data->file))
-                                    @php $file = url('/uploads/orders/').'/'.$data->file; @endphp
-                                @else
-                                    @php $file = ''; @endphp
-                                @endif
-                                <label for="file">Attechment <span class="text-danger"></span></label>
-                                <input type="file" name="file" id="file" class="form-control dropify" placeholder="Plese select attachment" data-default-file="{{ $file }}" data-show-remove="false" />
-                                <span class="kt-form__help error file"></span>
-                            </div>
                         </div>
                         @if(isset($data->order_details) && $data->order_details->isNotEmpty())
                             <div class="row" id="table" style="display:block">
@@ -75,6 +60,7 @@
                             <div class="row" id="table" style="display:none">
                         @endif
                             <div class="col-sm-12">
+                                <h4>Products</h4>
                                 <table class="table table-bordered">
                                     <thead>
                                         <tr>
@@ -91,18 +77,19 @@
                                             @foreach($data->order_details as $row)
                                                 <tr class="clone" id="clone_{{ $i }}">
                                                     <th style="width:05%">{{ $i }}</th>
-                                                    <th style="width:45%">{{ $row->product_name }}
-                                                        <input type="hidden" name="product_id[]" id="product_{{ $i }}" value="{{ $row->product_id }}">
-                                                    </th>
-                                                    <th style="width:15%">
-                                                        <input type="text" name="quantity[]" id="quantity_{{ $i }}" value="{{ $row->quantity }}" class="form-control digit" disabled>
-                                                    </th>
-                                                    <th style="width:15%">
-                                                        <input type="text" name="price[]" id="price_{{ $i }}" value="{{ $row->price }}" class="form-control digit" disabled>
-                                                    </th>
-                                                    <th style="width:20%">
-                                                        <textarea name="remarks[]" id="remarks_{{ $i }}" disabled >{{ $row->remark ?? '' }}</textarea>
-                                                    </th>
+                                                    <th style="width:45%">
+                                                        <div style="display: flex; justify-content: space-between;">
+                                                            <span>{{ $row->product_name }}</span>
+                                                            @if(isset($row->file) && !empty($row->file))
+                                                                @php $file = url('/uploads/products/').'/'.$row->file; @endphp
+                                                            @else
+                                                                @php $file = url('/uploads/products/default.png'); @endphp
+                                                            @endif
+                                                            <img src="{{ $file }}" alt="" style="width:40px; height:40px">
+                                                        </div>
+                                                    <th style="width:15%">{{ $row->quantity }}</th>
+                                                    <th style="width:15%">{{ $row->price }}</th>
+                                                    <th style="width:20%">{{ $row->remark ?? '' }}</th>
                                                 </tr>
                                                 @php $i++; @endphp
                                             @endforeach
@@ -110,6 +97,74 @@
                                     </tbody>
                                 </table>
                             </div> 
+                        </div>
+                        @if(isset($data->order_strips) && $data->order_strips->isNotEmpty())
+                            <div class="row" id="st_table" style="display:block">
+                        @else
+                            <div class="row" id="st_table" style="display:none">
+                        @endif
+                            <div class="col-sm-12">
+                                <h4>Strip Lights</h4>
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:05%">Sr. No</th>
+                                            <th style="width:20%">Strip</th>
+                                            <th style="width:10%">Quantity</th>
+                                            <th style="width:10%">Unit</th>
+                                            <th style="width:10%">Choke per Unit</th>
+                                            <th style="width:10%">Calc</th>
+                                            <th style="width:10%">Price</th>
+                                            <th style="width:10%">Remark</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if(isset($data->order_strips) && $data->order_strips->isNotEmpty())
+                                            @php $i=1; @endphp
+                                            @foreach($data->order_strips as $strip)
+                                                <tr class="clone" id="clone_{{ $i }}">
+                                                    <th style="width:05%">{{ $i }}</th>
+                                                    <th style="width:20%">
+                                                        <div style="display: flex; justify-content: space-between;">
+                                                            <span>{{ $strip->strip_name }}</span>
+                                                            @if(isset($strip->file) && !empty($strip->file))
+                                                                @php $file = url('/uploads/strips/').'/'.$strip->file; @endphp
+                                                            @else
+                                                                @php $file = url('/uploads/strips/default.png'); @endphp
+                                                            @endif
+                                                            <img src="{{ $file }}" alt="" style="width:40px; height:40px">
+                                                        </div>
+                                                    </th>
+                                                    <th style="width:10%">{{ $strip->quantity }}</th>
+                                                    <th style="width:10%">{{ $strip->unit }}</th>
+                                                    <th style="width:10%">{{ $strip->choke }}</th>
+                                                    <th style="width:10%">{{ $strip->calc }}</th>
+                                                    <th style="width:10%">{{ $strip->price }}</th>
+                                                    <th style="width:10%">{{ $strip->remark }}</th>
+                                                </tr>
+                                                @php $i++; @endphp
+                                            @endforeach
+                                        @endif
+                                    </tbody>
+                                </table>
+                            </div> 
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-sm-12">
+                                @if(isset($data->file) && !empty($data->file))
+                                    @php $file = url('/uploads/orders/').'/'.$data->file; @endphp
+                                @else
+                                    @php $file = ''; @endphp
+                                @endif
+                                <label for="file">Attechment <span class="text-danger"></span></label>
+                                <input type="file" name="file" id="file" class="form-control dropify" placeholder="Plese select attachment" data-default-file="{{ $file }}" data-show-remove="false" />
+                                <span class="kt-form__help error file"></span>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                <label for="remark">Remark <span class="text-danger"></span></label>
+                                <textarea name="remark" id="remark" cols="30" rows="5" class="form-control" placeholder="Plese enter remark" disabled>{{ $data->remark ?? '' }}</textarea>
+                                <span class="kt-form__help error remark"></span>
+                            </div>
                         </div>
                         <div class="form-group">
                             <a href="{{ route('orders.edit', ['id' => base64_encode($data->id)]) }}" class="btn btn-primary hide">Edit</a>
@@ -158,6 +213,7 @@
                             <div class="row" id="table" style="display:none">
                         @endif
                             <div class="col-sm-12">
+                                <h4>Products</h4>
                                 <table class="table table-bordered">
                                     <thead>
                                         <tr>
@@ -174,7 +230,17 @@
                                             @foreach($data->order_details as $row)
                                                 <tr class="clone" id="clone_{{ $i }}">
                                                     <th style="width:05%">{{ $i }}</th>
-                                                    <th style="width:45%">{{ $row->product_name }}</th>
+                                                    <th style="width:45%">
+                                                        <div style="display: flex; justify-content: space-between;">
+                                                            <span>{{ $row->product_name }}</span>
+                                                            @if(isset($row->file) && !empty($row->file))
+                                                                @php $file = url('/uploads/products/').'/'.$row->file; @endphp
+                                                            @else
+                                                                @php $file = url('/uploads/products/default.png'); @endphp
+                                                            @endif
+                                                            <img src="{{ $file }}" alt="" style="width:40px; height:40px">
+                                                        </div>
+                                                    </th>
                                                     <th style="width:15%">{{ $row->quantity }}</th>
                                                     <th style="width:10%">{{ $row->price }}</th>
                                                     <th style="width:25%">{{ $row->remark ?? '' }}</th>
@@ -186,13 +252,64 @@
                                 </table>
                             </div>
                         </div>
+                        @if(isset($data->order_strips) && $data->order_strips->isNotEmpty())
+                            <div class="row" id="st_table" style="display:block">
+                        @else
+                            <div class="row" id="st_table" style="display:none">
+                        @endif
+                            <div class="col-sm-12">
+                                <h4>Strip Lights</h4>
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:05%">Sr. No</th>
+                                            <th style="width:20%">Strip</th>
+                                            <th style="width:10%">Quantity</th>
+                                            <th style="width:10%">Unit</th>
+                                            <th style="width:10%">Choke per Unit</th>
+                                            <th style="width:10%">Calc</th>
+                                            <th style="width:10%">Price</th>
+                                            <th style="width:10%">Remark</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if(isset($data->order_strips) && $data->order_strips->isNotEmpty())
+                                            @php $i=1; @endphp
+                                            @foreach($data->order_strips as $strip)
+                                                <tr class="clone" id="clone_{{ $i }}">
+                                                    <th style="width:05%">{{ $i }}</th>
+                                                    <th style="width:20%">
+                                                        <div style="display: flex; justify-content: space-between;">
+                                                            <span>{{ $strip->strip_name }}</span>
+                                                            @if(isset($strip->file) && !empty($strip->file))
+                                                                @php $file = url('/uploads/strips/').'/'.$strip->file; @endphp
+                                                            @else
+                                                                @php $file = url('/uploads/strips/default.png'); @endphp
+                                                            @endif
+                                                            <img src="{{ $file }}" alt="" style="width:40px; height:40px">
+                                                        </div>
+                                                    </th>
+                                                    <th style="width:10%">{{ $strip->quantity }}</th>
+                                                    <th style="width:10%">{{ $strip->unit }}</th>
+                                                    <th style="width:10%">{{ $strip->choke }}</th>
+                                                    <th style="width:10%">{{ $strip->calc }}</th>
+                                                    <th style="width:10%">{{ $strip->price }}</th>
+                                                    <th style="width:10%">{{ $strip->remark }}</th>
+                                                </tr>
+                                                @php $i++; @endphp
+                                            @endforeach
+                                        @endif
+                                    </tbody>
+                                </table>
+                            </div> 
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="row">
-            <div class="col-md-12 text-center">
-                <input type="button" class="btn btn-primary" style="cursor:pointer" onclick="printDiv('printableArea')" value="Print" />
+            <div class="col-md-12 text-right">
+                <input type="button" class="btn btn-primary mr-3" style="cursor:pointer" onclick="printDiv('printableArea')" value="Print" />
             </div>
         </div>
     </div>
