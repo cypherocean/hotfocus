@@ -5,7 +5,9 @@
     use Illuminate\Http\Request;
     use App\Models\Order;
     use App\Models\OrderDetails;
+    use App\Models\OrderStrips;
     use App\Models\Product;
+    use App\Models\Strip;
     use App\Models\Customer;
     use Illuminate\Support\Str;
     use App\Http\Requests\OrderRequest;
@@ -116,20 +118,37 @@
             }
         /** product-price */
 
+        /** strip-price */
+            public function strip_price(Request $request){
+                if(isset($request->id) && $request->id != null && $request->id != ''){
+                    $data = Strip::select('price')->where(['id' => $request->id])->first();
+
+                    if($data)
+                        return response()->json(['code' => 200, 'data' => $data]);
+                    else
+                        return response()->json(['code' => 201]);
+                }else{
+                    return response()->json(['code' => 201]);
+                }
+            }
+        /** strip-price */
+
         /** create */
             public function create(Request $request, $customer_id=''){
                 $products = Product::select('id', 'name')->get();
+                $strips = Strip::select('id', 'name')->get();
                 $customers = Customer::select('id', 'party_name', 'billing_name', 'contact_person', 'mobile_number', 'billing_address', 'delivery_address', 'office_contact_person')
                                         ->where(['status' => 'active'])
                                         ->get();
                                         
-                return view('orders.create', ['products' => $products, 'customers' => $customers, 'customer_id' => $customer_id]);
+                return view('orders.create', ['products' => $products, 'customers' => $customers, 'customer_id' => $customer_id, 'strips' => $strips]);
             }
         /** create */
 
         /** insert */
             public function insert(OrderRequest $request){
                 if($request->ajax()){ return true; }
+
                 if(!empty($request->all())){
                     $crud = [
                         'name' => $request->name,
@@ -187,6 +206,37 @@
                                 }
                             }
 
+                            $strip_id = $request->strip_id ?? NULL;
+                            $st_quantity = $request->st_quantity ?? NULL;
+                            $st_unit = $request->st_unit ?? NULL;
+                            $st_choke = $request->st_choke ?? NULL;
+                            $st_calc = $request->st_calc ?? NULL;
+                            $st_price = $request->st_price ?? NULL;
+                            $st_remarks = $request->st_remarks ?? NULL;
+
+                            if($strip_id != null){
+                                for($i=0; $i<count($strip_id); $i++){
+                                    if($strip_id[$i] != null){
+                                        $order_strip_crud = [
+                                            'order_id' => $last_id,
+                                            'strip_id' => $strip_id[$i] ?? NULL,
+                                            'quantity' => $st_quantity[$i] ?? NULL,
+                                            'unit' => $st_unit[$i] ?? NULL,
+                                            'choke' => $st_choke[$i] ?? NULL,
+                                            'calc' => $st_calc[$i] ?? NULL,
+                                            'price' => $st_price[$i] ?? NULL,
+                                            'remark' => $st_remarks[$i] ?? NULL,
+                                            'created_at' => date('Y-m-d H:i:s'),
+                                            'created_by' => auth()->user()->id,
+                                            'updated_at' => date('Y-m-d H:i:s'),
+                                            'updated_by' => auth()->user()->id
+                                        ];
+                                     
+                                        OrderStrips::insertGetId($order_strip_crud);
+                                    }
+                                }
+                            }
+
                             if(!empty($request->file('file')))
                                 $file->move($folder_to_upload, $filenameToStore);
 
@@ -214,6 +264,7 @@
                 $id = base64_decode($id);
 
                 $products = Product::select('id', 'name')->get();
+                $strips = Strip::select('id', 'name')->get();
                 $customer = collect();
 
                 $data = Order::select('id', 'name', 'file', 'remark', 'order_date')->where(['id' => $id])->first();
@@ -232,7 +283,7 @@
                     else
                         $data->order_details = collect();
                     
-                       return view('orders.view', ['products' => $products, 'data' => $data, 'customer' => $customer]);
+                       return view('orders.view', ['products' => $products, 'data' => $data, 'customer' => $customer, 'strips' => $strips]);
                 }else{
                     return redirect()->route('orders')->with('error', 'No data found');
                 }
@@ -247,6 +298,7 @@
                 $id = base64_decode($id);
 
                 $products = Product::select('id', 'name')->get();
+                $strips = Strip::select('id', 'name')->get();
                 $customers = Customer::select('id', 'party_name', 'billing_name', 'contact_person', 'mobile_number', 'billing_address', 'delivery_address', 'office_contact_person')
                                         ->where(['status' => 'active'])
                                         ->get();
@@ -265,7 +317,7 @@
                     else
                         $data->order_details = collect();
 
-                    return view('orders.edit', ['products' => $products, 'data' => $data, 'customers' => $customers]);
+                    return view('orders.edit', ['products' => $products, 'data' => $data, 'customers' => $customers, 'strips' => $strips]);
                 }else{
                     return redirect()->route('orders')->with('error', 'No data found');
                 }
@@ -461,4 +513,29 @@
                 }
             }
         /** delete-detail */
+
+        /** delete-strip */
+            public function delete_strip(Request $request){
+                if(!$request->ajax()){ exit('No direct script access allowed'); }
+
+                if(!empty($request->all())){
+                    $id = $request->id;
+
+                    $data = OrderStrips::where(['id' => $id])->first();
+
+                    if(!empty($data)){
+                        $update = OrderStrips::where(['id' => $id])->delete();                        
+                        
+                        if($update)
+                            return response()->json(['code' => 200]);
+                        else
+                            return response()->json(['code' => 201]);
+                    }else{
+                        return response()->json(['code' => 201]);
+                    }
+                }else{
+                    return response()->json(['code' => 201]);
+                }
+            }
+        /** delete-strip */
     }

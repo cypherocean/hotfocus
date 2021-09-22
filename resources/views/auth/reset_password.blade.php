@@ -13,7 +13,10 @@
 @section('content')
     <div class="content mt-5">
         <div class="brand">
-            <a class="link" href="javascript:void(0);">{{ _site_title() }}</a>
+            <!-- <a class="link" href="javascript:void(0);">{{ _site_title() }}</a> -->
+            <a class="link" href="{{ route('dashboard') }}">
+                <img src="{{ asset('logo.png') }}" alt="{{ _site_title() }}" style="width: 150px; height: 150px;">
+            </a>
         </div>
 
         <form id="form" action="{{ route('recover.password') }}" method="post">

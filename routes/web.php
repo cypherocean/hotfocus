@@ -131,10 +131,12 @@ Route::group(['middleware' => ['prevent-back-history']], function(){
             Route::post('orders/change-status', 'OrdersController@change_status')->name('orders.change.status');
 
             Route::post('orders/delete-detail', 'OrdersController@delete_detail')->name('orders.delete.detail');
+            Route::post('orders/delete-strip', 'OrdersController@delete_strip')->name('orders.delete.strip');
             Route::get('orders/select-customer', 'OrdersController@select_customer')->name('orders.select.customer');
 
             Route::post('orders/customer-details', 'OrdersController@customer_details')->name('orders.customer.details');
             Route::post('orders/product-price', 'OrdersController@product_price')->name('orders.product.price');
+            Route::post('orders/product-strip', 'OrdersController@strip_price')->name('orders.strip.price');
         /** orders */
 
         /** purchase-orders */

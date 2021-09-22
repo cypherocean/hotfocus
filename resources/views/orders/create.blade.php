@@ -107,6 +107,64 @@
                                     <button type="button" class="btn btn-md btn-primary m-4" id="add_product">Add Product</button>
                                 </div> 
                             </div>
+                            <div class="row" id="st_table">
+                                <div class="col-sm-12">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th style="width:05%">Sr. No</th>
+                                                <th style="width:20%">Strip</th>
+                                                <th style="width:10%">Quantity</th>
+                                                <th style="width:10%">Unit</th>
+                                                <th style="width:10%">Choke per Unit</th>
+                                                <th style="width:10%">Calc</th>
+                                                <th style="width:10%">Price</th>
+                                                <th style="width:10%">Remark</th>
+                                                <th style="width:15%">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="st_clone" id="st_clone_1">
+                                                <th style="width:05%">1</th>
+                                                <th style="width:20%">
+                                                    <select class="form-control select2_demo_2 strip_id" name="strip_id[]" id="strip_1" data-id="1">
+                                                        @if(isset($strips) && $strips->isNotEmpty())
+                                                            <option value="">Select Strip</option>
+                                                            @foreach($strips as $row)
+                                                                <option value="{{ $row->id }}">{{ $row->name }}</option>
+                                                            @endforeach
+                                                        @endif
+                                                    </select>
+                                                </th>
+                                                <th style="width:10%">
+                                                    <input type="text" name="st_quantity[]" id="st_quantity_1" class="form-control digit st_quantity" data-id="1">
+                                                </th>
+                                                <th style="width:10%">
+                                                    <input type="text" name="st_unit[]" id="st_unit_1" class="form-control digit st_unit" data-id="1">
+                                                </th>
+                                                <th style="width:10%">
+                                                    <input type="text" name="st_choke[]" id="st_choke_1" class="form-control digit st_choke" data-id="1">
+                                                </th>
+                                                <th style="width:10%">
+                                                    <input type="text" name="st_calc[]" id="st_calc_1" class="form-control st_calc" data-id="1" readonly="readonly">
+                                                </th>
+                                                <th style="width:10%">
+                                                    <input type="text" name="st_price[]" id="st_price_1" class="form-control digit">
+                                                </th>
+                                                <th style="width:10%">
+                                                    <textarea name="st_remarks[]" id="st_remarks_1" cols="1" rows="1" class="form-control"></textarea>
+                                                </th>
+                                                <th style="width:15%">
+                                                    <button type="button" class="btn btn-danger st_delete" style="display:none;" data-id="1">Remove</button>
+                                                </th>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-sm-2 ml-auto">
+                                    <button type="button" class="btn btn-md btn-primary m-4" id="add_strip">Add Strip</button>
+                                </div> 
+                            </div>
                             <div class="form-group col-sm-12">
                                 <label for="remark">Remark <span class="text-danger"></span></label>
                                 <textarea name="remark" id="remark" cols="30" rows="3" class="form-control" placeholder="Plese enter remark"></textarea>
@@ -287,21 +345,7 @@
                 autoclose: true
             });
 
-            let base_product = '';
-            let base_product_id = '';
-            let base_quantity = '';
-            let base_price = '';
-
             $('#add_product').click(function(){                
-                base_product = $('#base_product option:selected').text();
-                base_product_id = $('#base_product').val();
-                base_quantity = $('#base_quantity').val();
-                base_price = $('#base_price').val();
-
-                $('#base_product').val('');
-                $('#base_quantity').val('');
-                $('#base_price').val('');
-
                 var regex = /^(.+?)(\d+)$/i;
                 var cloneIndex = $("#table tbody tr").length;
 
@@ -327,7 +371,7 @@
                             '<select name="product_id[]" id="product_'+id+'" data-id="'+id+'" class="form-control select2_demo_2 product_id"> <option value="">Select</option> @foreach($products as $row)<option value="{{ $row->id }}">{{ $row->name }}</option>@endforeach </select>'+
                         '</th>'+
                         '<th style="width:10%">'+
-                            '<input type="text" name="quantity[]" id="quantity_'+id+'"class="form-control">'+
+                            '<input type="text" name="quantity[]" id="quantity_'+id+'" class="form-control">'+
                         '</th>'+
                         '<th style="width:10%">'+
                             '<input type="text" name="price[]" id="price_'+id+'" class="form-control">'+
@@ -348,7 +392,65 @@
                 if (con) {
                     $('#clone_'+id).remove();
                 }
-            })
+            });
+
+            $('#add_strip').click(function(){                
+                var regex = /^(.+?)(\d+)$/i;
+                var cloneIndex = $("#st_table tbody tr").length;
+
+                if(cloneIndex !== 0){
+                    let num = parseInt(cloneIndex) + 1;
+                    var clone = st_clone_div(num);
+                    $("#st_table tbody").append(clone);
+                    $("#strip"+num).select2();
+                    $("#strip"+num).focus();
+                    $("#strip"+num).select2('open');
+                }else{
+                    var clone = clone_div(1);
+                    $("#st_table tbody").append(clone);
+                    $("#strip"+num).select2();
+                    $("#strip"+num).focus();
+                }
+            });
+
+            function st_clone_div(id){
+                return '<tr class="clone" id="st_clone_'+id+'">'+
+                        '<th style="width:05%">'+id+'</th>'+
+                        '<th style="width:20%">'+
+                            '<select name="strip_id[]" id="strip_'+id+'" data-id="'+id+'" class="form-control select2_demo_2 strip_id"> <option value="">Select</option> @foreach($strips as $row)<option value="{{ $row->id }}">{{ $row->name }}</option>@endforeach </select>'+
+                        '</th>'+
+                        '<th style="width:10%">'+
+                            '<input type="text" name="st_quantity[]" id="st_quantity_'+id+'" class="form-control st_quantity" data-id="'+id+'">'+
+                        '</th>'+
+                        '<th style="width:10%">'+
+                            '<input type="text" name="st_unit[]" id="st_unit_'+id+'" class="form-control st_unit" data-id="'+id+'">'+
+                        '</th>'+
+                        '<th style="width:10%">'+
+                            '<input type="text" name="st_choke[]" id="st_choke_'+id+'" class="form-control st_choke" data-id="'+id+'">'+
+                        '</th>'+
+                        '<th style="width:10%">'+
+                            '<input type="text" name="st_calc[]" id="st_calc_'+id+'" class="form-control st_calc" data-id="'+id+'" readonly="readonly">'+
+                        '</th>'+
+                        '<th style="width:10%">'+
+                            '<input type="text" name="st_price[]" id="st_price_'+id+'" class="form-control">'+
+                        '</th>'+
+                        '<th style="width:10%">'+
+                            '<textarea name="st_remarks[]" id="st_remarks_'+id+'" cols="1" rows="1" class="form-control"></textarea>'+
+                        '</th>'+
+                        '<th style="width:15%">'+
+                            '<button type="button" class="btn btn-danger st_delete" data-id="'+id+'">Remove</button>'+
+                        '</th>'+
+                    '</tr>';
+            }
+
+            $(document).on('click', ".st_delete", function () {
+                let id = $(this).data('id');
+
+                let con = confirm('Are you sure to delete?');
+                if (con) {
+                    $('#st_clone_'+id).remove();
+                }
+            });
         });
 
         $(document).ready(function () {
@@ -465,6 +567,15 @@
                     _product_price(id, div_id);
                 }
             });
+
+            $(document).on('change', ".strip_id", function () {
+                var id = $(this).val();
+                var div_id = $(this).data('id');
+
+                if(id != '' || id != null){
+                    _strip_price(id, div_id);
+                }
+            });
         });
 
         function _customer_details(name){
@@ -502,6 +613,43 @@
                 }
             });
         }
+
+        function _strip_price(id, div_id){
+            $.ajax({
+                url : "{{ route('orders.strip.price') }}",
+                type : 'post',
+                data : { "_token": "{{ csrf_token() }}", "id": id},
+                dataType: 'json',
+                async: false,
+                success : function(response){
+                    if(response.code == 200){
+                        $('#st_price_'+div_id).val(response.data.price);
+                    }
+                }
+            });
+        }
+
+        $(document).on('change', ".st_quantity", function () {
+            var val = $(this).val();
+            var id = $(this).data('id');
+            var choke = $('#st_choke_'+id).val();
+
+            if((val != '' || val != null) && (choke != '' && choke != null)){
+                let calc = parseInt(val) * parseInt(choke);
+                $('#st_calc_'+id).val(calc);
+            }
+        });
+
+        $(document).on('change', ".st_choke", function () {
+            var val = $(this).val();
+            var id = $(this).data('id');
+            var quantity = $('#st_quantity_'+id).val();
+
+            if((val != '' || val != null) && (quantity != '' && quantity != null)){
+                let calc = parseInt(val) * parseInt(quantity);
+                $('#st_calc_'+id).val(calc);
+            }
+        });
     </script>
 @endsection
 

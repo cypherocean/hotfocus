@@ -1,8 +1,12 @@
 <header class="header">
-    <div class="page-brand">
+    <div class="page-brand" style="display: flex; justify-content: center;" >
         <a class="link" href="<?php echo e(route('dashboard')); ?>">
-            <span class="brand"><?php echo e(_site_title()); ?></span>
-            <span class="brand-mini"><?php echo e(_site_title_sf()); ?></span>
+            <span class="brand">
+                <img src="<?php echo e(asset('logo.png')); ?>" alt="<?php echo e(_site_title()); ?>" style="width: 50px; height: 50px;">
+            </span>
+            <span class="brand-mini">
+                <img src="<?php echo e(asset('logo.png')); ?>" alt="<?php echo e(_site_title()); ?>" style="width: 40px; height: 40px;">
+            </span>
         </a>
     </div>
     <div class="flexbox flex-1">
