@@ -4,7 +4,7 @@
 @endsection
 
 @section('title')
-    Products
+    Strip Lights
 @endsection
 
 @section('styles')
@@ -16,9 +16,9 @@
             <div class="col-lg-12">
                 <div class="ibox">
                     <div class="ibox-head">
-                        <h1 class="ibox-title">Products</h1>
+                        <h1 class="ibox-title">Strip Lights</h1>
                         <h1 class="pull-right">
-                            <a class="btn btn-primary pull-right ml-2" style="margin-top: 8px;margin-bottom: 5px" href="{{ route('products.create') }}">Add New</a>
+                            <a class="btn btn-primary pull-right ml-2" style="margin-top: 8px;margin-bottom: 5px" href="{{ route('strips.create') }}">Add New</a>
                         </h1>
                     </div>
 
@@ -30,7 +30,7 @@
                                         <th>No</th>
                                         <th>Name</th>
                                         <th>File</th>
-                                        <th>Product Code</th>
+                                        <th>Choke</th>
                                         <th>Unit</th>
                                         <th>Price</th>
                                         <th>Action</th>
@@ -75,7 +75,7 @@
                     // lengthChange: false,
 
                     "ajax":{
-                        "url": "{{ route('products') }}",
+                        "url": "{{ route('strips') }}",
                         "type": "POST",
                         "dataType": "json",
                         "data":{
@@ -101,8 +101,8 @@
                             name: 'name'
                         },
                         {
-                            data: 'code',
-                            name: 'code'
+                            data: 'choke',
+                            name: 'choke'
                         },
                         {
                             data: 'unit',

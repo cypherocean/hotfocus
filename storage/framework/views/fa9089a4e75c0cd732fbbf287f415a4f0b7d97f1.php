@@ -1,24 +1,24 @@
-@extends('layout.app')
 
-@section('meta')
-@endsection
 
-@section('title')
-    Products
-@endsection
+<?php $__env->startSection('meta'); ?>
+<?php $__env->stopSection(); ?>
 
-@section('styles')
-@endsection
+<?php $__env->startSection('title'); ?>
+    Reminders
+<?php $__env->stopSection(); ?>
 
-@section('content')
+<?php $__env->startSection('styles'); ?>
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('content'); ?>
     <div class="page-content fade-in-up">
         <div class="row">
             <div class="col-lg-12">
                 <div class="ibox">
                     <div class="ibox-head">
-                        <h1 class="ibox-title">Products</h1>
+                        <h1 class="ibox-title">Reminders</h1>
                         <h1 class="pull-right">
-                            <a class="btn btn-primary pull-right ml-2" style="margin-top: 8px;margin-bottom: 5px" href="{{ route('products.create') }}">Add New</a>
+                            <a class="btn btn-primary pull-right ml-2" style="margin-top: 8px;margin-bottom: 5px" href="<?php echo e(route('reminders.create')); ?>">Add New</a>
                         </h1>
                     </div>
 
@@ -28,25 +28,23 @@
                                 <thead>
                                     <tr>
                                         <th>No</th>
-                                        <th>Name</th>
-                                        <th>File</th>
-                                        <th>Product Code</th>
-                                        <th>Unit</th>
-                                        <th>Price</th>
+                                        <th>Title</th>
+                                        <th>Date Time</th>
+                                        <th>Note</th>
+                                        <th>Status</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                             </table>
                         </div>
-                        <div class="text-center"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('scripts')
+<?php $__env->startSection('scripts'); ?>
     <script type="text/javascript">
 
         var datatable;
@@ -75,11 +73,11 @@
                     // lengthChange: false,
 
                     "ajax":{
-                        "url": "{{ route('products') }}",
+                        "url": "<?php echo e(route('reminders')); ?>",
                         "type": "POST",
                         "dataType": "json",
                         "data":{
-                            _token: "{{csrf_token()}}"
+                            _token: "<?php echo e(csrf_token()); ?>"
                         }
                     },
                     "columnDefs": [{
@@ -93,24 +91,20 @@
                             name: 'DT_RowIndex'
                         },
                         {
-                            data: 'file',
-                            name: 'file'
+                            data: 'title',
+                            name: 'title'
                         },
                         {
-                            data: 'name',
-                            name: 'name'
+                            data: 'date_time',
+                            name: 'date_time'
                         },
                         {
-                            data: 'code',
-                            name: 'code'
+                            data: 'note',
+                            name: 'note'
                         },
                         {
-                            data: 'unit',
-                            name: 'unit'
-                        },
-                        {
-                            data: 'price',
-                            name: 'price'
+                            data: 'status',
+                            name: 'status'
                         },
                         {
                             data: 'action',
@@ -121,5 +115,35 @@
                 });
             }
         });
+
+        function change_status(object){
+            var id = $(object).data("id");
+            var status = $(object).data("status");
+            var old_status = $(object).data("old_status");
+            var msg = "Are you Sure?";
+
+            if (confirm(msg)) {
+                $.ajax({
+                    "url": "<?php echo route('reminders.change.status'); ?>",
+                    "dataType": "json",
+                    "type": "POST",
+                    "data":{
+                        id: id,
+                        status: status,
+                        _token: "<?php echo e(csrf_token()); ?>"
+                    },
+                    success: function (response){
+                        if (response.code == 200){
+                            datatable.ajax.reload();
+                            toastr.success('Record status changed successfully.', 'Success');
+                        }else{
+                            toastr.error('Failed to change record status', 'Error');
+                        }
+                    }
+                });
+            }
+        }
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layout.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\work\ami-enterprise\resources\views/reminder/index.blade.php ENDPATH**/ ?>

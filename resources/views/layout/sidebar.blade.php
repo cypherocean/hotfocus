@@ -31,6 +31,11 @@
                     <span class="nav-label">Products</span>
                 </a>
             </li>
+            <li class="{{ Request::is('strips*') ? 'active' : '' }}">
+                <a class="{{ Request::is('strips*') ? 'active' : '' }}" href="{{ route('strips') }}"><i class="sidebar-item-icon fa fa-product-hunt"></i>
+                    <span class="nav-label">Strip Lights</span>
+                </a>
+            </li>
             <li class="{{ Request::is('customers*') ? 'active' : '' }}">
                 <a class="{{ Request::is('customers*') ? 'active' : '' }}" href="{{ route('customers') }}"><i class="sidebar-item-icon fa fa-users"></i>
                     <span class="nav-label">Customers</span>

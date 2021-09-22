@@ -10,6 +10,7 @@ class DatabaseSeeder extends Seeder{
             UserSeeder::class,
             ProductSeeder::class,
             CustomerSeeder::class,
+            StripSeeder::class,
         ]);
     }
 }

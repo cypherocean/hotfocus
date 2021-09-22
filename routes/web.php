@@ -68,6 +68,16 @@ Route::group(['middleware' => ['prevent-back-history']], function(){
             Route::post('products/insert-ajax', 'ProductsController@insert_ajax')->name('products.insert.ajax');
         /** products */
 
+        /** strips */
+            Route::any('strips', 'StripsController@index')->name('strips');
+            Route::get('strips/create', 'StripsController@create')->name('strips.create');
+            Route::post('strips/insert', 'StripsController@insert')->name('strips.insert');
+            Route::get('strips/view/{id?}', 'StripsController@view')->name('strips.view');
+            Route::get('strips/edit/{id?}', 'StripsController@edit')->name('strips.edit');
+            Route::patch('strips/update', 'StripsController@update')->name('strips.update');
+            Route::get('strips/delete/{id?}', 'StripsController@delete')->name('strips.delete');
+        /** strips */
+
         /** customers */
             Route::any('customers', 'CustomerController@index')->name('customers');
             Route::get('customers/create', 'CustomerController@create')->name('customers.create');
