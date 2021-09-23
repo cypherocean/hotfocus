@@ -10,10 +10,11 @@
             $unit = array('inch' ,'feet' ,'meter');
             for($i=1; $i<=5; $i++){
                 shuffle($unit);
+                $unit_key = array_rand($unit,1);
                 Strip::create([
                     'name' => "Light $i",
                     'quantity' => 0,
-                    'unit' => array_rand($unit),
+                    'unit' => $unit[$unit_key],
                     'choke' => "Light_$i",
                     'price' => 5 * $i,
                     'note' => "lorem ipsum $i",
