@@ -32,4 +32,4 @@
     <?php echo $__env->make('layout.scripts', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 </body>
 
-</html><?php /**PATH C:\xampp\htdocs\ami-enterprise\resources\views/layout/app.blade.php ENDPATH**/ ?>
+</html><?php /**PATH C:\xampp\htdocs\work\ami-enterprise\resources\views/layout/app.blade.php ENDPATH**/ ?>

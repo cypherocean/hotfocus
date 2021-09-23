@@ -4,7 +4,7 @@
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('title'); ?>
-    Strip Lights
+    Orders
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('styles'); ?>
@@ -16,9 +16,9 @@
             <div class="col-lg-12">
                 <div class="ibox">
                     <div class="ibox-head">
-                        <h1 class="ibox-title">Strip Lights</h1>
+                        <h1 class="ibox-title">Orders</h1>
                         <h1 class="pull-right">
-                            <a class="btn btn-primary pull-right ml-2" style="margin-top: 8px;margin-bottom: 5px" href="<?php echo e(route('strips.create')); ?>">Add New</a>
+                            <a class="btn btn-primary pull-right ml-2" style="margin-top: 8px;margin-bottom: 5px" href="<?php echo e(route('orders.select.customer')); ?>">Add New</a>
                         </h1>
                     </div>
 
@@ -29,10 +29,8 @@
                                     <tr>
                                         <th>No</th>
                                         <th>Name</th>
-                                        <th>File</th>
-                                        <th>Choke Per Unit</th>
-                                        <th>Unit</th>
-                                        <th>Price</th>
+                                        <th>Order Date</th>
+                                        <th>Status</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -75,7 +73,7 @@
                     // lengthChange: false,
 
                     "ajax":{
-                        "url": "<?php echo e(route('strips')); ?>",
+                        "url": "<?php echo e(route('orders')); ?>",
                         "type": "POST",
                         "dataType": "json",
                         "data":{
@@ -97,20 +95,12 @@
                             name: 'name'
                         },
                         {
-                            data: 'file',
-                            name: 'file'
+                            data: 'order_date',
+                            name: 'order_date'
                         },
                         {
-                            data: 'choke',
-                            name: 'choke'
-                        },
-                        {
-                            data: 'unit',
-                            name: 'unit'
-                        },
-                        {
-                            data: 'price',
-                            name: 'price'
+                            data: 'status',
+                            name: 'status'
                         },
                         {
                             data: 'action',
@@ -121,7 +111,35 @@
                 });
             }
         });
+
+        function change_status(object){
+            var id = $(object).data("id");
+            var status = $(object).data("status");
+            var old_status = $(object).data("old_status");
+            var msg = "Are you Sure?";
+
+            if (confirm(msg)) {
+                $.ajax({
+                    "url": "<?php echo route('orders.change.status'); ?>",
+                    "dataType": "json",
+                    "type": "POST",
+                    "data":{
+                        id: id,
+                        status: status,
+                        _token: "<?php echo e(csrf_token()); ?>"
+                    },
+                    success: function (response){
+                        if (response.code == 200){
+                            datatable.ajax.reload();
+                            toastr.success('Record status changed successfully.', 'Success');
+                        }else{
+                            toastr.error('Failed to delete record.', 'Error');
+                        }
+                    }
+                });
+            }
+        }
     </script>
 <?php $__env->stopSection(); ?>
 
-<?php echo $__env->make('layout.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\ami-enterprise\resources\views/strips/index.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layout.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\work\ami-enterprise\resources\views/orders/index.blade.php ENDPATH**/ ?>

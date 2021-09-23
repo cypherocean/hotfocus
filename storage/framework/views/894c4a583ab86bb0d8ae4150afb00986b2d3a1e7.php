@@ -52,4 +52,4 @@
 <?php $__env->startSection('scripts'); ?>
     <!-- <script src="<?php echo e(asset('assets/js/scripts/dashboard_1_demo.js')); ?>" type="text/javascript"></script> -->
 <?php $__env->stopSection(); ?>
-<?php echo $__env->make('layout.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\ami-enterprise\resources\views/dashboard.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layout.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\work\ami-enterprise\resources\views/dashboard.blade.php ENDPATH**/ ?>

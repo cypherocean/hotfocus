@@ -125,4 +125,4 @@
             </div>
         </div>
     </div>
-</div><?php /**PATH C:\xampp\htdocs\ami-enterprise\resources\views/layout/theme-config.blade.php ENDPATH**/ ?>
+</div><?php /**PATH C:\xampp\htdocs\work\ami-enterprise\resources\views/layout/theme-config.blade.php ENDPATH**/ ?>

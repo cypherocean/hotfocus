@@ -115,4 +115,4 @@
             </li>
         </ul>
     </div>
-</nav><?php /**PATH C:\xampp\htdocs\ami-enterprise\resources\views/layout/sidebar.blade.php ENDPATH**/ ?>
+</nav><?php /**PATH C:\xampp\htdocs\work\ami-enterprise\resources\views/layout/sidebar.blade.php ENDPATH**/ ?>

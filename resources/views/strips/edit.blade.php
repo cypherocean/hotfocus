@@ -42,9 +42,9 @@
                                     <label for="unit">Unit <span class="text-danger"></span></label>
                                     <select name="unit" id="unit" class="form-control">
                                         <option value="" hidden>-- Select Unit --</option>
-                                        <option value="inch" <?=($data->unit == 'inch' ?'selected':'')?>>Inch</option>
-                                        <option value="feet" <?=($data->unit == 'feet' ?'selected':'')?>>Feet</option>
-                                        <option value="meter" <?=($data->unit == 'meter' ?'selected':'')?>>Meter</option>
+                                        <option value="inch" <?= ($data->unit == 'inch' ? 'selected' :'') ?> >Inch</option>
+                                        <option value="feet" <?= ($data->unit == 'feet' ? 'selected' :'') ?> >Feet</option>
+                                        <option value="meter" <?= ($data->unit == 'meter' ? 'selected' :'') ?> >Meter</option>
                                     </select>
                                     <span class="kt-form__help error unit"></span>
                                 </div>

@@ -4,7 +4,7 @@
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('title'); ?>
-    Products
+    Strip Lights
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('styles'); ?>
@@ -16,9 +16,9 @@
             <div class="col-lg-12">
                 <div class="ibox">
                     <div class="ibox-head">
-                        <h1 class="ibox-title">Products</h1>
+                        <h1 class="ibox-title">Strip Lights</h1>
                         <h1 class="pull-right">
-                            <a class="btn btn-primary pull-right ml-2" style="margin-top: 8px;margin-bottom: 5px" href="<?php echo e(route('products.create')); ?>">Add New</a>
+                            <a class="btn btn-primary pull-right ml-2" style="margin-top: 8px;margin-bottom: 5px" href="<?php echo e(route('strips.create')); ?>">Add New</a>
                         </h1>
                     </div>
 
@@ -30,7 +30,7 @@
                                         <th>No</th>
                                         <th>Name</th>
                                         <th>File</th>
-                                        <th>Product Code</th>
+                                        <th>Choke Per Unit</th>
                                         <th>Unit</th>
                                         <th>Price</th>
                                         <th>Action</th>
@@ -75,7 +75,7 @@
                     // lengthChange: false,
 
                     "ajax":{
-                        "url": "<?php echo e(route('products')); ?>",
+                        "url": "<?php echo e(route('strips')); ?>",
                         "type": "POST",
                         "dataType": "json",
                         "data":{
@@ -93,16 +93,16 @@
                             name: 'DT_RowIndex'
                         },
                         {
-                            data: 'file',
-                            name: 'file'
-                        },
-                        {
                             data: 'name',
                             name: 'name'
                         },
                         {
-                            data: 'code',
-                            name: 'code'
+                            data: 'file',
+                            name: 'file'
+                        },
+                        {
+                            data: 'choke',
+                            name: 'choke'
                         },
                         {
                             data: 'unit',
@@ -124,4 +124,4 @@
     </script>
 <?php $__env->stopSection(); ?>
 
-<?php echo $__env->make('layout.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\ami-enterprise\resources\views/products/index.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layout.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\work\ami-enterprise\resources\views/strips/index.blade.php ENDPATH**/ ?>

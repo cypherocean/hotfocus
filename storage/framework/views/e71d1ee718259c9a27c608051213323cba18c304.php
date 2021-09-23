@@ -34,4 +34,4 @@
     if(error != ''){
         toastr.error(error, 'error');
     }
-</script><?php /**PATH C:\xampp\htdocs\ami-enterprise\resources\views/layout/scripts.blade.php ENDPATH**/ ?>
+</script><?php /**PATH C:\xampp\htdocs\work\ami-enterprise\resources\views/layout/scripts.blade.php ENDPATH**/ ?>

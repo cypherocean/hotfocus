@@ -36,9 +36,9 @@
                                     <label for="unit">Unit <span class="text-danger"></span></label>
                                     <select name="unit" id="unit" class="form-control" disabled>
                                         <option value="" hidden>-- Select Unit --</option>
-                                        <option value="inch" <?=($data->unit == 'inch' ?'selected':'')?>>Inch</option>
-                                        <option value="feet" <?=($data->unit == 'feet' ?'selected':'')?>>Feet</option>
-                                        <option value="meter" <?=($data->unit == 'meter' ?'selected':'')?>>Meter</option>
+                                        <option value="inch" <?= ($data->unit == 'inch' ? 'selected' : '') ?> >Inch</option>
+                                        <option value="feet" <?= ($data->unit == 'feet' ? 'selected' : '') ?> >Feet</option>
+                                        <option value="meter" <?= ($data->unit == 'meter' ? 'selected' : '') ?> >Meter</option>
                                     </select>
                                     <span class="kt-form__help error unit"></span>
                                 </div>
@@ -58,10 +58,10 @@
                                 <span class="kt-form__help error note"></span>
                             </div>
                             <div class="form-group col-sm-6">
-                                    <label for="ampere">Ampere <span class="text-danger"></span></label>
-                                    <input type="text" name="amp" id="ampere" class="form-control" value="<?php echo e(@old('amp', $data->amp)); ?>" placeholder="Plese enter ampere" disabled/>
-                                    <span class="kt-form__help error file"></span>
-                                </div>
+                                <label for="ampere">Ampere <span class="text-danger"></span></label>
+                                <input type="text" name="amp" id="ampere" class="form-control" value="<?php echo e(@old('amp', $data->amp)); ?>" placeholder="Plese enter ampere" disabled/>
+                                <span class="kt-form__help error file"></span>
+                            </div>
                             <div class="form-group col-sm-12">
                                 <?php if(isset($data->file) && !empty($data->file)): ?>
                                     <?php $file = url('/uploads/strips/').'/'.$data->file; ?>
@@ -103,4 +103,4 @@
 <?php $__env->stopSection(); ?>
 
 
-<?php echo $__env->make('layout.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\ami-enterprise\resources\views/strips/view.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layout.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\work\ami-enterprise\resources\views/strips/view.blade.php ENDPATH**/ ?>

@@ -20,6 +20,7 @@ class CreateStripsTable extends Migration
             $table->string('unit')->nullable();
             $table->string('choke')->nullable();
             $table->string('price')->nullable();
+            $table->string('amp')->nullable();
             $table->text('note')->nullable();
             $table->string('file')->nullable();
             $table->timestamps();

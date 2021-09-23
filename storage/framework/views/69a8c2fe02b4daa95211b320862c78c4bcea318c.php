@@ -16,4 +16,4 @@
 	}
 </style>
 
-<?php echo $__env->yieldContent('styles'); ?><?php /**PATH C:\xampp\htdocs\ami-enterprise\resources\views/layout/styles.blade.php ENDPATH**/ ?>
+<?php echo $__env->yieldContent('styles'); ?><?php /**PATH C:\xampp\htdocs\work\ami-enterprise\resources\views/layout/styles.blade.php ENDPATH**/ ?>

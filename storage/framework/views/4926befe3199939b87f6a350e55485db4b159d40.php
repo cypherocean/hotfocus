@@ -63,4 +63,4 @@
     <?php echo $__env->yieldContent('scripts'); ?>
 </body>
 
-</html><?php /**PATH C:\xampp\htdocs\ami-enterprise\resources\views/auth/layout/app.blade.php ENDPATH**/ ?>
+</html><?php /**PATH C:\xampp\htdocs\work\ami-enterprise\resources\views/auth/layout/app.blade.php ENDPATH**/ ?>
