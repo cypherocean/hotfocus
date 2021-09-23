@@ -30,7 +30,7 @@
                                         <th>No</th>
                                         <th>Name</th>
                                         <th>File</th>
-                                        <th>Choke</th>
+                                        <th>Choke Per Unit</th>
                                         <th>Unit</th>
                                         <th>Price</th>
                                         <th>Action</th>
@@ -93,12 +93,12 @@
                             name: 'DT_RowIndex'
                         },
                         {
-                            data: 'file',
-                            name: 'file'
-                        },
-                        {
                             data: 'name',
                             name: 'name'
+                        },
+                        {
+                            data: 'file',
+                            name: 'file'
                         },
                         {
                             data: 'choke',

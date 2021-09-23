@@ -7,6 +7,33 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Create folders
+
+```
+#!terminal
+
+cp .env.example .env && mkdir bootstrap/cache storage storage/framework && cd storage/framework && mkdir sessions views cache
+
+```
+
+## Folder permissions
+
+```
+#!terminal
+
+sudo chown :www-data app storage bootstrap -R
+sudo chmod 775 app storage bootstrap -R
+
+```
+
+## Install dependencies
+
+```
+#!terminal
+
+composer install
+
+```
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:

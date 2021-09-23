@@ -13,7 +13,7 @@
         /** index */
             public function index(Request $request){
                 if($request->ajax()){
-                    $data = Strip::select('id', 'name', 'quantity', 'unit', 'choke', 'price', 'file')->get();
+                    $data = Strip::select('id', 'name', 'quantity', 'unit', 'choke', 'price', 'file')->orderBy('id','desc')->get();
 
                     return Datatables::of($data)
                             ->addIndexColumn()
@@ -44,9 +44,9 @@
 
                             ->editColumn('file' ,function($data){
                                 if($data->file == '' || $data->file == null){
-                                    return '<img src="'.url('/uploads/strips/default.png').'" alt="Default image" style="width: 40px; height: 40px;">';
+                                    return '<img src="'.url('/uploads/strips/default.png').'" alt="Default image" style="height: 40px;display: block; margin-left: auto; margin-right:auto;width:50%;">';
                                 }else{
-                                    return '<img src="'.url('/uploads/strips').'/'.$data->file.'" alt="'.$data->file.'" style="width: 40px; height: 40px;">';
+                                    return '<img src="'.url('/uploads/strips').'/'.$data->file.'" alt="'.$data->file.'" style="height: 40px;display: block; margin-left: auto; margin-right:auto;width:50%;">';
                                 }
                             })
 
@@ -74,6 +74,7 @@
                         'quantity' => 0, 
                         'unit' => $request->unit ?? NULL, 
                         'choke' => $request->choke ?? NULL, 
+                        'amp' => $request->amp ?? NULL, 
                         'price' => $request->price ?? NULL, 
                         'note' => $request->note ?? NULL,
                         'created_at' => date('Y-m-d H:i:s'),
@@ -120,7 +121,7 @@
 
                 $id = base64_decode($id);
 
-                $data = Strip::select('id', 'name', 'quantity', 'unit', 'choke', 'price', 'note', 'file')->where(['id' => $id])->first();
+                $data = Strip::select('id', 'name', 'quantity', 'unit', 'choke', 'amp','price', 'note', 'file')->where(['id' => $id])->first();
                 
                 if($data)
                     return view('strips.view')->with('data', $data);
@@ -136,7 +137,7 @@
 
                 $id = base64_decode($id);
 
-                $data = Strip::select('id', 'name', 'quantity', 'unit', 'choke', 'price', 'note', 'file')->where(['id' => $id])->first();
+                $data = Strip::select('id', 'name', 'quantity', 'amp','unit', 'choke', 'price', 'note', 'file')->where(['id' => $id])->first();
                 
                 if($data)
                     return view('strips.edit')->with('data', $data);
@@ -155,6 +156,7 @@
                         'quantity' => $request->quantity ?? NULL, 
                         'unit' => $request->unit ?? NULL, 
                         'choke' => $request->choke ?? NULL, 
+                        'amp' => $request->amp ?? NULL, 
                         'price' => $request->price ?? NULL, 
                         'note' => $request->note ?? NULL,
                         'updated_at' => date('Y-m-d H:i:s'),

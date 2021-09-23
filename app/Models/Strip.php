@@ -11,5 +11,5 @@
 
         protected $table = 'strips';
         
-        protected $fillable = ['name', 'quantity', 'unit', 'choke', 'price', 'note', 'created_by', 'created_at', 'updated_by', 'updated_at'];
+        protected $fillable = ['name', 'quantity', 'unit', 'choke', 'amp' ,'price', 'note', 'created_by', 'created_at', 'updated_by', 'updated_at'];
     }

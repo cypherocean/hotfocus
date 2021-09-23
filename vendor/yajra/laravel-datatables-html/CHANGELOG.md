@@ -8,6 +8,25 @@
 
 ## CHANGELOG
 
+### v4.39.1 - 09-12-2021
+
+- Fix doc block and add array as acceptable Column editField value.
+
+### v4.39.0 - 09-12-2021
+
+- Add missing select field options as of Editor 1.5.4.
+
+### v4.38.0 - 06-20-2021
+
+- Fix fetching of editor table #158
+- Add method to get all editors instances.
+- Add method to get dataTable options array.
+- Set serverSide and processing option as true by default.
+
+### v4.37.0 - 05-17-2021
+
+- Implement authorizations on Editor builder.
+
 ### v4.36.3 - 04-23-2021
 
 - Fix conflicts with createInline button. Use render instead of altering the data.

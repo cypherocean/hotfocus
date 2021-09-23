@@ -18,8 +18,9 @@ class CreateOrdersStripsTable extends Migration
             $table->bigInteger('order_id')->nullable()->unsigned();
             $table->bigInteger('strip_id')->nullable()->unsigned();
             $table->string('quantity')->nullable();
-            $table->string('unit')->nullable();
+            $table->enum('unit', ['inch', 'feet', 'meter'])->nullable();
             $table->string('choke')->nullable();
+            $table->string('amp')->nullable();
             $table->string('calc')->nullable();
             $table->string('price')->nullable();
             $table->text('remark')->nullable();

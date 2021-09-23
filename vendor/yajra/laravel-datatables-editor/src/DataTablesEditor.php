@@ -244,7 +244,10 @@ abstract class DataTablesEditor
      *
      * @return array
      */
-    abstract public function createRules();
+    public function createRules()
+    {
+        return [];
+    }
 
     /**
      * Get validation messages.
@@ -392,7 +395,10 @@ abstract class DataTablesEditor
      * @param Model $model
      * @return array
      */
-    abstract public function editRules(Model $model);
+    public function editRules(Model $model)
+    {
+        return [];
+    }
 
     /**
      * Get edit validation messages.
@@ -493,7 +499,10 @@ abstract class DataTablesEditor
      * @param Model $model
      * @return array
      */
-    abstract public function removeRules(Model $model);
+    public function removeRules(Model $model)
+    {
+        return [];
+    }
 
     /**
      * Get remove validation messages.
@@ -567,7 +576,7 @@ abstract class DataTablesEditor
 
         try {
             $rules      = $this->uploadRules();
-            $fieldRules = ['upload' => data_get($rules, $field, [])];
+            $fieldRules = ['upload' => $rules[$field] ?? []];
 
             $this->validate($request, $fieldRules, $this->messages(), $this->attributes());
 

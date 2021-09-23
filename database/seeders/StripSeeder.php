@@ -7,11 +7,13 @@
 
     class StripSeeder extends Seeder{
         public function run(){
+            $unit = array('inch' ,'feet' ,'meter');
             for($i=1; $i<=5; $i++){
+                shuffle($unit);
                 Strip::create([
                     'name' => "Light $i",
                     'quantity' => 0,
-                    'unit' => 5 * $i,
+                    'unit' => array_rand($unit),
                     'choke' => "Light_$i",
                     'price' => 5 * $i,
                     'note' => "lorem ipsum $i",

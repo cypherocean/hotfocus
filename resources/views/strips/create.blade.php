@@ -10,6 +10,9 @@
 @section('styles')
     <link href="{{ asset('assets/css/dropify.min.css') }}" rel="stylesheet">
     <link href="{{ asset('assets/css/sweetalert2.bundle.css') }}" rel="stylesheet">
+    <style>
+        select:invalid { color: gray; }
+    </style>
 @endsection
 
 @section('content')
@@ -37,7 +40,12 @@
                                 </div>
                                 <div class="form-group col-sm-6">
                                     <label for="unit">Unit <span class="text-danger"></span></label>
-                                    <input type="text" name="unit" id="unit" class="form-control" placeholder="Plese enter unit" value="{{ @old('unit') }}" />
+                                    <select name="unit" id="unit" class="form-control">
+                                        <option value="" disabled selected="selected">-- Select Unit --</option>
+                                        <option value="inch">Inch</option>
+                                        <option value="feet">Feet</option>
+                                        <option value="meter">Meter</option>
+                                    </select>
                                     <span class="kt-form__help error unit"></span>
                                 </div>
                                 <div class="form-group col-sm-6">
@@ -54,6 +62,11 @@
                                     <label for="note">Note <span class="text-danger"></span></label>
                                     <input type="text" name="note" id="note" class="form-control" placeholder="Plese enter note" value="{{ @old('note') }}" />
                                     <span class="kt-form__help error note"></span>
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    <label for="ampere">Ampere <span class="text-danger"></span></label>
+                                    <input type="text" name="amp" id="ampere" class="form-control" placeholder="Plese enter ampere" />
+                                    <span class="kt-form__help error file"></span>
                                 </div>
                                 <div class="form-group col-sm-12">
                                     <label for="file">Attechment <span class="text-danger"></span></label>
