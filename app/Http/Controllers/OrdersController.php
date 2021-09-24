@@ -120,6 +120,7 @@
 
         /** strip-price */
             public function strip_price(Request $request){
+                dd($request->all());
                 if(isset($request->id) && $request->id != null && $request->id != ''){
                     $data = Strip::select('price')->where(['id' => $request->id])->first();
 

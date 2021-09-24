@@ -69,14 +69,17 @@
                 if($request->ajax()){ return true; }
 
                 if(!empty($request->all())){
+                    $inch_price = $request->unit != 'inch' ? _converter($request->unit, $request->quantity ?? 0) / $request->price ?? 0 : $request->price ?? 0;
+
                     $crud = [
                         'name' => ucfirst($request->name),
-                        'quantity' => 0, 
+                        'quantity' => $request->quantity, 
                         'unit' => $request->unit ?? NULL, 
                         'choke' => $request->choke ?? NULL, 
                         'amp' => $request->amp ?? NULL, 
                         'price' => $request->price ?? NULL, 
                         'note' => $request->note ?? NULL,
+                        'inch_price' => $inch_price ?? NULL,
                         'created_at' => date('Y-m-d H:i:s'),
                         'created_by' => auth()->user()->id,
                         'updated_at' => date('Y-m-d H:i:s'),
@@ -151,13 +154,16 @@
                 if($request->ajax()){ return true; }
 
                 if(!empty($request->all())){
+                    $inch_price = $request->unit != 'inch' ? _converter($request->unit, $request->quantity ?? 0) / $request->price ?? 0 : $request->price ?? 0;
+
                     $crud = [
                         'name' => ucfirst($request->name),
                         'quantity' => $request->quantity ?? NULL, 
                         'unit' => $request->unit ?? NULL, 
                         'choke' => $request->choke ?? NULL, 
                         'amp' => $request->amp ?? NULL, 
-                        'price' => $request->price ?? NULL, 
+                        'price' => $request->price ?? NULL,
+                        'inch_price' => $inch_price, 
                         'note' => $request->note ?? NULL,
                         'updated_at' => date('Y-m-d H:i:s'),
                         'updated_by' => auth()->user()->id

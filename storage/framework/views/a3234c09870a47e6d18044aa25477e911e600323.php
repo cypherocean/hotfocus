@@ -119,7 +119,7 @@
                                                 <th style="width:10%">Quantity</th>
                                                 <th style="width:10%">Unit</th>
                                                 <th style="width:10%">Choke per Unit</th>
-                                                <th style="width:10%">Calc</th>
+                                                <th style="width:10%">Total Choke</th>
                                                 <th style="width:10%">Price</th>
                                                 <th style="width:10%">Remark</th>
                                                 <th style="width:15%">Action</th>
@@ -142,7 +142,11 @@
                                                     <input type="text" name="st_quantity[]" id="st_quantity_1" class="form-control digit st_quantity" data-id="1">
                                                 </th>
                                                 <th style="width:10%">
-                                                    <input type="text" name="st_unit[]" id="st_unit_1" class="form-control digit st_unit" data-id="1">
+                                                    <select class="form-control st_unit" name="st_unit[]" id="st_unit_1" data-id="1">
+                                                        <option value="inch">Inch</option>
+                                                        <option value="feet">Feet</option>
+                                                        <option value="meter">Meter</option>
+                                                    </select>
                                                 </th>
                                                 <th style="width:10%">
                                                     <input type="text" name="st_choke[]" id="st_choke_1" class="form-control digit st_choke" data-id="1">
@@ -163,10 +167,14 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="col-sm-2 ml-auto">
+                                <div class="col-sm-10 text-center">
+                                    <button type="button" class="btn btn-md btn-primary m-4" id="process" onClick="calculate()">Process</button>
+                                </div>
+                                <div class="col-sm-2">
                                     <button type="button" class="btn btn-md btn-primary m-4" id="add_strip">Add Strip</button>
                                 </div> 
                             </div>
+                            <div id="processDiv"></div>
                             <div class="form-group col-sm-12">
                                 <label for="remark">Remark <span class="text-danger"></span></label>
                                 <textarea name="remark" id="remark" cols="30" rows="3" class="form-control" placeholder="Plese enter remark"></textarea>
@@ -425,7 +433,11 @@
                             '<input type="text" name="st_quantity[]" id="st_quantity_'+id+'" class="form-control st_quantity" data-id="'+id+'">'+
                         '</th>'+
                         '<th style="width:10%">'+
-                            '<input type="text" name="st_unit[]" id="st_unit_'+id+'" class="form-control st_unit" data-id="'+id+'">'+
+                            '<select class="form-control st_unit" name="st_unit[]" id="st_unit_'+id+'" data-id="'+id+'">'+
+                                '<option value="inch">Inch</option>'+
+                                '<option value="feet">Feet</option>'+
+                                '<option value="meter">Meter</option>'+
+                            '</select>'+
                         '</th>'+
                         '<th style="width:10%">'+
                             '<input type="text" name="st_choke[]" id="st_choke_'+id+'" class="form-control st_choke" data-id="'+id+'">'+
@@ -569,15 +581,6 @@
                     _product_price(id, div_id);
                 }
             });
-
-            $(document).on('change', ".strip_id", function () {
-                var id = $(this).val();
-                var div_id = $(this).data('id');
-
-                if(id != '' || id != null){
-                    _strip_price(id, div_id);
-                }
-            });
         });
 
         function _customer_details(name){
@@ -616,11 +619,11 @@
             });
         }
 
-        function _strip_price(id, div_id){
+        function _strip_price(id, quantity, unit, div_id){
             $.ajax({
                 url : "<?php echo e(route('orders.strip.price')); ?>",
                 type : 'post',
-                data : { "_token": "<?php echo e(csrf_token()); ?>", "id": id},
+                data : { "_token": "<?php echo e(csrf_token()); ?>", "id": id, "quantity": quantity, "unit": unit},
                 dataType: 'json',
                 async: false,
                 success : function(response){
@@ -635,11 +638,18 @@
             var val = $(this).val();
             var id = $(this).data('id');
             var choke = $('#st_choke_'+id).val();
-
+            
+            var unit = $('#st_unit_'+id).val();
+            var strip = $('#strip_'+id).val();
+            
             if((val != '' || val != null) && (choke != '' && choke != null)){
                 let calc = parseInt(val) * parseInt(choke);
                 $('#st_calc_'+id).val(calc);
-            }
+
+                if(strip != '' && strip != null){
+                    _strip_price(strip, val, unit, id);
+                }
+            }            
         });
 
         $(document).on('change', ".st_choke", function () {
@@ -647,11 +657,36 @@
             var id = $(this).data('id');
             var quantity = $('#st_quantity_'+id).val();
 
+            var unit = $('#st_unit_'+id).val();
+            var strip = $('#strip_'+id).val();
+
             if((val != '' || val != null) && (quantity != '' && quantity != null)){
                 let calc = parseInt(val) * parseInt(quantity);
                 $('#st_calc_'+id).val(calc);
+
+                if(strip != '' && strip != null){
+                    _strip_price(strip, quantity, unit, id);
+                }
             }
         });
+
+        $(document).on('change', ".strip_id", function () {
+            var val = $(this).val();
+            var id = $(this).data('id');
+
+            var quantity = $('#st_quantity_'+id).val();
+            var unit = $('#st_unit_'+id).val();
+
+            if((quantity != '' && quantity != null) && (unit != '' && unit != null)){
+                _strip_price(val, quantity, unit, id);
+            }
+        });
+
+        function calculate(){
+            $('#processDiv').html('');
+            let html = "";
+            // $('#processDiv').append(html);
+        }
     </script>
 <?php $__env->stopSection(); ?>
 

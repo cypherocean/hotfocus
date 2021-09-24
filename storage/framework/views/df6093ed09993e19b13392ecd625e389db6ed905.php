@@ -41,7 +41,6 @@
                                 <div class="form-group col-sm-6">
                                     <label for="unit">Unit <span class="text-danger"></span></label>
                                     <select name="unit" id="unit" class="form-control">
-                                        <option value="" disabled selected="selected">-- Select Unit --</option>
                                         <option value="inch">Inch</option>
                                         <option value="feet">Feet</option>
                                         <option value="meter">Meter</option>

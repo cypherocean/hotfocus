@@ -155,7 +155,7 @@
                                                 <th style="width:10%">Quantity</th>
                                                 <th style="width:10%">Unit</th>
                                                 <th style="width:10%">Choke per Unit</th>
-                                                <th style="width:10%">Calc</th>
+                                                <th style="width:10%">Total Choke</th>
                                                 <th style="width:10%">Price</th>
                                                 <th style="width:10%">Remark</th>
                                                 <th style="width:15%">Action</th>
@@ -178,7 +178,11 @@
                                                             </select>
                                                         </th>
                                                         <th style="width:10%">
-                                                            <input type="text" name="st_quantity[]" id="st_quantity_{{ $i }}" value="{{ $strip->quantity }}" class="form-control digit st_quantity" data-id="{{ $i }}">
+                                                            <select class="form-control st_unit" name="st_unit[]" id="st_unit_{{ $i }}" data-id="{{ $i }}">
+                                                                <option value="inch" @if($strip->quantity == 'inch') selected @endif>Inch</option>
+                                                                <option value="feet" @if($strip->quantity == 'feet') selected @endif>Feet</option>
+                                                                <option value="meter" @if($strip->quantity == 'meter') selected @endif>Meter</option>
+                                                            </select>
                                                         </th>
                                                         <th style="width:10%">
                                                             <input type="text" name="st_unit[]" id="st_unit_{{ $i }}" value="{{ $strip->unit }}" class="form-control digit st_unit" data-id="{{ $i }}">
@@ -403,7 +407,11 @@
                             '<input type="text" name="st_quantity[]" id="st_quantity_'+id+'" class="form-control st_quantity" data-id="'+id+'">'+
                         '</th>'+
                         '<th style="width:10%">'+
-                            '<input type="text" name="st_unit[]" id="st_unit_'+id+'" class="form-control st_unit" data-id="'+id+'">'+
+                            '<select class="form-control st_unit" name="st_unit[]" id="st_unit_'+id+'" data-id="'+id+'">'+
+                                '<option value="inch">Inch</option>'+
+                                '<option value="feet">Feet</option>'+
+                                '<option value="meter">Meter</option>'+
+                            '</select>'+
                         '</th>'+
                         '<th style="width:10%">'+
                             '<input type="text" name="st_choke[]" id="st_choke_'+id+'" class="form-control st_choke" data-id="'+id+'">'+

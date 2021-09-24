@@ -113,7 +113,7 @@
                                             <th style="width:10%">Quantity</th>
                                             <th style="width:10%">Unit</th>
                                             <th style="width:10%">Choke per Unit</th>
-                                            <th style="width:10%">Calc</th>
+                                            <th style="width:10%">Total Choke</th>
                                             <th style="width:10%">Price</th>
                                             <th style="width:10%">Remark</th>
                                         </tr>
@@ -267,7 +267,7 @@
                                             <th style="width:10%">Quantity</th>
                                             <th style="width:10%">Unit</th>
                                             <th style="width:10%">Choke per Unit</th>
-                                            <th style="width:10%">Calc</th>
+                                            <th style="width:10%">Total Choke</th>
                                             <th style="width:10%">Price</th>
                                             <th style="width:10%">Remark</th>
                                         </tr>
