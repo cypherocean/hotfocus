@@ -103,53 +103,71 @@
                         @else
                             <div class="row" id="st_table" style="display:none">
                         @endif
-                            <div class="col-sm-12">
-                                <h4>Strip Lights</h4>
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th style="width:05%">Sr. No</th>
-                                            <th style="width:20%">Strip</th>
-                                            <th style="width:10%">Quantity</th>
-                                            <th style="width:10%">Unit</th>
-                                            <th style="width:10%">Choke per Unit</th>
-                                            <th style="width:10%">Total Choke</th>
-                                            <th style="width:10%">Price</th>
-                                            <th style="width:10%">AMP</th>
-                                            <th style="width:10%">Remark</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @if(isset($data->order_strips) && $data->order_strips->isNotEmpty())
-                                            @php $i=1; @endphp
-                                            @foreach($data->order_strips as $strip)
-                                                <tr class="clone" id="clone_{{ $i }}">
-                                                    <th style="width:05%">{{ $i }}</th>
-                                                    <th style="width:20%">
-                                                        <div style="display: flex; justify-content: space-between;">
-                                                            <span>{{ $strip->strip_name }}</span>
-                                                            @if(isset($strip->file) && !empty($strip->file))
-                                                                @php $file = url('/uploads/strips/').'/'.$strip->file; @endphp
-                                                            @else
-                                                                @php $file = url('/uploads/strips/default.png'); @endphp
-                                                            @endif
-                                                            <img src="{{ $file }}" alt="" style="width:40px; height:40px">
-                                                        </div>
-                                                    </th>
-                                                    <th style="width:10%">{{ $strip->quantity }}</th>
-                                                    <th style="width:10%">{{ $strip->unit }}</th>
-                                                    <th style="width:10%">{{ $strip->choke }}</th>
-                                                    <th style="width:10%">{{ $strip->calc }}</th>
-                                                    <th style="width:10%">{{ $strip->price }}</th>
-                                                    <th style="width:10%">{{ $strip->amp }}</th>
-                                                    <th style="width:10%">{{ $strip->remark }}</th>
-                                                </tr>
-                                                @php $i++; @endphp
-                                            @endforeach
-                                        @endif
-                                    </tbody>
-                                </table>
-                            </div> 
+                        <div class="col-sm-12">
+                                    <h4>Strip Lights</h4>
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th style="width:05%">Sr. No</th>
+                                                <th style="width:20%">Strip</th>
+                                                <th style="width:10%">Quantity</th>
+                                                <th style="width:10%">Unit</th>
+                                                <th style="width:10%">Choke per Unit</th>
+                                                <th style="width:10%">Total Choke</th>
+                                                <th style="width:10%">Price</th>
+                                                <th style="width:7%">AMP</th>
+                                                <th style="width:10%">Remark</th>
+                                                <th style="width:8%">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if(!empty($data) && $data->order_details->isNotEmpty())
+                                                @php $i=1; @endphp
+                                                @foreach($data->order_strips as $strip)
+                                                    <tr class="st_clone" id="st_clone_{{ $i }}">
+                                                        <th style="width:05%">{{ $i }}</th>
+                                                        <th style="width:20%">
+                                                            <select class="form-control strip_id" name="strip_id[]" id="strip_{{ $i }}" data-id="{{ $i }}" readonly="readonly">
+                                                                @if(isset($strips) && $strips->isNotEmpty())
+                                                                    <option value="">Select Strip</option>
+                                                                    @foreach($strips as $row)
+                                                                        <option value="{{ $row->id }}" @if($strip->strip_id == $row->id) selected @endif>{{ $row->name }}</option>
+                                                                    @endforeach
+                                                                @endif
+                                                            </select>
+                                                        </th>
+                                                        <th style="width:10%">
+                                                            <input type="text" name="st_quantity[]" id="st_quantity_{{ $i }}" value="{{ $strip->quantity }}" class="form-control digit st_quantity" data-id="{{ $i }}" readonly="readonly">
+                                                        </th>
+                                                        <th style="width:10%">
+                                                            <select class="form-control st_unit" name="st_unit[]" id="st_unit_{{ $i }}" data-id="{{ $i }}" readonly="readonly">
+                                                                <option value="inch" @if($strip->unit == 'inch') selected @endif>Inch</option>
+                                                                <option value="feet" @if($strip->unit == 'feet') selected @endif>Feet</option>
+                                                                <option value="meter" @if($strip->unit == 'meter') selected @endif>Meter</option>
+                                                            </select>
+                                                        </th>
+                                                        <th style="width:10%"> 
+                                                            <input type="text" name="st_choke[]" id="st_choke_{{ $i }}" value="{{ $strip->choke }}" class="form-control digit st_choke" data-id="{{ $i }}" readonly="readonly">
+                                                        </th>
+                                                        <th style="width:10%">
+                                                            <input type="text" name="st_calc[]" id="st_calc_{{ $i }}" value="{{ $strip->calc }}" class="form-control st_calc" data-id="{{ $i }}" readonly="readonly">
+                                                        </th>
+                                                        <th style="width:10%">
+                                                            <input type="text" name="st_price[]" id="st_price_{{ $i }}" value="{{ round($strip->price) }}" class="form-control digit st_price" readonly="readonly">
+                                                        </th>
+                                                        <th style="width:7%">
+                                                            <input type="text" name="st_amp[]" id="st_amp_{{ $i }}" class="form-control st_amp" value="{{ $strip->amp }}" readonly="readonly">
+                                                        </th>
+                                                        <th style="width:10%">
+                                                            <textarea name="st_remarks[]" id="st_remarks_{{ $i }}" cols="1" rows="1" class="form-control" readonly="readonly">{{ $strip->remark }}</textarea>
+                                                        </th>
+                                                    </tr>
+                                                    @php $i++; @endphp
+                                                @endforeach
+                                            @endif
+                                        </tbody>
+                                    </table>
+                                </div>
                         </div>
                         <div id="processDiv"></div>
                         <div class="row">
@@ -297,7 +315,7 @@
                                                     <th style="width:10%">{{ $strip->unit }}</th>
                                                     <th style="width:10%">{{ $strip->choke }}</th>
                                                     <th style="width:10%">{{ $strip->calc }}</th>
-                                                    <th style="width:10%">{{ $strip->price }}</th>
+                                                    <th style="width:10%">{{ round($strip->price) }}</th>
                                                     <th style="width:10%">{{ $strip->amp }}</th>
                                                     <th style="width:10%">{{ $strip->remark }}</th>
                                                 </tr>
@@ -351,6 +369,8 @@
                 format: 'dd-mm-yyyy',
                 autoclose: true
             });
+
+            calculate();
         });
 
         function _customer_details(name){
@@ -384,6 +404,77 @@
 
             document.body.innerHTML = originalContents;
             $('#subArea').css('display', 'none');
+        }
+
+        function calculate(){
+            $('#processDiv').html('');
+            let html = '';
+
+            let exst_stripes = [];
+            let stripes = []; 
+
+            $("#st_table tbody tr").each(function(){
+                let strip_val = $(this).find('.strip_id option:selected').val();
+                let strip_text = $(this).find('.strip_id option:selected').text();
+                let quantity = $(this).find('.st_quantity').val();
+                let choke = $(this).find('.st_choke').val();
+                let calc = $(this).find('.st_calc').val();
+                let price = $(this).find('.st_price').val();
+                let amp = $(this).find('.st_amp').val();
+                
+                if(jQuery.inArray(strip_val, exst_stripes) === -1){
+                    exst_stripes.push(strip_val);
+                    let temp = {'strip': strip_text, 'quantity': quantity, 'unit': 'inch', 'choke': choke, 'calc': calc, 'price': price, 'amp': amp};
+                    stripes[strip_val] = temp;
+                } else {
+                    let exst_temp = stripes[strip_val];
+                    let temp = {'strip': exst_temp.strip, 
+                                'quantity': parseInt(exst_temp.quantity) + parseInt(quantity), 
+                                'unit': 'inch', 
+                                'choke': parseInt(exst_temp.choke) + parseInt(choke), 
+                                'calc': parseInt(exst_temp.calc) + parseInt(calc), 
+                                'price': parseInt(exst_temp.price) + parseInt(price), 
+                                'amp': parseInt(exst_temp.amp) + parseInt(amp)};
+                    stripes[strip_val] = temp;
+                }
+            });
+
+            stripes = stripes.filter(item => item);
+            
+            if(stripes.length !== 0) {
+                html = '<table class="table table-bordered">'+
+                            '<thead>'+
+                                '<tr>'+
+                                    '<th style="width:05%">Sr. No</th>'+
+                                    '<th style="width:20%">Strip</th>'+
+                                    '<th style="width:10%">Quantity</th>'+
+                                    '<th style="width:10%">Unit</th>'+
+                                    '<th style="width:10%">Choke per Unit</th>'+
+                                    '<th style="width:10%">Total Choke</th>'+
+                                    '<th style="width:10%">Price</th>'+
+                                    '<th style="width:10%">AMP</th>'+
+                                '</tr>'+
+                            '</thead>'+
+                            '<tbody>';
+
+                var j = 1;
+                $.each(stripes, function(key, value) {
+                    html = html +   '<tr>'+
+                                        '<th style="width:05%">'+j+'</th>'+
+                                        '<th style="width:20%">'+value.strip+'</th>'+
+                                        '<th style="width:10%">'+value.quantity+'</th>'+
+                                        '<th style="width:10%">'+value.unit+'</th>'+
+                                        '<th style="width:10%">'+value.choke+'</th>'+
+                                        '<th style="width:10%">'+value.calc+'</th>'+
+                                        '<th style="width:10%">'+value.price+'</th>'+
+                                        '<th style="width:10%">'+value.amp+'</th>'+
+                                    '</tr>';                        
+                    j++;
+                });
+                html = html + '</tbody></table>';
+            }
+            
+            $('#processDiv').append(html);
         }
     </script>
 @endsection

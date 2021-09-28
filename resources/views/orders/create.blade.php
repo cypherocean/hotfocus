@@ -729,35 +729,38 @@
             $('#processDiv').html('');
             let html = '';
 
-            var stripe = {};
-            var stripe_i = 0;
-            $('.strip_id').find('option:selected').each(function(){ stripe[stripe_i] = $(this).val(); stripe_i++; });
+            let exst_stripes = [];
+            let stripes = []; 
 
-            var quantity = {};
-            var quantity_i = 0;
-            $('.st_quantity').each(function(){ quantity[quantity_i] = $(this).val(); quantity_i++; });
+            $("#st_table tbody tr").each(function(){
+                let strip_val = $(this).find('.strip_id option:selected').val();
+                let strip_text = $(this).find('.strip_id option:selected').text();
+                let quantity = $(this).find('.st_quantity').val();
+                let choke = $(this).find('.st_choke').val();
+                let calc = $(this).find('.st_calc').val();
+                let price = $(this).find('.st_price').val();
+                let amp = $(this).find('.st_amp').val();
+                
+                if(jQuery.inArray(strip_val, exst_stripes) === -1){
+                    exst_stripes.push(strip_val);
+                    let temp = {'strip': strip_text, 'quantity': quantity, 'unit': 'inch', 'choke': choke, 'calc': calc, 'price': price, 'amp': amp};
+                    stripes[strip_val] = temp;
+                } else {
+                    let exst_temp = stripes[strip_val];
+                    let temp = {'strip': exst_temp.strip, 
+                                'quantity': parseInt(exst_temp.quantity) + parseInt(quantity), 
+                                'unit': 'inch', 
+                                'choke': parseInt(exst_temp.choke) + parseInt(choke), 
+                                'calc': parseInt(exst_temp.calc) + parseInt(calc), 
+                                'price': parseInt(exst_temp.price) + parseInt(price), 
+                                'amp': parseInt(exst_temp.amp) + parseInt(amp)};
+                    stripes[strip_val] = temp;
+                }
+            });
 
-            var unit = {};
-            var unit_i = 0;
-            $('.st_unit').each(function(){ unit[unit_i] = $(this).val(); unit_i++; });
-
-            var choke = {};
-            var choke_i = 0;
-            $('.st_choke').each(function(){ choke[choke_i] = $(this).val(); choke_i++; });
-
-            var calc = {};
-            var calc_i = 0;
-            $('.st_calc').each(function(){ calc[calc_i] = $(this).val();calc_i++; });
-
-            var price = {};
-            var price_i = 0;
-            $('.st_price').each(function(){ price[price_i] = $(this).val(); price_i++; });
-
-            var amp = {};
-            var amp_i = 0;
-            $('.st_amp').each(function(){ amp[amp_i] = $(this).val(); amp_i++; });
-
-            if(stripe[0] != ''){
+            stripes = stripes.filter(item => item);
+            
+            if(stripes.length !== 0) {
                 html = '<table class="table table-bordered">'+
                             '<thead>'+
                                 '<tr>'+
@@ -774,25 +777,22 @@
                             '<tbody>';
 
                 var j = 1;
-                $.each(stripe, function(key, value) {
-                    html = html + '<tr>'+
-                        '<th style="width:05%">'+j+'</th>'+
-                        '<th style="width:20%">'+key+'</th>'+
-                        '<th style="width:10%">'+quantity[key]+'</th>'+
-                        '<th style="width:10%">'+unit[key]+'</th>'+
-                        '<th style="width:10%">'+choke[key]+'</th>'+
-                        '<th style="width:10%">'+calc[key]+'</th>'+
-                        '<th style="width:10%">'+price[key]+'</th>'+
-                        '<th style="width:10%">'+amp[key]+'</th>'+
-                    '</tr>';
-                        
+                $.each(stripes, function(key, value) {
+                    html = html +   '<tr>'+
+                                        '<th style="width:05%">'+j+'</th>'+
+                                        '<th style="width:20%">'+value.strip+'</th>'+
+                                        '<th style="width:10%">'+value.quantity+'</th>'+
+                                        '<th style="width:10%">'+value.unit+'</th>'+
+                                        '<th style="width:10%">'+value.choke+'</th>'+
+                                        '<th style="width:10%">'+value.calc+'</th>'+
+                                        '<th style="width:10%">'+value.price+'</th>'+
+                                        '<th style="width:10%">'+value.amp+'</th>'+
+                                    '</tr>';                        
                     j++;
                 });
-
                 html = html + '</tbody></table>';
             }
-
-            // console.log({'stripe': stripe, 'quantity': quantity, 'unit': unit, 'choke': choke, 'calc': calc, 'price': price, 'amp': amp});
+            
             $('#processDiv').append(html);
         }
     </script>

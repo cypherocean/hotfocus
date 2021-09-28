@@ -195,7 +195,7 @@
                                                             <input type="text" name="st_calc[]" id="st_calc_{{ $i }}" value="{{ $strip->calc }}" class="form-control st_calc" data-id="{{ $i }}" readonly="readonly">
                                                         </th>
                                                         <th style="width:10%">
-                                                            <input type="text" name="st_price[]" id="st_price_{{ $i }}" value="{{ $strip->price }}" class="form-control digit st_price">
+                                                            <input type="text" name="st_price[]" id="st_price_{{ $i }}" value="{{ round($strip->price) }}" class="form-control digit st_price">
                                                         </th>
                                                         <th style="width:7%">
                                                             <input type="text" name="st_amp[]" id="st_amp_{{ $i }}" class="form-control st_amp" value="{{ $strip->amp }}">
@@ -479,6 +479,8 @@
                     }
                 }
             });
+
+            calculate();
         });
 
         $(document).ready(function () {
@@ -677,6 +679,77 @@
                     }
                 }
             });
+        }
+
+        function calculate(){
+            $('#processDiv').html('');
+            let html = '';
+
+            let exst_stripes = [];
+            let stripes = []; 
+
+            $("#st_table tbody tr").each(function(){
+                let strip_val = $(this).find('.strip_id option:selected').val();
+                let strip_text = $(this).find('.strip_id option:selected').text();
+                let quantity = $(this).find('.st_quantity').val();
+                let choke = $(this).find('.st_choke').val();
+                let calc = $(this).find('.st_calc').val();
+                let price = $(this).find('.st_price').val();
+                let amp = $(this).find('.st_amp').val();
+                
+                if(jQuery.inArray(strip_val, exst_stripes) === -1){
+                    exst_stripes.push(strip_val);
+                    let temp = {'strip': strip_text, 'quantity': quantity, 'unit': 'inch', 'choke': choke, 'calc': calc, 'price': price, 'amp': amp};
+                    stripes[strip_val] = temp;
+                } else {
+                    let exst_temp = stripes[strip_val];
+                    let temp = {'strip': exst_temp.strip, 
+                                'quantity': parseInt(exst_temp.quantity) + parseInt(quantity), 
+                                'unit': 'inch', 
+                                'choke': parseInt(exst_temp.choke) + parseInt(choke), 
+                                'calc': parseInt(exst_temp.calc) + parseInt(calc), 
+                                'price': parseInt(exst_temp.price) + parseInt(price), 
+                                'amp': parseInt(exst_temp.amp) + parseInt(amp)};
+                    stripes[strip_val] = temp;
+                }
+            });
+
+            stripes = stripes.filter(item => item);
+            
+            if(stripes.length !== 0) {
+                html = '<table class="table table-bordered">'+
+                            '<thead>'+
+                                '<tr>'+
+                                    '<th style="width:05%">Sr. No</th>'+
+                                    '<th style="width:20%">Strip</th>'+
+                                    '<th style="width:10%">Quantity</th>'+
+                                    '<th style="width:10%">Unit</th>'+
+                                    '<th style="width:10%">Choke per Unit</th>'+
+                                    '<th style="width:10%">Total Choke</th>'+
+                                    '<th style="width:10%">Price</th>'+
+                                    '<th style="width:10%">AMP</th>'+
+                                '</tr>'+
+                            '</thead>'+
+                            '<tbody>';
+
+                var j = 1;
+                $.each(stripes, function(key, value) {
+                    html = html +   '<tr>'+
+                                        '<th style="width:05%">'+j+'</th>'+
+                                        '<th style="width:20%">'+value.strip+'</th>'+
+                                        '<th style="width:10%">'+value.quantity+'</th>'+
+                                        '<th style="width:10%">'+value.unit+'</th>'+
+                                        '<th style="width:10%">'+value.choke+'</th>'+
+                                        '<th style="width:10%">'+value.calc+'</th>'+
+                                        '<th style="width:10%">'+value.price+'</th>'+
+                                        '<th style="width:10%">'+value.amp+'</th>'+
+                                    '</tr>';                        
+                    j++;
+                });
+                html = html + '</tbody></table>';
+            }
+            
+            $('#processDiv').append(html);
         }
     </script>
 @endsection
