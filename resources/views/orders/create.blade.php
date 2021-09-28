@@ -121,8 +121,9 @@
                                                 <th style="width:10%">Choke per Unit</th>
                                                 <th style="width:10%">Total Choke</th>
                                                 <th style="width:10%">Price</th>
+                                                <th style="width:05%">Amp</th>
                                                 <th style="width:10%">Remark</th>
-                                                <th style="width:15%">Action</th>
+                                                <th style="width:10%">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -157,10 +158,13 @@
                                                 <th style="width:10%">
                                                     <input type="text" name="st_price[]" id="st_price_1" class="form-control digit">
                                                 </th>
+                                                <th style="width:7%">
+                                                    <input type="text" name="st_amp[]" id="st_amp_1" class="form-control st_amp">
+                                                </th>
                                                 <th style="width:10%">
                                                     <textarea name="st_remarks[]" id="st_remarks_1" cols="1" rows="1" class="form-control"></textarea>
                                                 </th>
-                                                <th style="width:15%">
+                                                <th style="width:08%">
                                                     <button type="button" class="btn btn-danger st_delete" style="display:none;" data-id="1">Remove</button>
                                                 </th>
                                             </tr>
@@ -448,10 +452,13 @@
                         '<th style="width:10%">'+
                             '<input type="text" name="st_price[]" id="st_price_'+id+'" class="form-control">'+
                         '</th>'+
+                        '<th style="width:07%">'+
+                            '<input type="text" name="st_amp[]" id="st_amp_'+id+'" class="form-control st_amp" data-id="'+id+'">'+
+                        '</th>'+
                         '<th style="width:10%">'+
                             '<textarea name="st_remarks[]" id="st_remarks_'+id+'" cols="1" rows="1" class="form-control"></textarea>'+
                         '</th>'+
-                        '<th style="width:15%">'+
+                        '<th style="width:08%">'+
                             '<button type="button" class="btn btn-danger st_delete" data-id="'+id+'">Remove</button>'+
                         '</th>'+
                     '</tr>';
@@ -628,7 +635,7 @@
                 async: false,
                 success : function(response){
                     if(response.code == 200){
-                        $('#st_price_'+div_id).val(response.data.price);
+                        $('#st_price_'+div_id).val(response.data);
                     }
                 }
             });
@@ -680,7 +687,42 @@
             if((quantity != '' && quantity != null) && (unit != '' && unit != null)){
                 _strip_price(val, quantity, unit, id);
             }
+            _strip_amp(val, id);
         });
+
+        $(document).on('change', ".st_unit", function () {
+            var val = $(this).val();
+            var id = $(this).data('id');
+
+            var quantity = $('#st_quantity_'+id).val();
+            var choke = $('#st_choke_'+id).val();
+            
+            var strip = $('#strip_'+id).val();
+
+            if((quantity != '' || quantity != null) && (choke != '' && choke != null)){
+                let calc = parseInt(quantity) * parseInt(choke);
+                $('#st_calc_'+id).val(calc);
+
+                if(strip != '' && strip != null){
+                    _strip_price(strip, quantity, val, id);
+                }
+            }            
+        });
+
+        function _strip_amp(val, id){
+            $.ajax({
+                url : "{{ route('orders.strip.amp') }}",
+                type : 'post',
+                data : { "_token": "{{ csrf_token() }}", "id": val},
+                dataType: 'json',
+                async: false,
+                success : function(response){
+                    if(response.code == 200){
+                        $('#st_amp_'+id).val(response.data);
+                    }
+                }
+            });
+        }
 
         function calculate(){
             $('#processDiv').html('');

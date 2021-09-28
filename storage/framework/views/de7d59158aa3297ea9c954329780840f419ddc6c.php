@@ -1,27 +1,27 @@
-@extends('layout.app')
 
-@section('meta')
-@endsection
 
-@section('title')
+<?php $__env->startSection('meta'); ?>
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('title'); ?>
     Edit Order
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('styles')
-    <link href="{{ asset('assets/vendors/select2/dist/css/select2.min.css') }}" rel="stylesheet" />
-    <link href="{{ asset('assets/vendors/bootstrap-datepicker/dist/css/bootstrap-datepicker3.min.css') }}" rel="stylesheet" />
+<?php $__env->startSection('styles'); ?>
+    <link href="<?php echo e(asset('assets/vendors/select2/dist/css/select2.min.css')); ?>" rel="stylesheet" />
+    <link href="<?php echo e(asset('assets/vendors/bootstrap-datepicker/dist/css/bootstrap-datepicker3.min.css')); ?>" rel="stylesheet" />
 
-    <link href="{{ asset('assets/css/dropify.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/css/sweetalert2.bundle.css') }}" rel="stylesheet">
+    <link href="<?php echo e(asset('assets/css/dropify.min.css')); ?>" rel="stylesheet">
+    <link href="<?php echo e(asset('assets/css/sweetalert2.bundle.css')); ?>" rel="stylesheet">
 
     <style>
         .select2-container--default .select2-selection--single{
             height: 35px;
         }
     </style>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="page-content fade-in-up">
         <div class="row">
             <div class="col-md-12">
@@ -30,22 +30,22 @@
                         <div class="ibox-title">Edit Order</div>
                     </div>
                     <div class="ibox-body">
-                        <form name="form" action="{{ route('orders.update') }}" id="form" method="post" enctype="multipart/form-data">
-                            @csrf
-                            @method('PATCH')
+                        <form name="form" action="<?php echo e(route('orders.update')); ?>" id="form" method="post" enctype="multipart/form-data">
+                            <?php echo csrf_field(); ?>
+                            <?php echo method_field('PATCH'); ?>
 
-                            <input type="hidden" name="id" value="{{ $data->id }}">
+                            <input type="hidden" name="id" value="<?php echo e($data->id); ?>">
                             
                             <div class="row">
                                 <div class="form-group col-sm-6">
                                     <label for="name">Name <span class="text-danger">*</span></label>
                                     <select name="name" id="name" class="form-control select2_demo_2" placeholder="Plese enter name">
                                         <option></option>
-                                        @if(isset($customers) && $customers->isNotEmpty())
-                                            @foreach($customers as $row)
-                                                <option value="{{ $row->party_name }}" @if(isset($data) && $data->name != '' && $data->name == $row->party_name) selected @endif>{{ $row->party_name }}</option>
-                                            @endforeach
-                                        @endif
+                                        <?php if(isset($customers) && $customers->isNotEmpty()): ?>
+                                            <?php $__currentLoopData = $customers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <option value="<?php echo e($row->party_name); ?>" <?php if(isset($data) && $data->name != '' && $data->name == $row->party_name): ?> selected <?php endif; ?>><?php echo e($row->party_name); ?></option>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                        <?php endif; ?>
                                     </select>
                                     <span class="kt-form__help error name"></span>
                                 </div>
@@ -53,7 +53,7 @@
                                     <label for="order_date">Order Date <span class="text-danger"></span></label>
                                     <div class="input-group">
                                         <div class="input-group-addon"><i class="fa fa-clock-o"></i></div>
-                                        <input type="text" name="order_date" id="order_date" class="form-control" placeholder="Plese enter order date" value="{{ date('d-m-Y' ,strtotime($data->order_date)) }}" />
+                                        <input type="text" name="order_date" id="order_date" class="form-control" placeholder="Plese enter order date" value="<?php echo e(date('d-m-Y' ,strtotime($data->order_date))); ?>" />
                                     </div>
                                         <i class="fa fa-calender"></i>
                                     <span class="kt-form__help error order_date"></span>
@@ -75,52 +75,52 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @if(!empty($data) && $data->order_details->isNotEmpty())
-                                                @php $i=1; @endphp
-                                                @foreach($data->order_details as $product)
-                                                    <tr class="clone" id="clone_{{ $i }}">
+                                            <?php if(!empty($data) && $data->order_details->isNotEmpty()): ?>
+                                                <?php $i=1; ?>
+                                                <?php $__currentLoopData = $data->order_details; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                    <tr class="clone" id="clone_<?php echo e($i); ?>">
                                                         <th style="width:05%">1</th>
                                                         <th style="width:50%">
-                                                            <select class="form-control select2_demo_2 product_id" name="product_id[]" id="product_{{ $i }}" data-id="{{ $i }}">
-                                                                @if(isset($products) && $products->isNotEmpty())
+                                                            <select class="form-control select2_demo_2 product_id" name="product_id[]" id="product_<?php echo e($i); ?>" data-id="<?php echo e($i); ?>">
+                                                                <?php if(isset($products) && $products->isNotEmpty()): ?>
                                                                     <option value="">Select Product</option>
-                                                                    @foreach($products as $row)
-                                                                        <option value="{{ $row->id }}" @if($product->product_id == $row->id) selected @endif>{{ $row->name }}</option>
-                                                                    @endforeach
-                                                                @endif
+                                                                    <?php $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                                        <option value="<?php echo e($row->id); ?>" <?php if($product->product_id == $row->id): ?> selected <?php endif; ?>><?php echo e($row->name); ?></option>
+                                                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                                                <?php endif; ?>
                                                             </select>
                                                         </th>
                                                         <th style="width:10%">
-                                                            <input type="text" name="quantity[]" id="quantity_{{ $i }}" value="{{ $product->quantity }}" class="form-control digit">
+                                                            <input type="text" name="quantity[]" id="quantity_<?php echo e($i); ?>" value="<?php echo e($product->quantity); ?>" class="form-control digit">
                                                         </th>
                                                         <th style="width:10%">
-                                                            <input type="text" name="price[]" id="price_{{ $i }}" value="{{ $product->price }}" class="form-control digit">
+                                                            <input type="text" name="price[]" id="price_<?php echo e($i); ?>" value="<?php echo e($product->price); ?>" class="form-control digit">
                                                         </th>
                                                         <th style="width:10%">
-                                                            <textarea name="remarks[]" id="remarks_{{ $i }}" cols="1" rows="1" class="form-control">{{ $product->remark ?? '' }}</textarea>
+                                                            <textarea name="remarks[]" id="remarks_<?php echo e($i); ?>" cols="1" rows="1" class="form-control"><?php echo e($product->remark ?? ''); ?></textarea>
                                                         </th>
                                                         <th style="width:15%">
-                                                            @if($i > 1)
-                                                                @php $style = 'block'; @endphp
-                                                            @else
-                                                                @php $style = 'none'; @endphp
-                                                            @endif
-                                                            <button type="button" style="display:{{ $style }}" class="btn btn-danger delete" data-detail="{{ $product->id }}" data-id="{{ $i }}">Remove</button>
+                                                            <?php if($i > 1): ?>
+                                                                <?php $style = 'block'; ?>
+                                                            <?php else: ?>
+                                                                <?php $style = 'none'; ?>
+                                                            <?php endif; ?>
+                                                            <button type="button" style="display:<?php echo e($style); ?>" class="btn btn-danger delete" data-detail="<?php echo e($product->id); ?>" data-id="<?php echo e($i); ?>">Remove</button>
                                                         </th>
                                                     </tr>
-                                                    @php $i++; @endphp
-                                                @endforeach
-                                            @else
+                                                    <?php $i++; ?>
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                            <?php else: ?>
                                                 <tr class="clone" id="clone_1">
                                                     <th style="width:05%">1</th>
                                                     <th style="width:50%">
                                                         <select class="form-control select2_demo_2 product_id" name="product_id[]" id="product_1" data-id="1">
-                                                            @if(isset($products) && $products->isNotEmpty())
+                                                            <?php if(isset($products) && $products->isNotEmpty()): ?>
                                                                 <option value="">Select Product</option>
-                                                                @foreach($products as $row)
-                                                                    <option value="{{ $row->id }}">{{ $row->name }}</option>
-                                                                @endforeach
-                                                            @endif
+                                                                <?php $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                                    <option value="<?php echo e($row->id); ?>"><?php echo e($row->name); ?></option>
+                                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                                            <?php endif; ?>
                                                         </select>
                                                     </th>
                                                     <th style="width:10%">
@@ -136,7 +136,7 @@
                                                         <button type="button" class="btn btn-danger delete" style="display:none;" data-id="1">Remove</button>
                                                     </th>
                                                 </tr>
-                                            @endif
+                                            <?php endif; ?>
                                         </tbody>
                                     </table>
                                 </div> 
@@ -163,68 +163,68 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @if(!empty($data) && $data->order_details->isNotEmpty())
-                                                @php $i=1; @endphp
-                                                @foreach($data->order_strips as $strip)
-                                                    <tr class="st_clone" id="st_clone_{{ $i }}">
-                                                        <th style="width:05%">{{ $i }}</th>
+                                            <?php if(!empty($data) && $data->order_details->isNotEmpty()): ?>
+                                                <?php $i=1; ?>
+                                                <?php $__currentLoopData = $data->order_strips; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $strip): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                    <tr class="st_clone" id="st_clone_<?php echo e($i); ?>">
+                                                        <th style="width:05%"><?php echo e($i); ?></th>
                                                         <th style="width:20%">
-                                                            <select class="form-control select2_demo_2 strip_id" name="strip_id[]" id="strip_{{ $i }}" data-id="{{ $i }}">
-                                                                @if(isset($strips) && $strips->isNotEmpty())
+                                                            <select class="form-control select2_demo_2 strip_id" name="strip_id[]" id="strip_<?php echo e($i); ?>" data-id="<?php echo e($i); ?>">
+                                                                <?php if(isset($strips) && $strips->isNotEmpty()): ?>
                                                                     <option value="">Select Strip</option>
-                                                                    @foreach($strips as $row)
-                                                                        <option value="{{ $row->id }}" @if($strip->strip_id == $row->id) selected @endif>{{ $row->name }}</option>
-                                                                    @endforeach
-                                                                @endif
+                                                                    <?php $__currentLoopData = $strips; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                                        <option value="<?php echo e($row->id); ?>" <?php if($strip->strip_id == $row->id): ?> selected <?php endif; ?>><?php echo e($row->name); ?></option>
+                                                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                                                <?php endif; ?>
                                                             </select>
                                                         </th>
                                                         <th style="width:10%">
-                                                            <input type="text" name="st_quantity[]" id="st_quantity_{{ $i }}" value="{{ $strip->quantity }}" class="form-control digit st_quantity" data-id="{{ $i }}">
+                                                            <input type="text" name="st_quantity[]" id="st_quantity_<?php echo e($i); ?>" value="<?php echo e($strip->quantity); ?>" class="form-control digit st_quantity" data-id="<?php echo e($i); ?>">
                                                         </th>
                                                         <th style="width:10%">
-                                                            <select class="form-control st_unit" name="st_unit[]" id="st_unit_{{ $i }}" data-id="{{ $i }}">
-                                                                <option value="inch" @if($strip->unit == 'inch') selected @endif>Inch</option>
-                                                                <option value="feet" @if($strip->unit == 'feet') selected @endif>Feet</option>
-                                                                <option value="meter" @if($strip->unit == 'meter') selected @endif>Meter</option>
+                                                            <select class="form-control st_unit" name="st_unit[]" id="st_unit_<?php echo e($i); ?>" data-id="<?php echo e($i); ?>">
+                                                                <option value="inch" <?php if($strip->unit == 'inch'): ?> selected <?php endif; ?>>Inch</option>
+                                                                <option value="feet" <?php if($strip->unit == 'feet'): ?> selected <?php endif; ?>>Feet</option>
+                                                                <option value="meter" <?php if($strip->unit == 'meter'): ?> selected <?php endif; ?>>Meter</option>
                                                             </select>
                                                         </th>
                                                         <th style="width:10%"> 
-                                                            <input type="text" name="st_choke[]" id="st_choke_{{ $i }}" value="{{ $strip->choke }}" class="form-control digit st_choke" data-id="{{ $i }}">
+                                                            <input type="text" name="st_choke[]" id="st_choke_<?php echo e($i); ?>" value="<?php echo e($strip->choke); ?>" class="form-control digit st_choke" data-id="<?php echo e($i); ?>">
                                                         </th>
                                                         <th style="width:10%">
-                                                            <input type="text" name="st_calc[]" id="st_calc_{{ $i }}" value="{{ $strip->calc }}" class="form-control st_calc" data-id="{{ $i }}" readonly="readonly">
+                                                            <input type="text" name="st_calc[]" id="st_calc_<?php echo e($i); ?>" value="<?php echo e($strip->calc); ?>" class="form-control st_calc" data-id="<?php echo e($i); ?>" readonly="readonly">
                                                         </th>
                                                         <th style="width:10%">
-                                                            <input type="text" name="st_price[]" id="st_price_{{ $i }}" value="{{ $strip->price }}" class="form-control digit">
+                                                            <input type="text" name="st_price[]" id="st_price_<?php echo e($i); ?>" value="<?php echo e($strip->price); ?>" class="form-control digit">
                                                         </th>
                                                         <th style="width:7%">
-                                                            <input type="text" name="st_amp[]" id="st_amp_{{ $i }}" class="form-control st_amp" value="{{ $strip->amp }}">
+                                                            <input type="text" name="st_amp[]" id="st_amp_<?php echo e($i); ?>" class="form-control st_amp" value="<?php echo e($strip->amp); ?>">
                                                         </th>
                                                         <th style="width:10%">
-                                                            <textarea name="st_remarks[]" id="st_remarks_{{ $i }}" cols="1" rows="1" class="form-control">{{ $strip->remark }}</textarea>
+                                                            <textarea name="st_remarks[]" id="st_remarks_<?php echo e($i); ?>" cols="1" rows="1" class="form-control"><?php echo e($strip->remark); ?></textarea>
                                                         </th>
                                                         <th style="width:8%">
-                                                            @if($i > 1)
-                                                                @php $st_style = 'block'; @endphp
-                                                            @else
-                                                                @php $st_style = 'none'; @endphp
-                                                            @endif
-                                                            <button type="button" style="display:{{ $st_style }}"  class="btn btn-danger st_delete" data-detail="{{ $strip->id }}" data-id="{{ $i }}">Remove</button>
+                                                            <?php if($i > 1): ?>
+                                                                <?php $st_style = 'block'; ?>
+                                                            <?php else: ?>
+                                                                <?php $st_style = 'none'; ?>
+                                                            <?php endif; ?>
+                                                            <button type="button" style="display:<?php echo e($st_style); ?>"  class="btn btn-danger st_delete" data-detail="<?php echo e($strip->id); ?>" data-id="<?php echo e($i); ?>">Remove</button>
                                                         </th>
                                                     </tr>
-                                                    @php $i++; @endphp
-                                                @endforeach
-                                            @else
+                                                    <?php $i++; ?>
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                            <?php else: ?>
                                                 <tr class="st_clone" id="st_clone_1">
                                                     <th style="width:05%">1</th>
                                                     <th style="width:20%">
                                                         <select class="form-control select2_demo_2 strip_id" name="strip_id[]" id="strip_1" data-id="1">
-                                                            @if(isset($strips) && $strips->isNotEmpty())
+                                                            <?php if(isset($strips) && $strips->isNotEmpty()): ?>
                                                                 <option value="">Select Strip</option>
-                                                                @foreach($strips as $row)
-                                                                    <option value="{{ $row->id }}">{{ $row->name }}</option>
-                                                                @endforeach
-                                                            @endif
+                                                                <?php $__currentLoopData = $strips; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                                    <option value="<?php echo e($row->id); ?>"><?php echo e($row->name); ?></option>
+                                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                                            <?php endif; ?>
                                                         </select>
                                                     </th>
                                                     <th style="width:10%">
@@ -256,7 +256,7 @@
                                                         <button type="button" class="btn btn-danger st_delete" style="display:none;" data-id="1">Remove</button>
                                                     </th>
                                                 </tr>
-                                            @endif
+                                            <?php endif; ?>
                                         </tbody>
                                     </table>
                                 </div>
@@ -267,22 +267,22 @@
 
                             <div class="form-group col-sm-12">
                                 <label for="remark">Remark <span class="text-danger"></span></label>
-                                <textarea name="remark" id="remark" cols="30" rows="5" class="form-control" placeholder="Plese enter remark">{{ $data->remark ?? '' }}</textarea>
+                                <textarea name="remark" id="remark" cols="30" rows="5" class="form-control" placeholder="Plese enter remark"><?php echo e($data->remark ?? ''); ?></textarea>
                                 <span class="kt-form__help error remark"></span>
                             </div>
                             <div class="form-group col-sm-12">
-                                @if(isset($data->file) && !empty($data->file))
-                                    @php $file = url('/uploads/orders/').'/'.$data->file; @endphp
-                                @else
-                                    @php $file = ''; @endphp
-                                @endif
+                                <?php if(isset($data->file) && !empty($data->file)): ?>
+                                    <?php $file = url('/uploads/orders/').'/'.$data->file; ?>
+                                <?php else: ?>
+                                    <?php $file = ''; ?>
+                                <?php endif; ?>
                                 <label for="file">Attechment <span class="text-danger"></span></label>
-                                <input type="file" name="file" id="file" class="form-control dropify" placeholder="Plese select attachment" data-default-file="{{ $file }}" data-show-remove="false" />
+                                <input type="file" name="file" id="file" class="form-control dropify" placeholder="Plese select attachment" data-default-file="<?php echo e($file); ?>" data-show-remove="false" />
                                 <span class="kt-form__help error file"></span>
                             </div>
                             <div class="form-group">
                                 <button type="submit" class="btn btn-primary">Submit</button>
-                                <a href="{{ route('orders') }}" class="btn btn-default">Back</a>
+                                <a href="<?php echo e(route('orders')); ?>" class="btn btn-default">Back</a>
                             </div>
                         </form>
                     </div>
@@ -290,16 +290,16 @@
             </div>
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('scripts')
-    <script src="{{ asset('assets/vendors/select2/dist/js/select2.full.min.js') }}"></script>
-    <script src="{{ asset('assets/js/scripts/form-plugins.js') }}"></script>
-    <script src="{{ asset('assets/vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js') }}"></script>
+<?php $__env->startSection('scripts'); ?>
+    <script src="<?php echo e(asset('assets/vendors/select2/dist/js/select2.full.min.js')); ?>"></script>
+    <script src="<?php echo e(asset('assets/js/scripts/form-plugins.js')); ?>"></script>
+    <script src="<?php echo e(asset('assets/vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js')); ?>"></script>
 
-    <script src="{{ asset('assets/js/dropify.min.js') }}"></script>
-    <script src="{{ asset('assets/js/promise.min.js') }}"></script>
-    <script src="{{ asset('assets/js/sweetalert2.bundle.js') }}"></script>
+    <script src="<?php echo e(asset('assets/js/dropify.min.js')); ?>"></script>
+    <script src="<?php echo e(asset('assets/js/promise.min.js')); ?>"></script>
+    <script src="<?php echo e(asset('assets/js/sweetalert2.bundle.js')); ?>"></script>
     
     <script>
         $(document).ready(function() {
@@ -341,7 +341,7 @@
                 return '<tr class="clone" id="clone_'+id+'">'+
                         '<th style="width:05%">'+id+'</th>'+
                         '<th style="width:50%">'+
-                            '<select name="product_id[]" id="product_'+id+'" data-id="'+id+'" class="form-control select2_demo_2 product_id"> <option value="">Select</option> @foreach($products as $row)<option value="{{ $row->id }}">{{ $row->name }}</option>@endforeach </select>'+
+                            '<select name="product_id[]" id="product_'+id+'" data-id="'+id+'" class="form-control select2_demo_2 product_id"> <option value="">Select</option> <?php $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><option value="<?php echo e($row->id); ?>"><?php echo e($row->name); ?></option><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?> </select>'+
                         '</th>'+
                         '<th style="width:10%">'+
                             '<input type="text" name="quantity[]" id="quantity_'+id+'"class="form-control">'+
@@ -366,12 +366,12 @@
                 if (con) {
                     if(detail_id != null){
                         $.ajax({
-                            "url": "{!! route('orders.delete.detail') !!}",
+                            "url": "<?php echo route('orders.delete.detail'); ?>",
                             "dataType": "json",
                             "type": "POST",
                             "data":{
                                 id: detail_id,
-                                _token: "{{ csrf_token() }}"
+                                _token: "<?php echo e(csrf_token()); ?>"
                             },
                             success: function (response){
                                 if (response.code == 200){
@@ -412,7 +412,7 @@
                 return '<tr class="clone" id="st_clone_'+id+'">'+
                         '<th style="width:05%">'+id+'</th>'+
                         '<th style="width:20%">'+
-                            '<select name="strip_id[]" id="strip_'+id+'" data-id="'+id+'" class="form-control select2_demo_2 strip_id"> <option value="">Select</option> @foreach($strips as $row)<option value="{{ $row->id }}">{{ $row->name }}</option>@endforeach </select>'+
+                            '<select name="strip_id[]" id="strip_'+id+'" data-id="'+id+'" class="form-control select2_demo_2 strip_id"> <option value="">Select</option> <?php $__currentLoopData = $strips; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><option value="<?php echo e($row->id); ?>"><?php echo e($row->name); ?></option><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?> </select>'+
                         '</th>'+
                         '<th style="width:10%">'+
                             '<input type="text" name="st_quantity[]" id="st_quantity_'+id+'" class="form-control st_quantity" data-id="'+id+'">'+
@@ -453,12 +453,12 @@
                 if (con) {
                     if(detail_id != null){
                         $.ajax({
-                            "url": "{!! route('orders.delete.strip') !!}",
+                            "url": "<?php echo route('orders.delete.strip'); ?>",
                             "dataType": "json",
                             "type": "POST",
                             "data":{
                                 id: detail_id,
-                                _token: "{{ csrf_token() }}"
+                                _token: "<?php echo e(csrf_token()); ?>"
                             },
                             success: function (response){
                                 if (response.code == 200){
@@ -515,7 +515,7 @@
                 }
             });
 
-            let exst_name = "{{ $data->name ?? '' }}";
+            let exst_name = "<?php echo e($data->name ?? ''); ?>";
             
             if(exst_name != '' || exst_name != null){
                 $("#customer_details").html('');
@@ -543,9 +543,9 @@
 
         function _customer_details(name){
             $.ajax({
-                url : "{{ route('orders.customer.details') }}",
+                url : "<?php echo e(route('orders.customer.details')); ?>",
                 type : 'post',
-                data : { "_token": "{{ csrf_token() }}", "name": name},
+                data : { "_token": "<?php echo e(csrf_token()); ?>", "name": name},
                 dataType: 'json',
                 async: false,
                 success : function(response){
@@ -564,9 +564,9 @@
 
         function _product_price(id, div_id){
             $.ajax({
-                url : "{{ route('orders.product.price') }}",
+                url : "<?php echo e(route('orders.product.price')); ?>",
                 type : 'post',
-                data : { "_token": "{{ csrf_token() }}", "id": id},
+                data : { "_token": "<?php echo e(csrf_token()); ?>", "id": id},
                 dataType: 'json',
                 async: false,
                 success : function(response){
@@ -579,9 +579,9 @@
 
         function _strip_price(id, quantity, unit, div_id){
             $.ajax({
-                url : "{{ route('orders.strip.price') }}",
+                url : "<?php echo e(route('orders.strip.price')); ?>",
                 type : 'post',
-                data : { "_token": "{{ csrf_token() }}", "id": id, "quantity": quantity, "unit": unit},
+                data : { "_token": "<?php echo e(csrf_token()); ?>", "id": id, "quantity": quantity, "unit": unit},
                 dataType: 'json',
                 async: false,
                 success : function(response){
@@ -662,9 +662,9 @@
 
         function _strip_amp(val, id){
             $.ajax({
-                url : "{{ route('orders.strip.amp') }}",
+                url : "<?php echo e(route('orders.strip.amp')); ?>",
                 type : 'post',
-                data : { "_token": "{{ csrf_token() }}", "id": val},
+                data : { "_token": "<?php echo e(csrf_token()); ?>", "id": val},
                 dataType: 'json',
                 async: false,
                 success : function(response){
@@ -675,5 +675,7 @@
             });
         }
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
 
+
+<?php echo $__env->make('layout.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\work\ami-enterprise\resources\views/orders/edit.blade.php ENDPATH**/ ?>

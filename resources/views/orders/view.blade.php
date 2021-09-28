@@ -115,6 +115,7 @@
                                             <th style="width:10%">Choke per Unit</th>
                                             <th style="width:10%">Total Choke</th>
                                             <th style="width:10%">Price</th>
+                                            <th style="width:10%">AMP</th>
                                             <th style="width:10%">Remark</th>
                                         </tr>
                                     </thead>
@@ -140,6 +141,7 @@
                                                     <th style="width:10%">{{ $strip->choke }}</th>
                                                     <th style="width:10%">{{ $strip->calc }}</th>
                                                     <th style="width:10%">{{ $strip->price }}</th>
+                                                    <th style="width:10%">{{ $strip->amp }}</th>
                                                     <th style="width:10%">{{ $strip->remark }}</th>
                                                 </tr>
                                                 @php $i++; @endphp
@@ -269,6 +271,7 @@
                                             <th style="width:10%">Choke per Unit</th>
                                             <th style="width:10%">Total Choke</th>
                                             <th style="width:10%">Price</th>
+                                            <th style="width:10%">AMP</th>
                                             <th style="width:10%">Remark</th>
                                         </tr>
                                     </thead>
@@ -294,6 +297,7 @@
                                                     <th style="width:10%">{{ $strip->choke }}</th>
                                                     <th style="width:10%">{{ $strip->calc }}</th>
                                                     <th style="width:10%">{{ $strip->price }}</th>
+                                                    <th style="width:10%">{{ $strip->amp }}</th>
                                                     <th style="width:10%">{{ $strip->remark }}</th>
                                                 </tr>
                                                 @php $i++; @endphp

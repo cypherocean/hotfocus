@@ -137,6 +137,7 @@ Route::group(['middleware' => ['prevent-back-history']], function(){
             Route::post('orders/customer-details', 'OrdersController@customer_details')->name('orders.customer.details');
             Route::post('orders/product-price', 'OrdersController@product_price')->name('orders.product.price');
             Route::post('orders/product-strip', 'OrdersController@strip_price')->name('orders.strip.price');
+            Route::post('orders/product-amp', 'OrdersController@strip_amp')->name('orders.strip.amp');
         /** orders */
 
         /** purchase-orders */
