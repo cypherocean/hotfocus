@@ -195,7 +195,7 @@
                                                             <input type="text" name="st_calc[]" id="st_calc_{{ $i }}" value="{{ $strip->calc }}" class="form-control st_calc" data-id="{{ $i }}" readonly="readonly">
                                                         </th>
                                                         <th style="width:10%">
-                                                            <input type="text" name="st_price[]" id="st_price_{{ $i }}" value="{{ $strip->price }}" class="form-control digit">
+                                                            <input type="text" name="st_price[]" id="st_price_{{ $i }}" value="{{ $strip->price }}" class="form-control digit st_price">
                                                         </th>
                                                         <th style="width:7%">
                                                             <input type="text" name="st_amp[]" id="st_amp_{{ $i }}" class="form-control st_amp" value="{{ $strip->amp }}">
@@ -244,7 +244,7 @@
                                                         <input type="text" name="st_calc[]" id="st_calc_1" class="form-control st_calc" data-id="1" readonly="readonly">
                                                     </th>
                                                     <th style="width:10%">
-                                                        <input type="text" name="st_price[]" id="st_price_1" class="form-control digit">
+                                                        <input type="text" name="st_price[]" id="st_price_1" class="form-control digit st_price">
                                                     </th>
                                                     <th style="width:7%">
                                                         <input type="text" name="st_amp[]" id="st_amp_1" class="form-control st_amp">
@@ -260,11 +260,14 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="col-sm-2 ml-auto">
+                                <div class="col-sm-10 text-center">
+                                    <button type="button" class="btn btn-md btn-primary m-4" id="process" onClick="calculate()">Process</button>
+                                </div>
+                                <div class="col-sm-2">
                                     <button type="button" class="btn btn-md btn-primary m-4" id="add_strip">Add Strip</button>
-                                </div> 
+                                </div>  
                             </div>
-
+                            <div id="processDiv"></div>
                             <div class="form-group col-sm-12">
                                 <label for="remark">Remark <span class="text-danger"></span></label>
                                 <textarea name="remark" id="remark" cols="30" rows="5" class="form-control" placeholder="Plese enter remark">{{ $data->remark ?? '' }}</textarea>
@@ -391,7 +394,8 @@
 
             $('#add_strip').click(function(){                
                 var regex = /^(.+?)(\d+)$/i;
-                var cloneIndex = $("#st_table tbody tr").length;
+                var index = $("#st_table tbody tr").last().attr('id');
+                cloneIndex = index.replace('st_clone_', '');
 
                 if(cloneIndex !== 0){
                     let num = parseInt(cloneIndex) + 1;
@@ -431,7 +435,7 @@
                             '<input type="text" name="st_calc[]" id="st_calc_'+id+'" class="form-control st_calc" data-id="'+id+'" readonly="readonly">'+
                         '</th>'+
                         '<th style="width:10%">'+
-                            '<input type="text" name="st_price[]" id="st_price_'+id+'" class="form-control">'+
+                            '<input type="text" name="st_price[]" id="st_price_'+id+'" class="form-control st_price">'+
                         '</th>'+
                         '<th style="width:07%">'+
                             '<input type="text" name="st_amp[]" id="st_amp_'+id+'" class="form-control st_amp" data-id="'+id+'">'+

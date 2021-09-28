@@ -151,6 +151,7 @@
                                 </table>
                             </div> 
                         </div>
+                        <div id="processDiv"></div>
                         <div class="row">
                             <div class="form-group col-sm-12">
                                 <?php if(isset($data->file) && !empty($data->file)): ?>

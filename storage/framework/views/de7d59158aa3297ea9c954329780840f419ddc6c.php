@@ -260,11 +260,14 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="col-sm-2 ml-auto">
+                                <div class="col-sm-10 text-center">
+                                    <button type="button" class="btn btn-md btn-primary m-4" id="process" onClick="calculate()">Process</button>
+                                </div>
+                                <div class="col-sm-2">
                                     <button type="button" class="btn btn-md btn-primary m-4" id="add_strip">Add Strip</button>
-                                </div> 
+                                </div>  
                             </div>
-
+                            <div id="processDiv"></div>
                             <div class="form-group col-sm-12">
                                 <label for="remark">Remark <span class="text-danger"></span></label>
                                 <textarea name="remark" id="remark" cols="30" rows="5" class="form-control" placeholder="Plese enter remark"><?php echo e($data->remark ?? ''); ?></textarea>

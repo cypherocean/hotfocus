@@ -156,7 +156,7 @@
                                                     <input type="text" name="st_calc[]" id="st_calc_1" class="form-control st_calc" data-id="1" readonly="readonly">
                                                 </th>
                                                 <th style="width:10%">
-                                                    <input type="text" name="st_price[]" id="st_price_1" class="form-control digit">
+                                                    <input type="text" name="st_price[]" id="st_price_1" class="form-control digit st_price">
                                                 </th>
                                                 <th style="width:7%">
                                                     <input type="text" name="st_amp[]" id="st_amp_1" class="form-control st_amp">
@@ -410,7 +410,8 @@
 
             $('#add_strip').click(function(){                
                 var regex = /^(.+?)(\d+)$/i;
-                var cloneIndex = $("#st_table tbody tr").length;
+                var index = $("#st_table tbody tr").last().attr('id');
+                cloneIndex = index.replace('st_clone_', '');
 
                 if(cloneIndex !== 0){
                     let num = parseInt(cloneIndex) + 1;
@@ -450,7 +451,7 @@
                             '<input type="text" name="st_calc[]" id="st_calc_'+id+'" class="form-control st_calc" data-id="'+id+'" readonly="readonly">'+
                         '</th>'+
                         '<th style="width:10%">'+
-                            '<input type="text" name="st_price[]" id="st_price_'+id+'" class="form-control">'+
+                            '<input type="text" name="st_price[]" id="st_price_'+id+'" class="form-control st_price">'+
                         '</th>'+
                         '<th style="width:07%">'+
                             '<input type="text" name="st_amp[]" id="st_amp_'+id+'" class="form-control st_amp" data-id="'+id+'">'+
@@ -726,8 +727,73 @@
 
         function calculate(){
             $('#processDiv').html('');
-            let html = "";
-            // $('#processDiv').append(html);
+            let html = '';
+
+            var stripe = {};
+            var stripe_i = 0;
+            $('.strip_id').find('option:selected').each(function(){ stripe[stripe_i] = $(this).val(); stripe_i++; });
+
+            var quantity = {};
+            var quantity_i = 0;
+            $('.st_quantity').each(function(){ quantity[quantity_i] = $(this).val(); quantity_i++; });
+
+            var unit = {};
+            var unit_i = 0;
+            $('.st_unit').each(function(){ unit[unit_i] = $(this).val(); unit_i++; });
+
+            var choke = {};
+            var choke_i = 0;
+            $('.st_choke').each(function(){ choke[choke_i] = $(this).val(); choke_i++; });
+
+            var calc = {};
+            var calc_i = 0;
+            $('.st_calc').each(function(){ calc[calc_i] = $(this).val();calc_i++; });
+
+            var price = {};
+            var price_i = 0;
+            $('.st_price').each(function(){ price[price_i] = $(this).val(); price_i++; });
+
+            var amp = {};
+            var amp_i = 0;
+            $('.st_amp').each(function(){ amp[amp_i] = $(this).val(); amp_i++; });
+
+            if(stripe[0] != ''){
+                html = '<table class="table table-bordered">'+
+                            '<thead>'+
+                                '<tr>'+
+                                    '<th style="width:05%">Sr. No</th>'+
+                                    '<th style="width:20%">Strip</th>'+
+                                    '<th style="width:10%">Quantity</th>'+
+                                    '<th style="width:10%">Unit</th>'+
+                                    '<th style="width:10%">Choke per Unit</th>'+
+                                    '<th style="width:10%">Total Choke</th>'+
+                                    '<th style="width:10%">Price</th>'+
+                                    '<th style="width:10%">AMP</th>'+
+                                '</tr>'+
+                            '</thead>'+
+                            '<tbody>';
+
+                var j = 1;
+                $.each(stripe, function(key, value) {
+                    html = html + '<tr>'+
+                        '<th style="width:05%">'+j+'</th>'+
+                        '<th style="width:20%">'+key+'</th>'+
+                        '<th style="width:10%">'+quantity[key]+'</th>'+
+                        '<th style="width:10%">'+unit[key]+'</th>'+
+                        '<th style="width:10%">'+choke[key]+'</th>'+
+                        '<th style="width:10%">'+calc[key]+'</th>'+
+                        '<th style="width:10%">'+price[key]+'</th>'+
+                        '<th style="width:10%">'+amp[key]+'</th>'+
+                    '</tr>';
+                        
+                    j++;
+                });
+
+                html = html + '</tbody></table>';
+            }
+
+            // console.log({'stripe': stripe, 'quantity': quantity, 'unit': unit, 'choke': choke, 'calc': calc, 'price': price, 'amp': amp});
+            $('#processDiv').append(html);
         }
     </script>
 @endsection
