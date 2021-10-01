@@ -1,5 +1,7 @@
 /node_modules
 /public/hot
+/storage/framework/sessions
+/storage/framework/views
 .env
 .env.backup
 .phpunit.result.cache

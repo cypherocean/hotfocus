@@ -437,7 +437,6 @@
                 } else if(unit == 'meter'){
                     quantity = parseInt(quantity) * parseInt(40);
                 }
-                console.log(quantity);
                 
                 if(jQuery.inArray(strip_val, exst_stripes) === -1){
                     exst_stripes.push(strip_val);
