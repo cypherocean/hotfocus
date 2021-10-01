@@ -121,7 +121,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @if(!empty($data) && $data->order_details->isNotEmpty())
+                                            @if(!empty($data) && $data->order_strips->isNotEmpty())
                                                 @php $i=1; @endphp
                                                 @foreach($data->order_strips as $strip)
                                                     <tr class="st_clone" id="st_clone_{{ $i }}">
