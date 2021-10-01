@@ -28,12 +28,7 @@
                 'name.required' => 'Please enter name',
                 'email.required' => 'Please enter email address',
                 'email.email' => 'Please enter valid email address',
-                'email.unique' => 'Email address already registered, Please use another email addresss',
-                'phone.required' => 'Please enter phone number',
-                'phone.numeric' => 'Please enter valid phone number',
-                'phone.unique' => 'Phone number address already registered, Please use another phone number',
-                'password.required' => 'Please enter password',
-                'password.min' => 'Please enter password minimum 7 character'
+                'email.unique' => 'Email address already registered, Please use another email addresss'
             ];
         }
     }

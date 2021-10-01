@@ -23,12 +23,7 @@
 
         public function messages(){
             return [
-                'name.required' => 'Please enter name',
-                'name.unique' => 'Prodcut name is already exists, please use another one',
-                'quantity.required' => 'Please enter quantity',
-                'unit.required' => 'Please enter unit',
-                'color.required' => 'Please enter color',
-                'price.required' => 'Please enter price'
+                'name.required' => 'Please enter name'
             ];
         }
     }

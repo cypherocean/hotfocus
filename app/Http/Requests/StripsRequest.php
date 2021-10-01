@@ -12,11 +12,15 @@
         public function rules(){
             if($this->method() == 'PATCH'){
                 return [
-                    'name' => 'required|unique:strips,name,'.$this->id
+                    'name' => 'required|unique:strips,name,'.$this->id,
+                    'quantity' => 'required',
+                    'price' => 'required'
                 ];
             }else{
                 return [
-                    'name' => 'required|unique:strips,name'
+                    'name' => 'required|unique:strips,name',
+                    'quantity' => 'required',
+                    'price' => 'required'
                 ];
             }
         }
@@ -26,8 +30,6 @@
                 'name.required' => 'Please enter name',
                 'name.unique' => 'Prodcut name is already exists, please use another one',
                 'quantity.required' => 'Please enter quantity',
-                'unit.required' => 'Please enter unit',
-                'color.required' => 'Please enter color',
                 'price.required' => 'Please enter price'
             ];
         }

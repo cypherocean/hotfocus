@@ -23,8 +23,7 @@
 
         public function messages(){
             return [
-                'title.required' => 'Please enter title',
-                'description.required' => 'Please enter description'
+                'title.required' => 'Please enter title'
             ];
         }
     }

@@ -69,17 +69,28 @@
                 if($request->ajax()){ return true; }
 
                 if(!empty($request->all())){
-                    $inch_price = $request->unit != 'inch' ? _converter($request->unit, $request->quantity ?? 0) / $request->price ?? 0 : $request->price ?? 0;
+                    $quantity = $request->quantity ?? 0;
+                    $price = $request->price ?? 0;
+                    $unit = $request->unit;
+
+                    $inch_price = 0;
+
+                    if($unit != 'inch')
+                        $inch_price = $price / _converter($unit, $quantity);
+                    else
+                        $inch_price = $price / $quantity;
+                        
+                    $inch_price = round($inch_price);
 
                     $crud = [
                         'name' => ucfirst($request->name),
-                        'quantity' => $request->quantity, 
-                        'unit' => $request->unit ?? NULL, 
+                        'quantity' => $quantity, 
+                        'unit' => $unit, 
                         'choke' => $request->choke ?? NULL, 
                         'amp' => $request->amp ?? NULL, 
-                        'price' => $request->price ?? NULL, 
+                        'price' => $price, 
                         'note' => $request->note ?? NULL,
-                        'inch_price' => $inch_price ?? NULL,
+                        'inch_price' => $inch_price,
                         'created_at' => date('Y-m-d H:i:s'),
                         'created_by' => auth()->user()->id,
                         'updated_at' => date('Y-m-d H:i:s'),
@@ -154,17 +165,28 @@
                 if($request->ajax()){ return true; }
 
                 if(!empty($request->all())){
-                    $inch_price = $request->unit != 'inch' ? _converter($request->unit, $request->quantity ?? 0) / $request->price ?? 0 : $request->price ?? 0;
+                    $quantity = $request->quantity ?? 0;
+                    $price = $request->price ?? 0;
+                    $unit = $request->unit;
+
+                    $inch_price = 0;
+
+                    if($unit != 'inch')
+                        $inch_price = $price / _converter($unit, $quantity);
+                    else
+                        $inch_price = $price / $quantity;
+                        
+                    $inch_price = round($inch_price);
 
                     $crud = [
                         'name' => ucfirst($request->name),
-                        'quantity' => $request->quantity ?? NULL, 
-                        'unit' => $request->unit ?? NULL, 
+                        'quantity' => $quantity, 
+                        'unit' => $unit, 
                         'choke' => $request->choke ?? NULL, 
                         'amp' => $request->amp ?? NULL, 
-                        'price' => $request->price ?? NULL,
-                        'inch_price' => $inch_price, 
+                        'price' => $price, 
                         'note' => $request->note ?? NULL,
+                        'inch_price' => $inch_price,
                         'updated_at' => date('Y-m-d H:i:s'),
                         'updated_by' => auth()->user()->id
                     ];

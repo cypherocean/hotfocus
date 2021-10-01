@@ -34,7 +34,7 @@
                                     <span class="kt-form__help error name"></span>
                                 </div>
                                 <div class="form-group col-sm-6">
-                                    <label for="quantity">Quantity <span class="text-danger"></span></label>
+                                    <label for="quantity">Quantity <span class="text-danger">*</span></label>
                                     <input type="text" name="quantity" id="quantity" class="form-control" placeholder="Plese enter quantity" value="{{ @old('quantity') }}" />
                                     <span class="kt-form__help error quantity"></span>
                                 </div>
@@ -53,7 +53,7 @@
                                     <span class="kt-form__help error choke"></span>
                                 </div>
                                 <div class="form-group col-sm-6">
-                                    <label for="price">Price <span class="text-danger"></span></label>
+                                    <label for="price">Price <span class="text-danger">*</span></label>
                                     <input type="text" name="price" id="price" class="form-control digits" placeholder="Plese enter price" value="{{ @old('price') }}" />
                                     <span class="kt-form__help error price"></span>
                                 </div>

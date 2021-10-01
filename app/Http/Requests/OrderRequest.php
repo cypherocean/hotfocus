@@ -23,14 +23,7 @@
 
         public function messages(){
             return [
-                'name.required' => 'Please enter name',
-                'order_date.required' => 'Please enter order date',
-                'product_id.required' => 'Please select product',
-                'product_id.min' => 'Please select product',
-                'quantity.required' => 'Please enter quantity',
-                'quantity.min' => 'Please enter quantity',
-                'price.required' => 'Please enter price',
-                'price.min' => 'Please select price',
+                'name.required' => 'Please enter name'
             ];
         }
     }

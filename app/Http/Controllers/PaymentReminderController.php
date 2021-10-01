@@ -101,15 +101,10 @@
                                                 <textarea type='note' name='note$data->id' id='note$data->id' class='form-control' style='max-width: 90%;'/></textarea>
                                                 <span class='kt-form__help error note$data->id'></span>
                                             </div>
-                                            <div class='form-group col-sm-5'>
+                                            <div class='form-group col-sm-12'>
                                                 <label for='next_date$data->id'>Next date <span class='text-danger'>*</span></label>
                                                 <input type='date' name='next_date$data->id' id='next_date$data->id' class='form-control' style='max-width: 90%;'>
                                                 <span class='kt-form__help error next_date$data->id'></span>
-                                            </div>
-                                            <div class='form-group col-sm-5'>
-                                                <label for='next_time$data->id'>Next time <span class='text-danger'>*</span></label>
-                                                <input type='time' name='next_time$data->id' id='next_time$data->id' class='form-control' style='max-width: 90%;'>
-                                                <span class='kt-form__help error next_time$data->id'></span>
                                             </div>
                                             <div class='form-group col-sm-12'>
                                                 <label for='mobile_no$data->id'>Mobile no </label>
@@ -127,19 +122,15 @@
                                                 <button type="button" title="Add followup" class="btn btn-default btn-xs" data-toggle="modal" data-target="#followup'.$data->id.'">
                                                     <i class="fa fa-plus"></i>
                                                 </button> &nbsp;
-
                                                 <button type="button" title="Followup details" class="btn btn-default btn-xs" data-toggle="modal" data-target="#details'.$data->id.'">
                                                     <i class="fa fa-exclamation-circle"></i>
                                                 </button> &nbsp;
-
                                                 <button type="button" title="Bill details" class="btn btn-default btn-xs" data-toggle="modal" data-target="#infoModal'.$data->id.'">
                                                     <i class="fa fa-file-text"></i>
                                                 </button> &nbsp;
-
                                                 <a href="javascript:;" title="Delete record" class="btn btn-default btn-xs" onclick="change_status(this);" data-name="'.$data->party_name.'" data-status="deleted" data-id="'.base64_encode($data->id).'">
                                                     <i class="fa fa-trash"></i>
                                                 </a> &nbsp;
-
                                                 <div class="modal fade" id="followup'.$data->id.'" tabindex="-1" role="dialog" aria-labelledby="examplefollowup'.$data->id.'" aria-hidden="true">
                                                     <div class="modal-dialog" role="document">
                                                         <div class="modal-content">
@@ -159,7 +150,6 @@
                                                         </div>
                                                     </div>
                                                 </div>
-
                                                 <div class="modal fade" id="details'.$data->id.'" tabindex="-1" role="dialog" aria-labelledby="exampledetails'.$data->id.'" aria-hidden="true">
                                                     <div class="modal-dialog" role="document">
                                                         <div class="modal-content">
@@ -178,7 +168,6 @@
                                                         </div>
                                                     </div>
                                                 </div>
-
                                                 <div class="modal fade" id="infoModal'.$data->id.'" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel'.$data->id.'" aria-hidden="true">
                                                     <div class="modal-dialog" role="document">
                                                         <div class="modal-content">
@@ -219,8 +208,8 @@
                 if(!$request->ajax()){ return true; }
                 
                 $validator = Validator::make(
-                                            ['party_name' => $request->party_name, 'next_date' => $request->next_date, 'next_time' => $request->next_time],
-                                            ['party_name' => 'required', 'next_date' => 'required', 'next_time' => 'required']
+                                            ['party_name' => $request->party_name, 'next_date' => $request->next_date],
+                                            ['party_name' => 'required', 'next_date' => 'required']
                                         );
 
                 if($validator->fails()){
@@ -239,7 +228,7 @@
                                     'mobile_no' => $request->mobile_no ?? NULL,
                                     'date' => date('Y-m-d'),
                                     'next_date' => $request->next_date,
-                                    'next_time' => $request->next_time,
+                                    'next_time' => $request->next_time ?? NULL,
                                     'is_last' => 'y',
                                     'amount' => $request->amount ?? NULL,
                                     'created_at' => date('Y-m-d H:i:s'),
