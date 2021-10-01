@@ -144,10 +144,10 @@
         /** strip-amp */
             public function strip_amp(Request $request){
                 if(isset($request->id) && $request->id != null && $request->id != ''){
-                    $data = Strip::select('amp')->where(['id' => $request->id])->first();
+                    $data = Strip::select('quantity', 'unit', 'choke', 'price', 'amp')->where(['id' => $request->id])->first();
 
                     if($data)
-                        return response()->json(['code' => 200, 'data' => $data->amp]);
+                        return response()->json(['code' => 200, 'data' => $data]);
                     else
                         return response()->json(['code' => 201]);
                 }else{

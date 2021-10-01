@@ -1,27 +1,27 @@
-@extends('layout.app')
 
-@section('meta')
-@endsection
 
-@section('title')
+<?php $__env->startSection('meta'); ?>
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('title'); ?>
     Create Order
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('styles')
-    <link href="{{ asset('assets/vendors/select2/dist/css/select2.min.css') }}" rel="stylesheet" />
-    <link href="{{ asset('assets/vendors/bootstrap-datepicker/dist/css/bootstrap-datepicker3.min.css') }}" rel="stylesheet" />
+<?php $__env->startSection('styles'); ?>
+    <link href="<?php echo e(asset('assets/vendors/select2/dist/css/select2.min.css')); ?>" rel="stylesheet" />
+    <link href="<?php echo e(asset('assets/vendors/bootstrap-datepicker/dist/css/bootstrap-datepicker3.min.css')); ?>" rel="stylesheet" />
     
-    <link href="{{ asset('assets/css/dropify.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('assets/css/sweetalert2.bundle.css') }}" rel="stylesheet">
+    <link href="<?php echo e(asset('assets/css/dropify.min.css')); ?>" rel="stylesheet">
+    <link href="<?php echo e(asset('assets/css/sweetalert2.bundle.css')); ?>" rel="stylesheet">
  
     <style> 
         .select2-container--default .select2-selection--single{
             height: 35px;
         }
     </style>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="page-content fade-in-up">
         <div class="row">
             <div class="col-md-12">
@@ -34,19 +34,19 @@
                         </h1>
                     </div>
                     <div class="ibox-body">
-                        <form name="form" action="{{ route('orders.insert') }}" id="form" method="post" enctype="multipart/form-data">
-                            @csrf
+                        <form name="form" action="<?php echo e(route('orders.insert')); ?>" id="form" method="post" enctype="multipart/form-data">
+                            <?php echo csrf_field(); ?>
                             
                             <div class="row">
                                 <div class="form-group col-sm-6">
                                     <label for="name">Name <span class="text-danger">*</span></label>
                                     <select name="name" id="name" class="form-control select2_demo_2" placeholder="Plese enter name">
                                         <option></option>
-                                        @if(isset($customers) && $customers->isNotEmpty())
-                                            @foreach($customers as $row)
-                                                <option value="{{ $row->party_name }}" @if(isset($customer_id) && $customer_id == $row->id) selected @endif >{{ $row->party_name }}</option>
-                                            @endforeach
-                                        @endif
+                                        <?php if(isset($customers) && $customers->isNotEmpty()): ?>
+                                            <?php $__currentLoopData = $customers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <option value="<?php echo e($row->party_name); ?>" <?php if(isset($customer_id) && $customer_id == $row->id): ?> selected <?php endif; ?> ><?php echo e($row->party_name); ?></option>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                        <?php endif; ?>
                                     </select>
                                     <span class="kt-form__help error name"></span>
                                 </div>
@@ -54,7 +54,7 @@
                                     <label for="order_date">Order Date <span class="text-danger"></span></label>
                                     <div class="input-group">
                                         <div class="input-group-addon"><i class="fa fa-clock-o"></i></div>
-                                        <input type="text" name="order_date" id="order_date" class="form-control" placeholder="Plese enter order date" value="{{ date('d-m-Y') }}" />
+                                        <input type="text" name="order_date" id="order_date" class="form-control" placeholder="Plese enter order date" value="<?php echo e(date('d-m-Y')); ?>" />
                                     </div>
                                     <i class="fa fa-calender"></i>
                                     <span class="kt-form__help error order_date"></span>
@@ -80,12 +80,12 @@
                                                 <th style="width:05%">1</th>
                                                 <th style="width:50%">
                                                     <select class="form-control select2_demo_2 product_id" name="product_id[]" id="product_1" data-id="1">
-                                                        @if(isset($products) && $products->isNotEmpty())
+                                                        <?php if(isset($products) && $products->isNotEmpty()): ?>
                                                             <option value="">Select Product</option>
-                                                            @foreach($products as $row)
-                                                                <option value="{{ $row->id }}">{{ $row->name }}</option>
-                                                            @endforeach
-                                                        @endif
+                                                            <?php $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                                <option value="<?php echo e($row->id); ?>"><?php echo e($row->name); ?></option>
+                                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                                        <?php endif; ?>
                                                     </select>
                                                 </th>
                                                 <th style="width:10%">
@@ -131,12 +131,12 @@
                                                 <th style="width:05%">1</th>
                                                 <th style="width:20%">
                                                     <select class="form-control select2_demo_2 strip_id" name="strip_id[]" id="strip_1" data-id="1">
-                                                        @if(isset($strips) && $strips->isNotEmpty())
+                                                        <?php if(isset($strips) && $strips->isNotEmpty()): ?>
                                                             <option value="">Select Strip</option>
-                                                            @foreach($strips as $row)
-                                                                <option value="{{ $row->id }}">{{ $row->name }}</option>
-                                                            @endforeach
-                                                        @endif
+                                                            <?php $__currentLoopData = $strips; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                                <option value="<?php echo e($row->id); ?>"><?php echo e($row->name); ?></option>
+                                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                                        <?php endif; ?>
                                                     </select>
                                                 </th>
                                                 <th style="width:10%">
@@ -191,7 +191,7 @@
                             </div>
                             <div class="form-group">
                                 <button type="submit" class="btn btn-primary">Submit</button>
-                                <a href="{{ route('orders') }}" class="btn btn-default">Back</a>
+                                <a href="<?php echo e(route('orders')); ?>" class="btn btn-default">Back</a>
                             </div>
                         </form>
                     </div>
@@ -209,9 +209,9 @@
                     <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form name="customerform" action="{{ route('customers.insert.ajax') }}" id="customerform" method="post" enctype="multipart/form-data">
+                <form name="customerform" action="<?php echo e(route('customers.insert.ajax')); ?>" id="customerform" method="post" enctype="multipart/form-data">
                     <div class="modal-body">
-                        @csrf
+                        <?php echo csrf_field(); ?>
                         <input type="hidden" name="order" value="order">
                         
                         <div class="row">
@@ -290,35 +290,35 @@
                     <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form name="customerform" action="{{ route('products.insert.ajax') }}" id="productform" method="post" enctype="multipart/form-data">
+                <form name="customerform" action="<?php echo e(route('products.insert.ajax')); ?>" id="productform" method="post" enctype="multipart/form-data">
                     <div class="modal-body">
-                        @csrf
+                        <?php echo csrf_field(); ?>
                         <input type="hidden" name="product" value="product">
                         
                         <div class="row">
                             <div class="form-group col-sm-6">
                                 <label for="name">Name <span class="text-danger">*</span></label>
-                                <input type="text" name="name" id="name" class="form-control" placeholder="Plese enter name" value="{{ @old('name') }}" />
+                                <input type="text" name="name" id="name" class="form-control" placeholder="Plese enter name" value="<?php echo e(@old('name')); ?>" />
                                 <span class="kt-form__help error name"></span>
                             </div>
                             <div class="form-group col-sm-6">
                                 <label for="code">Product Code <span class="text-danger"></span></label>
-                                <input type="text" name="code" id="code" class="form-control" placeholder="Plese enter product code" value="{{ @old('code') }}" />
+                                <input type="text" name="code" id="code" class="form-control" placeholder="Plese enter product code" value="<?php echo e(@old('code')); ?>" />
                                 <span class="kt-form__help error code"></span>
                             </div>
                             <div class="form-group col-sm-6">
                                 <label for="unit">Unit <span class="text-danger"></span></label>
-                                <input type="text" name="unit" id="unit" class="form-control" placeholder="Plese enter unit" value="{{ @old('unit') }}" />
+                                <input type="text" name="unit" id="unit" class="form-control" placeholder="Plese enter unit" value="<?php echo e(@old('unit')); ?>" />
                                 <span class="kt-form__help error unit"></span>
                             </div>
                             <div class="form-group col-sm-6">
                                 <label for="price">Price <span class="text-danger"></span></label>
-                                <input type="text" name="price" id="price" class="form-control digits" placeholder="Plese enter price" value="{{ @old('price') }}" />
+                                <input type="text" name="price" id="price" class="form-control digits" placeholder="Plese enter price" value="<?php echo e(@old('price')); ?>" />
                                 <span class="kt-form__help error price"></span>
                             </div>
                             <div class="form-group col-sm-6">
                                 <label for="note">Note <span class="text-danger"></span></label>
-                                <input type="text" name="note" id="note" class="form-control" placeholder="Plese enter note" value="{{ @old('note') }}" />
+                                <input type="text" name="note" id="note" class="form-control" placeholder="Plese enter note" value="<?php echo e(@old('note')); ?>" />
                                 <span class="kt-form__help error note"></span>
                             </div>
                         </div>
@@ -331,16 +331,16 @@
             </div>
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('scripts')
-    <script src="{{ asset('assets/vendors/select2/dist/js/select2.full.min.js') }}"></script>
-    <script src="{{ asset('assets/js/scripts/form-plugins.js') }}"></script>
-    <script src="{{ asset('assets/vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js') }}"></script>
+<?php $__env->startSection('scripts'); ?>
+    <script src="<?php echo e(asset('assets/vendors/select2/dist/js/select2.full.min.js')); ?>"></script>
+    <script src="<?php echo e(asset('assets/js/scripts/form-plugins.js')); ?>"></script>
+    <script src="<?php echo e(asset('assets/vendors/bootstrap-datepicker/dist/js/bootstrap-datepicker.js')); ?>"></script>
 
-    <script src="{{ asset('assets/js/dropify.min.js') }}"></script>
-    <script src="{{ asset('assets/js/promise.min.js') }}"></script>
-    <script src="{{ asset('assets/js/sweetalert2.bundle.js') }}"></script>
+    <script src="<?php echo e(asset('assets/js/dropify.min.js')); ?>"></script>
+    <script src="<?php echo e(asset('assets/js/promise.min.js')); ?>"></script>
+    <script src="<?php echo e(asset('assets/js/sweetalert2.bundle.js')); ?>"></script>
     
     <script>
         $(document).ready(function() {
@@ -382,7 +382,7 @@
                 return '<tr class="clone" id="clone_'+id+'">'+
                         '<th style="width:05%">'+id+'</th>'+
                         '<th style="width:50%">'+
-                            '<select name="product_id[]" id="product_'+id+'" data-id="'+id+'" class="form-control select2_demo_2 product_id"> <option value="">Select</option> @foreach($products as $row)<option value="{{ $row->id }}">{{ $row->name }}</option>@endforeach </select>'+
+                            '<select name="product_id[]" id="product_'+id+'" data-id="'+id+'" class="form-control select2_demo_2 product_id"> <option value="">Select</option> <?php $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><option value="<?php echo e($row->id); ?>"><?php echo e($row->name); ?></option><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?> </select>'+
                         '</th>'+
                         '<th style="width:10%">'+
                             '<input type="text" name="quantity[]" id="quantity_'+id+'" class="form-control">'+
@@ -432,7 +432,7 @@
                 return '<tr class="clone" id="st_clone_'+id+'">'+
                         '<th style="width:05%">'+id+'</th>'+
                         '<th style="width:20%">'+
-                            '<select name="strip_id[]" id="strip_'+id+'" data-id="'+id+'" class="form-control select2_demo_2 strip_id"> <option value="">Select</option> @foreach($strips as $row)<option value="{{ $row->id }}">{{ $row->name }}</option>@endforeach </select>'+
+                            '<select name="strip_id[]" id="strip_'+id+'" data-id="'+id+'" class="form-control select2_demo_2 strip_id"> <option value="">Select</option> <?php $__currentLoopData = $strips; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $row): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?><option value="<?php echo e($row->id); ?>"><?php echo e($row->name); ?></option><?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?> </select>'+
                         '</th>'+
                         '<th style="width:10%">'+
                             '<input type="text" name="st_quantity[]" id="st_quantity_'+id+'" class="form-control st_quantity" data-id="'+id+'">'+
@@ -593,9 +593,9 @@
 
         function _customer_details(name){
             $.ajax({
-                url : "{{ route('orders.customer.details') }}",
+                url : "<?php echo e(route('orders.customer.details')); ?>",
                 type : 'post',
-                data : { "_token": "{{ csrf_token() }}", "name": name},
+                data : { "_token": "<?php echo e(csrf_token()); ?>", "name": name},
                 dataType: 'json',
                 async: false,
                 success : function(response){
@@ -614,9 +614,9 @@
 
         function _product_price(id, div_id){
             $.ajax({
-                url : "{{ route('orders.product.price') }}",
+                url : "<?php echo e(route('orders.product.price')); ?>",
                 type : 'post',
-                data : { "_token": "{{ csrf_token() }}", "id": id},
+                data : { "_token": "<?php echo e(csrf_token()); ?>", "id": id},
                 dataType: 'json',
                 async: false,
                 success : function(response){
@@ -629,9 +629,9 @@
 
         function _strip_price(id, quantity, unit, div_id){
             $.ajax({
-                url : "{{ route('orders.strip.price') }}",
+                url : "<?php echo e(route('orders.strip.price')); ?>",
                 type : 'post',
-                data : { "_token": "{{ csrf_token() }}", "id": id, "quantity": quantity, "unit": unit},
+                data : { "_token": "<?php echo e(csrf_token()); ?>", "id": id, "quantity": quantity, "unit": unit},
                 dataType: 'json',
                 async: false,
                 success : function(response){
@@ -712,9 +712,9 @@
 
         function _strip_amp(val, id){
             $.ajax({
-                url : "{{ route('orders.strip.amp') }}",
+                url : "<?php echo e(route('orders.strip.amp')); ?>",
                 type : 'post',
-                data : { "_token": "{{ csrf_token() }}", "id": val},
+                data : { "_token": "<?php echo e(csrf_token()); ?>", "id": val},
                 dataType: 'json',
                 async: false,
                 success : function(response){
@@ -818,5 +818,7 @@
             $('#processDiv').append(html);
         }
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
 
+
+<?php echo $__env->make('layout.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\work\ami-enterprise\resources\views/orders/create.blade.php ENDPATH**/ ?>

@@ -675,7 +675,12 @@
                 async: false,
                 success : function(response){
                     if(response.code == 200){
-                        $('#st_amp_'+id).val(response.data);
+                        $('#st_quantity_'+id).val(response.data.quantity);
+                        $('#st_unit_'+id).val(response.data.unit);
+                        $('#st_choke_'+id).val(response.data.choke);
+                        $('#st_calc_'+id).val(parseInt(response.data.quantity) * parseInt(response.data.choke));
+                        $('#st_price_'+id).val(response.data.price);
+                        $('#st_amp_'+id).val(response.data.amp);
                     }
                 }
             });
@@ -689,20 +694,39 @@
             let stripes = []; 
 
             $("#st_table tbody tr").each(function(){
-                let strip_val = $(this).find('.strip_id option:selected').val();
-                let strip_text = $(this).find('.strip_id option:selected').text();
-                let quantity = $(this).find('.st_quantity').val();
-                let choke = $(this).find('.st_choke').val();
-                let calc = $(this).find('.st_calc').val();
-                let price = $(this).find('.st_price').val();
-                let amp = $(this).find('.st_amp').val();
+                let strip_val = '';
+                let strip_text = '';
+                let quantity = '';
+                let unit = '';
+                let choke = '';
+                let calc = '';
+                let price = '';
+                let amp = '';
+                
+                strip_val = $(this).find('.strip_id option:selected').val();
+                strip_text = $(this).find('.strip_id option:selected').text();
+                quantity = $(this).find('.st_quantity').val();
+                unit = $(this).find('.st_unit').val();
+                choke = $(this).find('.st_choke').val();
+                calc = $(this).find('.st_calc').val();
+                price = $(this).find('.st_price').val();
+                amp = $(this).find('.st_amp').val();
+
+                if(unit == 'feet'){
+                    quantity = parseInt(quantity) * parseInt(12);
+                } else if(unit == 'meter'){
+                    quantity = parseInt(quantity) * parseInt(40);
+                }
+                console.log(quantity);
                 
                 if(jQuery.inArray(strip_val, exst_stripes) === -1){
                     exst_stripes.push(strip_val);
+                    
                     let temp = {'strip': strip_text, 'quantity': quantity, 'unit': 'inch', 'choke': choke, 'calc': calc, 'price': price, 'amp': amp};
                     stripes[strip_val] = temp;
                 } else {
                     let exst_temp = stripes[strip_val];
+
                     let temp = {'strip': exst_temp.strip, 
                                 'quantity': parseInt(exst_temp.quantity) + parseInt(quantity), 
                                 'unit': 'inch', 
@@ -725,7 +749,6 @@
                                     '<th style="width:10%">Quantity</th>'+
                                     '<th style="width:10%">Unit</th>'+
                                     '<th style="width:10%">Choke per Unit</th>'+
-                                    '<th style="width:10%">Total Choke</th>'+
                                     '<th style="width:10%">Price</th>'+
                                     '<th style="width:10%">AMP</th>'+
                                 '</tr>'+
@@ -740,7 +763,6 @@
                                         '<th style="width:10%">'+value.quantity+'</th>'+
                                         '<th style="width:10%">'+value.unit+'</th>'+
                                         '<th style="width:10%">'+value.choke+'</th>'+
-                                        '<th style="width:10%">'+value.calc+'</th>'+
                                         '<th style="width:10%">'+value.price+'</th>'+
                                         '<th style="width:10%">'+value.amp+'</th>'+
                                     '</tr>';                        
