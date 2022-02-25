@@ -1,5 +1,6 @@
 /node_modules
 /public/hot
+/public/uploads
 .env
 .env.backup
 .phpunit.result.cache
