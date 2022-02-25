@@ -818,4 +818,3 @@
         }
     </script>
 @endsection
-

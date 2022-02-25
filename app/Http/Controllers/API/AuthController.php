@@ -16,7 +16,7 @@
                 $validator = Validator::make($request->all(), $rules);
 
                 if($validator->fails())
-                    return response()->json(['status' => 422, 'message' => $validator->errors()]);
+                    return response()->json(['status' => 422, 'message' => 'Invalid Username or Password']);
                 
                 $auth = auth()->attempt(['email' => $request->email, 'password' => $request->password]);
 
