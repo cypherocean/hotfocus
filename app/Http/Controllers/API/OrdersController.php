@@ -96,8 +96,14 @@
                                     END as file"))
                                 ->where(['id' => $id])
                                 ->first();
-
+                                
                 if(!empty($data)){
+                    $customer = DB::table('customers')->where('party_name' , $data->name)->first();
+                    if($customer->isNotEmpty())
+                        $data->customer = $customer;
+                    else
+                        $data->customer = collect();
+
                     $order_details = DB::table('orders_details as od')
                                         ->select('od.id', 'od.product_id', 'od.quantity', 'od.price', 'od.remark', 'p.name as product_name')
                                         ->leftjoin('products as p', 'p.id', 'od.product_id')
