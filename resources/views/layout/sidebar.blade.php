@@ -113,6 +113,11 @@
                     <span class="nav-label">Reminders</span>
                 </a>
             </li>
+            <li class="{{ Request::is('pre_defined_message*') ? 'active' : '' }}">
+                <a class="{{ Request::is('pre_defined_message*') ? 'active' : '' }}" href="{{ route('pre_defined_message') }}"><i class="sidebar-item-icon fa fa-envelope"></i>
+                    <span class="nav-label">Pre Defined Message</span>
+                </a>
+            </li>
         </ul>
     </div>
 </nav>

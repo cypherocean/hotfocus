@@ -25,12 +25,10 @@
                             ->from(with(new Payment)->getTable());
                     });
 
-                    if($date == 'past'){
-                        $collection->whereDate('payment_reminder.next_date', '<', date('Y-m-d'));
-                    }elseif($date == 'future'){
-                        $collection->whereDate('payment_reminder.next_date', '>', date('Y-m-d'));
-                    }else{
+                    if($date == 'today'){
                         $collection->whereDate('payment_reminder.next_date', '=', date('Y-m-d'));
+                    }else{
+                        $collection->whereDate('payment_reminder.next_date', '!=', date('Y-m-d'));
                     }
                     
                     $collection->where(['payment_reminder.is_last' => 'y']);

@@ -35,9 +35,6 @@
                     <div class="ibox-body">
                         <ul class="nav nav-tabs tabs-line">
                             <li class="nav-item">
-                                <a class="nav-link" href="#tab" data-id="past" data-toggle="tab" aria-expanded="false">Past</a>
-                            </li>
-                            <li class="nav-item">
                                 <a class="nav-link active" href="#tab" data-id="today" data-toggle="tab" aria-expanded="true">Today</a>
                             </li>
                             <li class="nav-item">
@@ -55,7 +52,6 @@
                                                 <th>User Name</th>
                                                 <th>Party Name</th>
                                                 <th>Mobile No</th>
-                                                <th>Amount</th>
                                                 <th>Note</th>
                                                 <th>Action</th>
                                             </tr>
@@ -187,10 +183,6 @@
                             name: 'mobile_no'
                         },
                         {
-                            data: 'amount',
-                            name: 'amount'
-                        },
-                        {
                             data: 'note',
                             name: 'note'
                         },
@@ -198,6 +190,7 @@
                             data: 'action',
                             name: 'action',
                             orderable: false,
+                            searchable: false,
                         }
                     ]
                 });

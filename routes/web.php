@@ -179,6 +179,16 @@ Route::group(['middleware' => ['prevent-back-history']], function(){
             Route::patch('reminders/update', 'ReminderController@update')->name('reminders.update');
             Route::post('reminders/change-status', 'ReminderController@change_status')->name('reminders.change.status');
         /** reminder */
+
+        /** Pre Defined Message */
+            Route::any('pre_defined_message', 'PreDefinedMessageController@index')->name('pre_defined_message');
+            Route::get('pre_defined_message/create', 'PreDefinedMessageController@create')->name('pre_defined_message.create');
+            Route::post('pre_defined_message/insert', 'PreDefinedMessageController@insert')->name('pre_defined_message.insert');
+            Route::get('pre_defined_message/view/{id?}', 'PreDefinedMessageController@view')->name('pre_defined_message.view');
+            Route::get('pre_defined_message/edit/{id?}', 'PreDefinedMessageController@edit')->name('pre_defined_message.edit');
+            Route::patch('pre_defined_message/update', 'PreDefinedMessageController@update')->name('pre_defined_message.update');
+            Route::post('pre_defined_message/change-status', 'PreDefinedMessageController@change_status')->name('pre_defined_message.change.status');
+        /** Pre Defined Message */
     });
 
     Route::get("{path}", function(){ return redirect()->route('login'); })->where('path', '.+');

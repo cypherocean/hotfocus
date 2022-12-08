@@ -42,7 +42,7 @@
                                                     ->from(with(new PaymentAssign)->getTable());
                                             });
                     }elseif($type && $type == 'all'){
-                        
+
                     }else{
                         $collection->whereIn('party_name', function($query) use ($type){
                                                 $query->select('party_name')
@@ -85,7 +85,7 @@
 
                                 $user_id = null;
                                 $note = null;
-                                $date = null;
+                                $date = date("Y-m-d");
                                 $assign_id = null;
                                 
                                 if($assigned){
@@ -156,51 +156,58 @@
                                             </div>
                                         </div>";
 
-                                return  '<div class="btn-group">
-                                            <button type="button" title="Assign reminder" class="btn btn-default btn-xs" data-toggle="modal" data-target="#assignModal'.$data->id.'">
-                                                <i class="fa fa-plus"></i>
-                                            </button> &nbsp;
-                                            <button type="button" title="Bill details" class="btn btn-default btn-xs" data-toggle="modal" data-target="#infoModal'.$data->id.'">
-                                                <i class="fa fa-file-text"></i>
-                                            </button> &nbsp;
-                                        </div>
+                                $action = '<div class="btn-group">
+                                <button type="button" title="Assign reminder" class="btn btn-default btn-xs" data-toggle="modal" data-target="#assignModal'.$data->id. '">
+                                    <i class="fa fa-plus"></i>
+                                </button> &nbsp;
+                                <button type="button" title="Bill details" class="btn btn-default btn-xs" data-toggle="modal" data-target="#infoModal' . $data->id . '">
+                                    <i class="fa fa-file-text"></i>
+                                </button> &nbsp;';
+                                if($data->mobile_no != null || $data->mobile_no != ''){
+                                    $action .='<a target="_blank" href="https://wa.me/+918200242382?text=I\'m%20interested%20in%20your%20car%20for%20sale"><button type="button" title="Send Whatsapp Message" class="btn btn-default btn-xs">
+                                    <i class="fa fa-whatsapp" aria-hidden="true"></i>
+                                    </button></a> &nbsp;';
+                                }
+                                $action .= '</div>
 
-                                        <div class="modal fade" id="infoModal'.$data->id.'" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel'.$data->id.'" aria-hidden="true">
-                                            <div class="modal-dialog" role="document">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="infoModalLabel'.$data->id.'">'.$data->party_name.'</h5>
-                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button>
-                                                    </div>
-                                                    <div class="modal-body">'.$info.'</div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                    </div>
-                                                </div>
-                                            </div>
+                            <div class="modal fade" id="infoModal'.$data->id.'" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel'.$data->id.'" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="infoModalLabel'.$data->id.'">'.$data->party_name.'</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
                                         </div>
+                                        <div class="modal-body">'.$info.'</div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-                                        <div class="modal fade" id="assignModal'.$data->id.'" tabindex="-1" role="dialog" aria-labelledby="assignModalLabel'.$data->id.'" aria-hidden="true">
-                                            <div class="modal-dialog" role="document">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="assignModalLabel'.$data->id.'">'.$data->party_name.'</h5>
-                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button>
-                                                    </div>
-                                                    <form class="form" id='.$data->id.'>
-                                                        <div class="modal-body">'.$form.'</div>
-                                                        <div class="modal-footer">
-                                                            <button type="submit" class="btn btn-primary">Save</button>
-                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                        </div>
-                                                    </form>
-                                                </div>
+                            <div class="modal fade" id="assignModal'.$data->id.'" tabindex="-1" role="dialog" aria-labelledby="assignModalLabel'.$data->id.'" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="assignModalLabel'.$data->id.'">'.$data->party_name.'</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <form class="form" id='.$data->id.'>
+                                            <div class="modal-body">'.$form.'</div>
+                                            <div class="modal-footer">
+                                                <button type="submit" class="btn btn-primary">Save</button>
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                             </div>
-                                        </div>';
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>';
+
+                                return $action;
                             })
                             ->rawColumns(['action'])
                             ->make(true);
