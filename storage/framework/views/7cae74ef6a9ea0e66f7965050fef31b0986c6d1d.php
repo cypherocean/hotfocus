@@ -1,24 +1,24 @@
-@extends('layout.app')
 
-@section('meta')
-@endsection
 
-@section('title')
-    Pre Defined Message
-@endsection
+<?php $__env->startSection('meta'); ?>
+<?php $__env->stopSection(); ?>
 
-@section('styles')
-@endsection
+<?php $__env->startSection('title'); ?>
+    Task
+<?php $__env->stopSection(); ?>
 
-@section('content')
+<?php $__env->startSection('styles'); ?>
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('content'); ?>
     <div class="page-content fade-in-up">
         <div class="row">
             <div class="col-lg-12">
                 <div class="ibox">
                     <div class="ibox-head">
-                        <h1 class="ibox-title">Pre Defined Message</h1>
+                        <h1 class="ibox-title">Task</h1>
                         <h1 class="pull-right">
-                            <a class="btn btn-primary pull-right ml-2" style="margin-top: 8px;margin-bottom: 5px" href="{{ route('pre_defined_message.create') }}">Add New</a>
+                            <a class="btn btn-primary pull-right ml-2" style="margin-top: 8px;margin-bottom: 5px" href="<?php echo e(route('tasks.create')); ?>">Add New</a>
                         </h1>
                     </div>
 
@@ -28,7 +28,11 @@
                                 <thead>
                                     <tr>
                                         <th>No</th>
-                                        <th>Message</th>
+                                        <th>Allocated From</th>
+                                        <th>Allocated To</th>
+                                        <th>Task</th>
+                                        <th>Task Date</th>
+                                        <th>Target Date</th>
                                         <th>Status</th>
                                         <th>Action</th>
                                     </tr>
@@ -41,9 +45,9 @@
             </div>
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('scripts')
+<?php $__env->startSection('scripts'); ?>
     <script type="text/javascript">
 
         var datatable;
@@ -72,11 +76,11 @@
                     // lengthChange: false,
 
                     "ajax":{
-                        "url": "{{ route('pre_defined_message') }}",
+                        "url": "<?php echo e(route('tasks')); ?>",
                         "type": "POST",
                         "dataType": "json",
                         "data":{
-                            _token: "{{csrf_token()}}"
+                            _token: "<?php echo e(csrf_token()); ?>"
                         }
                     },
                     "columnDefs": [{
@@ -90,8 +94,24 @@
                             name: 'DT_RowIndex'
                         },
                         {
-                            data: 'message',
-                            name: 'message'
+                            data: 'allocate_from',
+                            name: 'allocate_from'
+                        },
+                        {
+                            data: 'allocate_to',
+                            name: 'allocate_to'
+                        },
+                        {
+                            data: 'type',
+                            name: 'type'
+                        },
+                        {
+                            data: 'task_date',
+                            name: 'task_date'
+                        },
+                        {
+                            data: 'target_date',
+                            name: 'target_date'
                         },
                         {
                             data: 'status',
@@ -115,13 +135,13 @@
 
             if (confirm(msg)) {
                 $.ajax({
-                    "url": "{!! route('pre_defined_message.change.status') !!}",
+                    "url": "<?php echo route('tasks.change.status'); ?>",
                     "dataType": "json",
                     "type": "POST",
                     "data":{
                         id: id,
                         status: status,
-                        _token: "{{ csrf_token() }}"
+                        _token: "<?php echo e(csrf_token()); ?>"
                     },
                     success: function (response){
                         if (response.code == 200){
@@ -135,4 +155,6 @@
             }
         }
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layout.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\ami-enterprise\resources\views/tasks/index.blade.php ENDPATH**/ ?>

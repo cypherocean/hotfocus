@@ -6,7 +6,8 @@
     use App\Models\Payment;
     use App\Models\PaymentAssign;
     use App\Models\PaymentReminder;
-    use Illuminate\Support\Str;
+use App\Models\PreDefinedMessage;
+use Illuminate\Support\Str;
     use Auth, Validator, DB, Mail, DataTables, File;
 
     class PaymentReminderController extends Controller{
@@ -34,10 +35,15 @@
                     $collection->where(['payment_reminder.is_last' => 'y']);
                     
                     $data = $collection->get();
-
+                    $get_message = PreDefinedMessage::where('status' ,'active')->first('message');
+                    if(!$get_message){
+                        $get_message = 'N/A';
+                    }else{
+                        $get_message = $get_message->message;
+                    }
                     return Datatables::of($data)
                             ->addIndexColumn()
-                            ->addColumn('action', function($data){
+                            ->addColumn('action', function($data) use($get_message){
                                 $rec = Payment::select('bill_no', 'bill_date', 'bill_amount')->where(['party_name' => $data->party_name])->get();
 
                                 $info = "<table class='table table-bordered'>
@@ -116,7 +122,7 @@
                                             </div>
                                         </div>";
 
-                                return ' <div class="btn-group">
+                                      $action =' <div class="btn-group">
                                                 <button type="button" title="Add followup" class="btn btn-default btn-xs" data-toggle="modal" data-target="#followup'.$data->id.'">
                                                     <i class="fa fa-plus"></i>
                                                 </button> &nbsp;
@@ -128,8 +134,14 @@
                                                 </button> &nbsp;
                                                 <a href="javascript:;" title="Delete record" class="btn btn-default btn-xs" onclick="change_status(this);" data-name="'.$data->party_name.'" data-status="deleted" data-id="'.base64_encode($data->id).'">
                                                     <i class="fa fa-trash"></i>
-                                                </a> &nbsp;
-                                                <div class="modal fade" id="followup'.$data->id.'" tabindex="-1" role="dialog" aria-labelledby="examplefollowup'.$data->id.'" aria-hidden="true">
+                                                </a> &nbsp;';
+                                                if ($data->mobile_no != null || $data->mobile_no != '') {
+                                                    $action .= '<a target="_blank" href="https://wa.me/+91'.$data->mobile_no.'?text='.$get_message.'" title="Send Whatsapp message" class="btn btn-default btn-xs" onclick="change_status(this);" data-name="'.$data->party_name.'" data-status="deleted" data-id="'.base64_encode($data->id).'">
+                                                    <i class="fa fa-whatsapp" aria-hidden="true"></i>
+                                                </a> &nbsp;';
+                                                }
+
+                                                $action .='<div class="modal fade" id="followup'.$data->id.'" tabindex="-1" role="dialog" aria-labelledby="examplefollowup'.$data->id.'" aria-hidden="true">
                                                     <div class="modal-dialog" role="document">
                                                         <div class="modal-content">
                                                             <div class="modal-header">
@@ -183,6 +195,7 @@
                                                     </div>
                                                 </div>
                                             </div>';
+                                return $action;
                                             })
 
                             ->editColumn('next_date',function($data){

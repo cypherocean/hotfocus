@@ -15,7 +15,7 @@ class CreatePreDefinedMessageTable extends Migration
     {
         Schema::create('pre_defined_message', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->nullable();
+            $table->text('message')->nullable();
             $table->enum('status' ,['active' ,'inactive' ,'deleted'])->default('active');
             $table->timestamps();
             $table->integer('created_by')->nullable();

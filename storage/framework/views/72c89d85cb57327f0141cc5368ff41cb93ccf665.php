@@ -1,16 +1,16 @@
-@extends('layout.app')
 
-@section('meta')
-@endsection
 
-@section('title')
+<?php $__env->startSection('meta'); ?>
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('title'); ?>
     Create Pre Defined Message
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('styles')
-@endsection
+<?php $__env->startSection('styles'); ?>
+<?php $__env->stopSection(); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
     <div class="page-content fade-in-up">
         <div class="row">
             <div class="col-md-12">
@@ -19,19 +19,19 @@
                         <div class="ibox-title">Create Pre Defined Message</div>
                     </div>
                     <div class="ibox-body">
-                        <form name="form" action="{{ route('pre_defined_message.insert') }}" id="form" method="post" enctype="multipart/form-data">
-                            @csrf
+                        <form name="form" action="<?php echo e(route('pre_defined_message.insert')); ?>" id="form" method="post" enctype="multipart/form-data">
+                            <?php echo csrf_field(); ?>
                             
                             <div class="row">
                                 <div class="form-group col-sm-12">
                                     <label for="message">Message <span class="text-danger">*</span></label>
-                                    <textarea name="message" id="message" class="form-control" placeholder="Plese enter message">{{ @old('message') }}</textarea>
+                                    <textarea name="message" id="message" class="form-control" placeholder="Plese enter message"><?php echo e(@old('message')); ?></textarea>
                                     <span class="kt-form__help error message"></span>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <button type="submit" class="btn btn-primary">Submit</button>
-                                <a href="{{ route('pre_defined_message') }}" class="btn btn-default">Back</a>
+                                <a href="<?php echo e(route('pre_defined_message')); ?>" class="btn btn-default">Back</a>
                             </div>
                         </form>
                     </div>
@@ -39,9 +39,9 @@
             </div>
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('scripts')
+<?php $__env->startSection('scripts'); ?>
     <script>
         $(document).ready(function () {
             var form = $('#form');
@@ -72,5 +72,7 @@
             });
         });
     </script>
-@endsection
+<?php $__env->stopSection(); ?>
 
+
+<?php echo $__env->make('layout.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\ami-enterprise\resources\views/preDefineMessage/create.blade.php ENDPATH**/ ?>
