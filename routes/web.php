@@ -158,16 +158,19 @@ Route::group(['middleware' => ['prevent-back-history']], function(){
             Route::get('payment/import', 'PaymentController@file_import')->name('payment.import.file');
             Route::post('payment/import', 'PaymentController@import')->name('payment.import');
             Route::post('payment/assign', 'PaymentController@assign')->name('payment.assign');
-
             Route::get('payment/assigned-users', 'PaymentController@assigned_users')->name('payment.assigned.users');
-        /** payment */
-
-        /** payments-reminder */
+            Route::post('payment/info-model', 'PaymentController@infoModel')->name('payment.info.model');
+            Route::post('payment/assign-model', 'PaymentController@assignModel')->name('payment.assign.model');
+            /** payment */
+            
+            /** payments-reminder */
             Route::any('payments-reminder', 'PaymentReminderController@index')->name('payments.reminders');
             Route::post('payments-reminder/insert', 'PaymentReminderController@insert')->name('payments.reminders.insert');
             Route::post('payments-reminder/change-status', 'PaymentReminderController@change_status')->name('payments.reminders.change.status');
-
             Route::get('payments-reminder/reports', 'PaymentReminderController@reports')->name('payments.reminders.reports');
+            Route::post('payment/add-followup', 'PaymentReminderController@addFollowup')->name('payment.add.followup');
+            Route::post('payment/followup-details', 'PaymentReminderController@followupDetails')->name('payment.followup.details');
+            Route::post('payment/bill-details', 'PaymentReminderController@billDetails')->name('payment.bill.details');
         /** payments-reminder */
         
         /** reminder */

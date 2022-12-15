@@ -12,17 +12,18 @@ use App\Http\Requests\PaymentRequest;
 use App\Imports\PaymentImport;
 use App\Models\PreDefinedMessage;
 use Auth, Validator, DB, Mail, DataTables, Excel;
+use stdClass;
 
 class PaymentController extends Controller {
     /** index */
     public function index(Request $request) {
+ 
         if ($request->ajax()) {
             $type = $request->type;
             $start_date = $request->start_date;
             $end_date = $request->end_date;
-
-            $collection = Payment::select('id', 'party_name', 'bill_date', 'balance_amount', 'mobile_no', DB::Raw("null as note"), DB::Raw("null as reminder"))
-                ->whereRaw('id IN (select MAX(id) FROM payments GROUP BY party_name)');
+            $collection = Payment::select('payments.id', 'payments.party_name', 'payments.bill_date', 'payments.balance_amount', 'payments.mobile_no')
+                ->whereRaw('payments.id IN (select MAX(id) FROM payments GROUP BY payments.party_name)');
 
             if ($start_date && $end_date) {
                 $collection->whereIn('party_name', function ($query) use ($start_date, $end_date) {
@@ -33,184 +34,62 @@ class PaymentController extends Controller {
             }
 
             if ($type && $type == 'assigned') {
-                $collection->whereIn('party_name', function ($query) {
+                $collection->whereIn('payments.party_name', function ($query) {
                     $query->select('party_name')
                         ->from(with(new PaymentAssign)->getTable());
-                });
+                })
+                    ->selectRaw(DB::raw("(CASE WHEN `payment_reminder`.`note` IS NOT NULL THEN `payment_reminder`.`note` ELSE NULL END) AS `note`, (CASE WHEN `u`.`name` IS NOT NULL THEN `u`.`name` ELSE NULL END) AS `reminder`"))
+                    ->leftjoin(DB::raw("(SELECT e.*, ROW_NUMBER() OVER (PARTITION BY e.party_name ORDER BY e.party_name) AS party_name_rn FROM payment_assign e) `payment_reminder`"), 'payments.party_name', 'payment_reminder.party_name_rn', DB::raw(1))
+                    ->leftjoin(DB::raw("`users` AS `u`"), 'u.id', 'payment_reminder.user_id');
+
             } elseif ($type && $type == 'not_assigned') {
-                $collection->whereNotIn('party_name', function ($query) {
+
+                $collection->whereNotIn('payments.party_name', function ($query) {
                     $query->select('party_name')
                         ->from(with(new PaymentAssign)->getTable());
-                });
+                })->addSelect(DB::Raw("null as note"), DB::Raw("null as reminder"));
+
             } elseif ($type && $type == 'all') {
+
+                $collection->selectRaw(DB::raw("(CASE WHEN `payment_reminder`.`note` IS NOT NULL THEN `payment_reminder`.`note` ELSE NULL END) AS `note`, (CASE WHEN `u`.`name` IS NOT NULL THEN `u`.`name` ELSE NULL END) AS `reminder`"))
+                    ->leftjoin(DB::raw("(SELECT e.*, ROW_NUMBER() OVER (PARTITION BY e.party_name ORDER BY e.party_name) AS party_name_rn FROM payment_assign e) `payment_reminder`"), 'payments.party_name', 'payment_reminder.party_name_rn', DB::raw(1))
+                    ->leftjoin(DB::raw("`users` AS `u`"), 'u.id', 'payment_reminder.user_id');
+
             } else {
-                $collection->whereIn('party_name', function ($query) use ($type) {
-                    $query->select('party_name')
+
+                $collection->whereIn('payments.party_name', function ($query) use ($type) {
+                    $query->select('payments.party_name')
                         ->from(with(new PaymentAssign)->getTable())
                         ->where(['user_id' => $type]);
-                });
+                })
+                    ->selectRaw(DB::raw("(CASE WHEN `payment_reminder`.`note` IS NOT NULL THEN `payment_reminder`.`note` ELSE NULL END) AS `note`, (CASE WHEN `u`.`name` IS NOT NULL THEN `u`.`name` ELSE NULL END) AS `reminder`"))
+                    ->leftjoin(DB::raw("(SELECT e.*, ROW_NUMBER() OVER (PARTITION BY e.party_name ORDER BY e.party_name) AS party_name_rn FROM payment_assign e) `payment_reminder`"), 'payments.party_name', 'payment_reminder.party_name_rn', DB::raw(1))
+                    ->leftjoin(DB::raw("`users` AS `u`"), 'u.id', 'payment_reminder.user_id');
             }
 
             $data = $collection->get();
-
-            if ($data->isNotEmpty()) {
-                foreach ($data as $row) {
-                    $assigned = PaymentAssign::select('payment_assign.note', 'u.name as reminder')
-                        ->leftjoin('users as u', 'u.id', 'payment_assign.user_id')
-                        ->where(['payment_assign.party_name' => $row->party_name])
-                        ->orderBy('payment_assign.id', 'desc')
-                        ->first();
-
-                    if ($assigned) {
-                        $row->note = $assigned->note;
-                        $row->reminder = $assigned->reminder;
-                    }
-
-                    $remider = PaymentReminder::select('payment_reminder.note')
-                        ->where(['payment_reminder.party_name' => $row->party_name])
-                        ->orderBy('payment_reminder.next_date', 'desc')
-                        ->first();
-
-                    if ($remider) {
-                        $row->note = $remider->note;
-                    }
-                }
-            }
-            $get_message = PreDefinedMessage::where('status' ,'active')->first('message');
-            if(!$get_message){
+            $get_message = PreDefinedMessage::where('status', 'active')->first('message');
+            if (!$get_message) {
                 $get_message = 'N/A';
-            }else{
+            } else {
                 $get_message = $get_message->message;
             }
             return Datatables::of($data)
                 ->addIndexColumn()
-                ->addColumn('action', function ($data) use($get_message) {
-                    $rec = Payment::select('bill_no', 'bill_date', 'bill_amount')->where(['party_name' => $data->party_name])->get();
-                    $assigned = PaymentAssign::select('id', 'note', 'user_id', 'date')->where(['party_name' => $data->party_name])->orderBy('id', 'desc')->first();
-
-                    $user_id = null;
-                    $note = null;
-                    $date = date("Y-m-d");
-                    $assign_id = null;
-
-                    if ($assigned) {
-                        $user_id = $assigned->user_id;
-                        $note = $assigned->note;
-                        $date = $assigned->date;
-                        $assign_id = $assigned->id;
-                    }
-
-                    $info = "<table class='table table-bordered'>
-                                            <thead class='thead-default'>
-                                                <tr>
-                                                    <th>Sr. No</th>
-                                                    <th>Bill No</th>
-                                                    <th>Bill Date</th>
-                                                    <th>Bill Amount</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>";
-
-                    if ($rec->isNotEmpty()) {
-                        $i = 1;
-                        foreach ($rec as $r) {
-                            $info .= "<tr>
-                                                    <td>$i</td>
-                                                    <td>$r->bill_no</td>
-                                                    <td>$r->bill_date</td>
-                                                    <td>$r->bill_amount</td>
-                                                </tr>";
-                            $i++;
-                        }
-                    }
-
-                    $info .= "</tbody></table>";
-
-                    $users = User::select('id', 'name')->where(['is_admin' => 'n', 'status' => 'active'])->get();
-
-                    $usersList = '<option value="">Selet user</option>';
-                    if ($users->isNotEmpty()) {
-                        foreach ($users as $u) {
-                            $select = '';
-                            if ($u->id == $user_id)
-                                $select = 'selected';
-
-                            $usersList .= "<option value='$u->id' $select>$u->name</option>";
-                        }
-                    }
-
-                    $form = "<div class='row'>
-                                            <input type='hidden' value='$data->party_name' id='party_name$data->id' />
-                                            <input type='hidden' value='$assign_id' name='assign_id' id='assign_id$data->id' />
-                                            <div class='form-group col-sm-12'>
-                                                <label for='date$data->id'>Date <span class='text-danger'>*</span></label>
-                                                <input type='date'  style='max-width: 90%;' name='date$data->id' id='date$data->id' class='form-control date' placeholder='Plese enter date' value='$date'/>
-                                                <span class='kt-form__help error date$data->id'></span>
-                                            </div>
-                                            <div class='form-group col-sm-12'>
-                                                <label for='user$data->id'>User <span class='text-danger'>*</span></label>
-                                                <select name='user$data->id' id='user$data->id' class='form-control' style='max-width: 90%;'>
-                                                    $usersList
-                                                </select>
-                                                <span class='kt-form__help error user$data->id'></span>
-                                            </div>
-                                            <div class='form-group col-sm-12'>
-                                                <label for='note'>Note </label>
-                                                <textarea type='note' name='note$data->id' id='note$data->id' class='form-control' style='max-width: 90%;'/>$note</textarea>
-                                                <span class='kt-form__help error note$data->id'></span>
-                                            </div>
-                                        </div>";
-
+                ->addColumn('action', function ($data) use ($get_message) {
                     $action = '<div class="btn-group">
-                                <button type="button" title="Assign reminder" class="btn btn-default btn-xs" data-toggle="modal" data-target="#assignModal' . $data->id . '">
+                                <button type="button" title="Assign reminder" class="btn btn-default btn-xs assignModel" data-name="' . $data->party_name . '" data-id="' . $data->id . '">
                                     <i class="fa fa-plus"></i>
                                 </button> &nbsp;
-                                <button type="button" title="Bill details" class="btn btn-default btn-xs" data-toggle="modal" data-target="#infoModal' . $data->id . '">
+                                <button type="button" title="Bill details" class="btn btn-default btn-xs infoModel" data-name="' . $data->party_name . '" data-id="' . $data->id . '">
                                     <i class="fa fa-file-text"></i>
                                 </button> &nbsp;';
                     if ($data->mobile_no != null || $data->mobile_no != '') {
-                        $action .= '<a target="_blank" href="https://wa.me/+91'.$data->mobile_no.'?text='.$get_message.'" title="Send Whatsapp Message" class="btn btn-default btn-xs">
+                        $action .= '<a target="_blank" href="https://wa.me/+91' . $data->mobile_no . '?text=' . $get_message . '" title="Send Whatsapp Message" class="btn btn-default btn-xs">
                                     <i class="fa fa-whatsapp" aria-hidden="true"></i>
                                     </a> &nbsp;';
                     }
-                    $action .= '</div>
-
-                            <div class="modal fade" id="infoModal' . $data->id . '" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel' . $data->id . '" aria-hidden="true">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="infoModalLabel' . $data->id . '">' . $data->party_name . '</h5>
-                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                        <div class="modal-body">' . $info . '</div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="modal fade" id="assignModal' . $data->id . '" tabindex="-1" role="dialog" aria-labelledby="assignModalLabel' . $data->id . '" aria-hidden="true">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="assignModalLabel' . $data->id . '">' . $data->party_name . '</h5>
-                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                        <form class="form" id=' . $data->id . '>
-                                            <div class="modal-body">' . $form . '</div>
-                                            <div class="modal-footer">
-                                                <button type="submit" class="btn btn-primary">Save</button>
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>';
+                    $action .= '</div>';
 
                     return $action;
                 })
@@ -237,7 +116,7 @@ class PaymentController extends Controller {
             return response()->json($validator->errors(), 422);
         } else {
             DB::beginTransaction();
-            try {
+            // try {
                 if ($request->assign_id != '' ||  $request->assign_id != null) {
                     $exst_assign = PaymentAssign::where(['id' => $request->assign_id])->first();
 
@@ -248,9 +127,8 @@ class PaymentController extends Controller {
                         'updated_at' => date('Y-m-d H:i:s'),
                         'updated_by' => auth()->user()->id
                     ];
-
                     $update = PaymentAssign::where(['id' => $request->assign_id])->update($crud);
-
+               
                     if ($update) {
                         $payment_reminder = PaymentReminder::select('id')->where(['party_name' => $request->party_name, 'user_id' => $exst_assign->user_id])->first();
 
@@ -276,7 +154,7 @@ class PaymentController extends Controller {
                         }
                     } else {
                         DB::rollback();
-                        return response()->json(['code' => 201, 'message' => 'Failed to update assign']);
+                        return response()->json(['code' => 202, 'message' => 'Failed to update assign']);
                     }
                 } else {
                     $crud = [
@@ -326,13 +204,13 @@ class PaymentController extends Controller {
                         }
                     } else {
                         DB::rollback();
-                        return response()->json(['code' => 201, 'message' => 'Failed to assign user']);
+                        return response()->json(['code' => 202, 'message' => 'Failed to assign user']);
                     }
                 }
-            } catch (\Exception $e) {
-                DB::rollback();
-                return response()->json(['code' => 201, 'message' => 'Something went wrong']);
-            }
+            // } catch (\Exception $e) {
+            //     DB::rollback();
+            //     return response()->json(['code' => 203, 'message' => 'Something went wrong']);
+            // }
         }
     }
     /** assign */
@@ -357,16 +235,110 @@ class PaymentController extends Controller {
     /** assigned-users */
     public function assigned_users(Request $request) {
         $options = '<option value="all">All</option><option value="assigned">Assigned</option><option value="not_assigned">Not Assigned</option>';
-
         $data = PaymentAssign::select('users.id', 'users.name')->leftjoin('users', 'users.id', 'payment_assign.user_id')->groupBy('payment_assign.user_id')->get();
-
         if ($data->isNotEmpty()) {
             foreach ($data as $row) {
                 $options .= "<option value='$row->id'>$row->name</option>";
             }
         }
-
         return response()->json(['code' => 200, 'data' => $options]);
     }
     /** assigned-users */
+
+    public function infoModel(Request $request) {
+        if ($request->has('id')) {
+            $data = new stdClass;
+            $data->id = $request->id;
+            $data->name = $request->name;
+            $rec = Payment::select('bill_no', 'bill_date', 'bill_amount')->where(['party_name' => $data->name])->get();
+            $info = "<table class='table table-bordered'>
+                                <thead class='thead-default'>
+                                    <tr>
+                                        <th>Sr. No</th>
+                                        <th>Bill No</th>
+                                        <th>Bill Date</th>
+                                        <th>Bill Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>";
+
+            if ($rec->isNotEmpty()) {
+                $i = 1;
+                foreach ($rec as $r) {
+                    $info .= "<tr>
+                                        <td>$i</td>
+                                        <td>$r->bill_no</td>
+                                        <td>$r->bill_date</td>
+                                        <td>$r->bill_amount</td>
+                                    </tr>";
+                    $i++;
+                }
+            }
+
+            $info .= "</tbody></table>";
+            $response = view('myModels.infoModel')->with(['info' => $info, 'data' => $data])->render();
+            return response()->json(['status' => 200, "message" => "Data found", 'data' => $response]);
+        } else {
+            return response()->json(['status' => 404, "message" => "No data found"]);
+        }
+    }
+
+    public function assignModel(Request $request) {
+        if ($request->has('id')) {
+            $data = new stdClass;
+            $data->id = $request->id;
+            $data->name = $request->name;
+            $assigned = PaymentAssign::select('id', 'note', 'user_id', 'date')->where(['party_name' => $data->name])->orderBy('id', 'desc')->first();
+
+            $user_id = null;
+            $note = null;
+            $date = date("Y-m-d");
+            $assign_id = null;
+            if ($assigned) {
+                $user_id = $assigned->user_id;
+                $note = $assigned->note;
+                $date = $assigned->date;
+                $assign_id = $assigned->id;
+            }
+
+            $users = User::select('id', 'name')->where(['is_admin' => 'n', 'status' => 'active'])->get();
+
+            $usersList = '<option value="">Selet user</option>';
+            if ($users->isNotEmpty()) {
+                foreach ($users as $u) {
+                    $select = '';
+                    if ($u->id == $user_id)
+                        $select = 'selected';
+
+                    $usersList .= "<option value='$u->id' $select>$u->name</option>";
+                }
+            }
+
+            $form = "<div class='row'>
+                                <input type='hidden' value='$data->name' id='party_name$data->id' />
+                                <input type='hidden' value='$assign_id' name='assign_id' id='assign_id$data->id' />
+                                <div class='form-group col-sm-12'>
+                                    <label for='date$data->id'>Date <span class='text-danger'>*</span></label>
+                                    <input type='date'  style='max-width: 90%;' name='date$data->id' id='date$data->id' class='form-control date' placeholder='Plese enter date' value='$date'/>
+                                    <span class='kt-form__help error date$data->id'></span>
+                                </div>
+                                <div class='form-group col-sm-12'>
+                                    <label for='user$data->id'>User <span class='text-danger'>*</span></label>
+                                    <select name='user$data->id' id='user$data->id' class='form-control' style='max-width: 90%;'>
+                                        $usersList
+                                    </select>
+                                    <span class='kt-form__help error user$data->id'></span>
+                                </div>
+                                <div class='form-group col-sm-12'>
+                                    <label for='note'>Note </label>
+                                    <textarea type='note' name='note$data->id' id='note$data->id' class='form-control' style='max-width: 90%;'/>$note</textarea>
+                                    <span class='kt-form__help error note$data->id'></span>
+                                </div>
+                            </div>";
+            $response = view('myModels.assignModel')->with(['form' => $form, 'data' => $data])->render();
+            return response()->json(['status' => 200, "message" => "Reminder found", 'data' => $response]);
+        } else {
+            return response()->json(['status' => 404, "message" => "No data found"]);
+        }
+    }
 }
