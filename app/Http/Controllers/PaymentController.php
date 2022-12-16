@@ -17,7 +17,7 @@ use stdClass;
 class PaymentController extends Controller {
     /** index */
     public function index(Request $request) {
- 
+
         if ($request->ajax()) {
             $type = $request->type;
             $start_date = $request->start_date;
@@ -41,20 +41,17 @@ class PaymentController extends Controller {
                     ->selectRaw(DB::raw("(CASE WHEN `payment_reminder`.`note` IS NOT NULL THEN `payment_reminder`.`note` ELSE NULL END) AS `note`, (CASE WHEN `u`.`name` IS NOT NULL THEN `u`.`name` ELSE NULL END) AS `reminder`"))
                     ->leftjoin(DB::raw("(SELECT e.*, ROW_NUMBER() OVER (PARTITION BY e.party_name ORDER BY e.party_name) AS party_name_rn FROM payment_assign e) `payment_reminder`"), 'payments.party_name', 'payment_reminder.party_name_rn', DB::raw(1))
                     ->leftjoin(DB::raw("`users` AS `u`"), 'u.id', 'payment_reminder.user_id');
-
             } elseif ($type && $type == 'not_assigned') {
 
                 $collection->whereNotIn('payments.party_name', function ($query) {
                     $query->select('party_name')
                         ->from(with(new PaymentAssign)->getTable());
                 })->addSelect(DB::Raw("null as note"), DB::Raw("null as reminder"));
-
             } elseif ($type && $type == 'all') {
 
                 $collection->selectRaw(DB::raw("(CASE WHEN `payment_reminder`.`note` IS NOT NULL THEN `payment_reminder`.`note` ELSE NULL END) AS `note`, (CASE WHEN `u`.`name` IS NOT NULL THEN `u`.`name` ELSE NULL END) AS `reminder`"))
                     ->leftjoin(DB::raw("(SELECT e.*, ROW_NUMBER() OVER (PARTITION BY e.party_name ORDER BY e.party_name) AS party_name_rn FROM payment_assign e) `payment_reminder`"), 'payments.party_name', 'payment_reminder.party_name_rn', DB::raw(1))
                     ->leftjoin(DB::raw("`users` AS `u`"), 'u.id', 'payment_reminder.user_id');
-
             } else {
 
                 $collection->whereIn('payments.party_name', function ($query) use ($type) {
@@ -85,9 +82,10 @@ class PaymentController extends Controller {
                                     <i class="fa fa-file-text"></i>
                                 </button> &nbsp;';
                     if ($data->mobile_no != null || $data->mobile_no != '') {
-                        $action .= '<a target="_blank" href="https://wa.me/+91' . $data->mobile_no . '?text=' . $get_message . '" title="Send Whatsapp Message" class="btn btn-default btn-xs">
-                                    <i class="fa fa-whatsapp" aria-hidden="true"></i>
-                                    </a> &nbsp;';
+                        $action .= '
+                        <button type="button" title="Bill details" class="btn btn-default btn-xs sendMessage" data-number="' . $data->mobile_no . '">
+                        <i class="fa fa-whatsapp" aria-hidden="true"></i>
+                                </button>';
                     }
                     $action .= '</div>';
 
@@ -117,96 +115,96 @@ class PaymentController extends Controller {
         } else {
             DB::beginTransaction();
             // try {
-                if ($request->assign_id != '' ||  $request->assign_id != null) {
-                    $exst_assign = PaymentAssign::where(['id' => $request->assign_id])->first();
+            if ($request->assign_id != '' ||  $request->assign_id != null) {
+                $exst_assign = PaymentAssign::where(['id' => $request->assign_id])->first();
 
-                    $crud = [
+                $crud = [
+                    'user_id' => $request->user,
+                    'date' => $request->date,
+                    'note' => $request->note ?? NULL,
+                    'updated_at' => date('Y-m-d H:i:s'),
+                    'updated_by' => auth()->user()->id
+                ];
+                $update = PaymentAssign::where(['id' => $request->assign_id])->update($crud);
+
+                if ($update) {
+                    $payment_reminder = PaymentReminder::select('id')->where(['party_name' => $request->party_name, 'user_id' => $exst_assign->user_id])->first();
+
+                    $remider_crud = [
                         'user_id' => $request->user,
-                        'date' => $request->date,
+                        'date' => date('Y-m-d H:i:s'),
+                        'next_date' => $request->date ?? date('Y-m-d H:i:s'),
+                        'next_time' => '00:00',
                         'note' => $request->note ?? NULL,
+                        'amount' => NULL,
                         'updated_at' => date('Y-m-d H:i:s'),
                         'updated_by' => auth()->user()->id
                     ];
-                    $update = PaymentAssign::where(['id' => $request->assign_id])->update($crud);
-               
-                    if ($update) {
-                        $payment_reminder = PaymentReminder::select('id')->where(['party_name' => $request->party_name, 'user_id' => $exst_assign->user_id])->first();
 
-                        $remider_crud = [
-                            'user_id' => $request->user,
-                            'date' => date('Y-m-d H:i:s'),
-                            'next_date' => $request->date ?? date('Y-m-d H:i:s'),
-                            'next_time' => '00:00',
-                            'note' => $request->note ?? NULL,
-                            'amount' => NULL,
-                            'updated_at' => date('Y-m-d H:i:s'),
-                            'updated_by' => auth()->user()->id
-                        ];
+                    $remider_update = PaymentReminder::where(['id' => $payment_reminder->id])->update($remider_crud);
 
-                        $remider_update = PaymentReminder::where(['id' => $payment_reminder->id])->update($remider_crud);
-
-                        if ($remider_update) {
-                            DB::commit();
-                            return response()->json(['code' => 200, 'message' => 'User assigned updated successfully']);
-                        } else {
-                            DB::rollback();
-                            return response()->json(['code' => 201, 'message' => 'Failed to update remider']);
-                        }
+                    if ($remider_update) {
+                        DB::commit();
+                        return response()->json(['code' => 200, 'message' => 'User assigned updated successfully']);
                     } else {
                         DB::rollback();
-                        return response()->json(['code' => 202, 'message' => 'Failed to update assign']);
+                        return response()->json(['code' => 201, 'message' => 'Failed to update remider']);
                     }
                 } else {
-                    $crud = [
+                    DB::rollback();
+                    return response()->json(['code' => 202, 'message' => 'Failed to update assign']);
+                }
+            } else {
+                $crud = [
+                    'user_id' => $request->user,
+                    'party_name' => $request->party_name,
+                    'date' => $request->date,
+                    'note' => $request->note ?? NULL,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'created_by' => auth()->user()->id,
+                    'updated_at' => date('Y-m-d H:i:s'),
+                    'updated_by' => auth()->user()->id
+                ];
+
+                $last_id = PaymentAssign::insertGetId($crud);
+
+                if ($last_id) {
+                    $payment = Payment::select('mobile_no')->where(['party_name' => $request->party_name])->where('mobile_no', '!=', NULL)->first();
+
+                    $mobile_no = NULL;
+                    if ($payment)
+                        $mobile_no = $payment->mobile_no;
+
+                    $remider_crud = [
                         'user_id' => $request->user,
                         'party_name' => $request->party_name,
-                        'date' => $request->date,
+                        'mobile_no' => $request->mobile_no,
+                        'date' => date('Y-m-d H:i:s'),
+                        'next_date' => $request->date ?? date('Y-m-d H:i:s'),
+                        'next_time' => '00:00',
+                        'is_last' => 'y',
                         'note' => $request->note ?? NULL,
+                        'amount' => NULL,
                         'created_at' => date('Y-m-d H:i:s'),
                         'created_by' => auth()->user()->id,
                         'updated_at' => date('Y-m-d H:i:s'),
                         'updated_by' => auth()->user()->id
                     ];
 
-                    $last_id = PaymentAssign::insertGetId($crud);
+                    $remider_id = PaymentReminder::insertGetId($remider_crud);
 
-                    if ($last_id) {
-                        $payment = Payment::select('mobile_no')->where(['party_name' => $request->party_name])->where('mobile_no', '!=', NULL)->first();
-
-                        $mobile_no = NULL;
-                        if ($payment)
-                            $mobile_no = $payment->mobile_no;
-
-                        $remider_crud = [
-                            'user_id' => $request->user,
-                            'party_name' => $request->party_name,
-                            'mobile_no' => $request->mobile_no,
-                            'date' => date('Y-m-d H:i:s'),
-                            'next_date' => $request->date ?? date('Y-m-d H:i:s'),
-                            'next_time' => '00:00',
-                            'is_last' => 'y',
-                            'note' => $request->note ?? NULL,
-                            'amount' => NULL,
-                            'created_at' => date('Y-m-d H:i:s'),
-                            'created_by' => auth()->user()->id,
-                            'updated_at' => date('Y-m-d H:i:s'),
-                            'updated_by' => auth()->user()->id
-                        ];
-
-                        $remider_id = PaymentReminder::insertGetId($remider_crud);
-
-                        if ($remider_id) {
-                            DB::commit();
-                            return response()->json(['code' => 200, 'message' => 'User assigned successfully']);
-                        } else {
-                            DB::rollback();
-                            return response()->json(['code' => 201, 'message' => 'Failed to insert reminder']);
-                        }
+                    if ($remider_id) {
+                        DB::commit();
+                        return response()->json(['code' => 200, 'message' => 'User assigned successfully']);
                     } else {
                         DB::rollback();
-                        return response()->json(['code' => 202, 'message' => 'Failed to assign user']);
+                        return response()->json(['code' => 201, 'message' => 'Failed to insert reminder']);
                     }
+                } else {
+                    DB::rollback();
+                    return response()->json(['code' => 202, 'message' => 'Failed to assign user']);
                 }
+            }
             // } catch (\Exception $e) {
             //     DB::rollback();
             //     return response()->json(['code' => 203, 'message' => 'Something went wrong']);
@@ -337,6 +335,43 @@ class PaymentController extends Controller {
                             </div>";
             $response = view('myModels.assignModel')->with(['form' => $form, 'data' => $data])->render();
             return response()->json(['status' => 200, "message" => "Reminder found", 'data' => $response]);
+        } else {
+            return response()->json(['status' => 404, "message" => "No data found"]);
+        }
+    }
+
+    public function sendMessage(Request $request) {
+        if ($request->has('number')) {
+            $data = PreDefinedMessage::where('status' ,'active')->get(['message' ,'id']);
+            if($data->isNotEmpty()){
+                $message = '';
+                foreach($data AS $data){
+                    $message .= '<option value="'.$data->id.'">'.$data->message.'</option>';
+                }
+                $form = "<div class='row'>
+                            <input type='hidden' value='$request->number' name='number' id='number'>
+                            <div class='form-group col-sm-12'>
+                                <label for='message'>Select Message <span class='text-danger'>*</span></label>
+                                <select class='form-control' name='message' id='message'>
+                                    <option disabled selected value=''>Select Message</option>
+                                    $message
+                                </select>
+                                <span class='kt-form__help error message'></span>
+                            </div>
+                            <div class='form-group col-sm-12'>
+                                <label>Or Enter Custom Message </label>
+                            </div>
+                            <div class='form-group col-sm-12'>
+                                <label for='custom_message'>Custom Message </label>
+                                <textarea name='custom_message' id='custom_message' class='form-control' style='max-width: 100%;'/></textarea>
+                                <span class='kt-form__help error custom_message'></span>
+                            </div>
+                        </div>";
+                $response = view('myModels.sendMessage')->with(['data' => $form])->render();
+                return response()->json(['status' => 200, "message" => "Data found", 'data' => $response]);
+            }else{
+                return response()->json(['status' => 423, "message" => "No Message found"]);
+            }
         } else {
             return response()->json(['status' => 404, "message" => "No data found"]);
         }

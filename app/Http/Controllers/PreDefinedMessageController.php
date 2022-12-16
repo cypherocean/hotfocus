@@ -64,31 +64,20 @@ class PreDefinedMessageController extends Controller {
         if ($request->ajax()) {
             return true;
         }
-        $message = PreDefinedMessage::first();
+
         $crud = [
             'message' => $request->message,
             'created_at' => date('Y-m-d H:i:s'),
             'created_by' => auth()->user()->id,
         ];
-         
-        if ($message) {
-            $update = PreDefinedMessage::where(['id' => $message->id])->update($crud);
-            if ($update){
-                return redirect()->route('pre_defined_message')->with('success', 'Message updated successfully.');
-            }else{
-                return redirect()->back()->with('error', 'Faild to update message!')->withInput();
-            }
-        }else{
-            $last_id = PreDefinedMessage::insertGetId($crud);
-            if ($last_id) {
-                return redirect()->route('pre_defined_message')->with('success', 'Pre-define Message created successfully.');
-            } else {
-                return redirect()->back()->with('error', 'Faild to create Pre-define Message!')->withInput();
-            }
+
+
+        $last_id = PreDefinedMessage::insertGetId($crud);
+        if ($last_id) {
+            return redirect()->route('pre_defined_message')->with('success', 'Pre-define Message created successfully.');
+        } else {
+            return redirect()->back()->with('error', 'Faild to create Pre-define Message!')->withInput();
         }
-
-
-
     }
     /** insert */
 
@@ -131,29 +120,21 @@ class PreDefinedMessageController extends Controller {
         if ($request->ajax()) {
             return true;
         }
+        if ($request->has('id')) {
+            $crud = [
+                'message' => $request->message,
+                'updated_at' => date('Y-m-d H:i:s'),
+                'updated_by' => auth()->user()->id
+            ];
 
-        $message = PreDefinedMessage::first();
-        $crud = [
-            'message' => $request->message,
-            'updated_at' => date('Y-m-d H:i:s'),
-            'updated_by' => auth()->user()->id
-        ];
-        if ($message) {
-            dd("if");
             $update = PreDefinedMessage::where(['id' => $request->id])->update($crud);
-            if ($update){
+            if ($update) {
                 return redirect()->route('pre_defined_message')->with('success', 'Message updated successfully.');
-            }else{
+            } else {
                 return redirect()->back()->with('error', 'Faild to update message!')->withInput();
             }
         } else {
-            dd("else");
-            $last_id = PreDefinedMessage::insertGetId($crud);
-            if($last_id){
-                return redirect()->route('pre_defined_message')->with('success', 'Message updated successfully.');
-            }else{
-                return redirect()->back()->with('error', 'Faild to update Message!')->withInput();
-            }
+            return redirect()->back()->with('error', 'Faild to update message!')->withInput();
         }
     }
     /** update */
@@ -171,9 +152,9 @@ class PreDefinedMessageController extends Controller {
             $data = PreDefinedMessage::where(['id' => $id])->first();
             if (!empty($data)) {
                 $update = PreDefinedMessage::where(['id' => $id])->update(['status' => $status, 'updated_at' => date('Y-m-d H:i:s'), 'updated_by' => auth()->user()->id]);
-                if ($update){
+                if ($update) {
                     return response()->json(['code' => 200]);
-                }else{
+                } else {
                     return response()->json(['code' => 201]);
                 }
             } else {

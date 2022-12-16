@@ -206,10 +206,68 @@ Payments
         } else {
             toastr.error(error, 'No Id Found');
         }
+    }).on("click" ,".sendMessage" ,function(e){
+        let number = $(this).data('number');
+        if (number) {
+            $.ajax({
+                url: '<?php echo route("payment.sendMessage"); ?>',
+                type: "POST",
+                data: {
+                    "_token": "<?php echo e(csrf_token()); ?>",
+                    number: number,
+                },
+                dataType: 'json',
+                async: false,
+                success: function(response) {
+                    if (response.status == 200) {
+                        $('#myModel').append(response.data)
+                        $('#sendMessage').modal('show');
+                    } else {
+                        toastr.error(error, response.message);
+                    }
+                },
+                error: function(response) {
+                    toastr.error(error, 'Faild to load model');
+                }
+            });
+        } else {
+            toastr.error(error, 'No Number Found');
+        }
     }).on('hidden.bs.modal' ,'#assignModal', function (e) {
         $('#myModel #assignModal').remove();
     }).on('hidden.bs.modal' ,'#infoModal', function (e) {
         $('#myModel #infoModal').remove();
+    }).on('hidden.bs.modal' ,'#sendMessage', function (e) {
+        $('#myModel #sendMessage').remove();
+    }).on("submit" ,".Messageform" ,function(e){
+        e.preventDefault();
+   
+        var number = null;
+        if($("#number").val()){
+            number = $("#number").val();
+        }else{
+            number = null;
+        }
+        var tempMessage = $("#message");
+ 
+        if(tempMessage.val() != null){
+ 
+            var message = $('#message option:selected').text();
+        }else if($('#custom_message').val() !== null || $('#custom_message').val() !== ''){
+ 
+            var message = $('#custom_message').val();
+        }else{
+            alert('else');
+            var message = null;
+        }
+        if(message != null && number != null){
+            alert(message);
+            window.open(`https://wa.me/+91${number}?text=${message}`, "_blank");
+            $('#sendMessage').modal('hide');
+        }else{
+            alert('else');
+            toastr.error(error, 'No Message found');
+        }
     });
 
     $('#type').change(function() {

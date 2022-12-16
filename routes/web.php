@@ -161,6 +161,7 @@ Route::group(['middleware' => ['prevent-back-history']], function(){
             Route::get('payment/assigned-users', 'PaymentController@assigned_users')->name('payment.assigned.users');
             Route::post('payment/info-model', 'PaymentController@infoModel')->name('payment.info.model');
             Route::post('payment/assign-model', 'PaymentController@assignModel')->name('payment.assign.model');
+            Route::post('send-message', 'PaymentController@sendMessage')->name('payment.sendMessage');
             /** payment */
             
             /** payments-reminder */
