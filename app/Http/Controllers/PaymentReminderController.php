@@ -38,10 +38,16 @@ class PaymentReminderController extends Controller {
             if ($date == 'today') {
                 $collection->whereDate('payment_reminder.next_date', '=', date('Y-m-d'));
             } else {
-                $collection->whereDate('payment_reminder.next_date', '!=', date('Y-m-d'));
-            }
+                if ($date == 'all_payment' || $date == 'future'){
+                    $collection->whereDate('payment_reminder.next_date', '!=', date('Y-m-d'));
+                } else if ($date == 'due_payment') {
+                    $collection->whereDate('payment_reminder.next_date', '<', date('Y-m-d'));
+                } else if($date == 'future_payment') {
+                    $collection->whereDate('payment_reminder.next_date', '>', date('Y-m-d'));
+                }
+            } 
 
-            $collection->where(['payment_reminder.is_last' => 'y']);
+            $collection->where(['payment_reminder.is_last' => 'y'])->orderBy('payment_reminder.next_date' ,'DESC');
 
             $data = $collection->get();
             $get_message = PreDefinedMessage::where('status', 'active')->first('message');

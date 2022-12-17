@@ -5,7 +5,7 @@
     @include('layout.meta')
 
     <title>{{ _site_title() }} | @yield('title')</title>
-    
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @include('layout.styles')
 </head>
 

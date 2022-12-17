@@ -5,7 +5,7 @@
     <?php echo $__env->make('layout.meta', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 
     <title><?php echo e(_site_title()); ?> | <?php echo $__env->yieldContent('title'); ?></title>
-    
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
     <?php echo $__env->make('layout.styles', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?>
 </head>
 

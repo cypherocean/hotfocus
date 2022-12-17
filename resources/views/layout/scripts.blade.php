@@ -14,24 +14,30 @@
 @yield('scripts')
 
 <script>
+    const APP_URL = '{{ env("APP_URL") }}';
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
     @php
-        $success = '';
-        if(\Session::has('success'))
-            $success = \Session::get('success');
+    $success = '';
+    if (\Session::has('success'))
+        $success = \Session::get('success');
 
-        $error = '';
-        if(\Session::has('error'))
-            $error = \Session::get('error');
+    $error = '';
+    if (\Session::has('error'))
+        $error = \Session::get('error');
     @endphp
 
     var success = "{{ $success }}";
     var error = "{{ $error }}";
 
-    if(success != ''){
+    if (success != '') {
         toastr.success(success, 'Success');
     }
 
-    if(error != ''){
+    if (error != '') {
         toastr.error(error, 'error');
     }
 </script>

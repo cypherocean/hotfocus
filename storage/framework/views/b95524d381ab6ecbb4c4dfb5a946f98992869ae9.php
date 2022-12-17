@@ -14,24 +14,30 @@
 <?php echo $__env->yieldContent('scripts'); ?>
 
 <script>
+    const APP_URL = '<?php echo e(env("APP_URL")); ?>';
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
     <?php
-        $success = '';
-        if(\Session::has('success'))
-            $success = \Session::get('success');
+    $success = '';
+    if (\Session::has('success'))
+        $success = \Session::get('success');
 
-        $error = '';
-        if(\Session::has('error'))
-            $error = \Session::get('error');
+    $error = '';
+    if (\Session::has('error'))
+        $error = \Session::get('error');
     ?>
 
     var success = "<?php echo e($success); ?>";
     var error = "<?php echo e($error); ?>";
 
-    if(success != ''){
+    if (success != '') {
         toastr.success(success, 'Success');
     }
 
-    if(error != ''){
+    if (error != '') {
         toastr.error(error, 'error');
     }
 </script><?php /**PATH C:\xampp\htdocs\ami-enterprise\resources\views/layout/scripts.blade.php ENDPATH**/ ?>
