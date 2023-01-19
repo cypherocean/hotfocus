@@ -7,10 +7,7 @@ use Illuminate\Database\Seeder;
 class DatabaseSeeder extends Seeder{
     public function run(){
         $this->call([
-            UserSeeder::class,
-            ProductSeeder::class,
-            CustomerSeeder::class,
-            StripSeeder::class,
+            UserSeeder::class
         ]);
     }
 }

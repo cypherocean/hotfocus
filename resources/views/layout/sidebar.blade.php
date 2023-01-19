@@ -118,6 +118,11 @@
                     <span class="nav-label">Whatsapp Message</span>
                 </a>
             </li>
+            <li class="{{ Request::is('calendar*') ? 'active' : '' }}">
+                <a class="{{ Request::is('calendar*') ? 'active' : '' }}" href="{{ route('calendar.index') }}"><i class="sidebar-item-icon fa fa-calendar"></i>
+                    <span class="nav-label">Calendar</span>
+                </a>
+            </li>
         </ul>
     </div>
 </nav>

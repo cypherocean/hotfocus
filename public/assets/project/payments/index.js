@@ -97,12 +97,11 @@ class FormSubmitClass {
 
         let id = $(this).attr('id');
 
-        let assign_id = $('#assign_id' + id).val();
-        let party_name = $('#party_name' + id).val();
-        let date = $('#date' + id).val();
-        let user = $('#user' + id + ' option').filter(':selected').val();
-        let note = $('#note' + id).val();
-
+        let assign_id = $('#assign_id').val();
+        let party_name = $('#party_name').val();
+        let date = $('#date').val();
+        let user = $('#user' + ' option').filter(':selected').val();
+        let note = $('#note').val();
         $.ajax({
             "url": APP_URL + "payment/assign",
             "dataType": "json",
@@ -265,14 +264,17 @@ class ModelOpenClass {
 class ModelCloseClass{
     assignModel(){
         $('#myModel #assignModal').remove();
+        $('.modal-backdrop').remove();
     }
-
+    
     infoModel(){
         $('#myModel #infoModal').remove();
+        $('.modal-backdrop').remove();
     }
-
+    
     sendMessage(){
         $('#myModel #sendMessage').remove();
+        $('.modal-backdrop').remove();
     }
 }
 const DataTableIndexClass = new DataTableClass();

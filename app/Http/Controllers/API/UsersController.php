@@ -1,138 +1,278 @@
-<?php    
-    namespace App\Http\Controllers\API;
+<?php
 
-    use App\Http\Controllers\Controller;
-    use Illuminate\Http\Request;
-    use App\Models\User;
-    use App\Http\Requests\UsersRequest;
-    use Auth, Validator, DB, Mail;
+namespace App\Http\Controllers\API;
 
-    class UsersController extends Controller{
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
+use App\Models\User;
+use App\Models\FriendList;
 
-        /** index */
-            public function users(Request $request){
-                $data = User::select('id', 'name', 'email', 'phone', 'status')->where(['is_admin' => 'n'])->get();
-                
-                if($data->isNotEmpty())
-                    return response()->json(['status' => 200, 'message' => 'success', 'data' => $data]);
-                else
-                    return response()->json(['status' => 201, 'message' => 'No users found']);
-            }
-        /** index */
 
-        /** insert */
-            public function insert(Request $request){
-                $rules = [
-                    'name' => 'required',
-                    'email' => 'required|email|unique:users,email'
-                ];
+class UsersController extends Controller {
+    private $successCode;
+    private $databaseNodataCode;
+    private $databaseErrorCode;
+    private $errorCode;
+    private $validationErrorCode;
 
-                $validator = Validator::make($request->all(), $rules);
+    public function __construct() {
+        $this->successCode = 200;
+        $this->databaseNodataCode = 404;
+        $this->databaseErrorCode = 201;
+        $this->errorCode = 422;
+        $this->validationErrorCode = 422;
+    }
 
-                if($validator->fails())
-                    return response()->json(['status' => 422, 'message' => $validator->errors()]);
+    /* Get My Profile */
+    public function myProfile(Request $request) {
+        $rules = [
+            'id' => 'required'
+        ];
+        $validator = Validator::make($request->all(), $rules);
 
-                $password = $request->password ?? 'Abcd@1234';
-                
-                $crud = [
-                    'name' => ucfirst($request->name),
-                    'email' => $request->email,
-                    'phone' => $request->phone ?? NULL,
-                    'password' => bcrypt($password),
-                    'status' => 'active',
-                    'is_admin' => 'n',
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'created_by' => auth('sanctum')->user()->id,
-                    'updated_at' => date('Y-m-d H:i:s'),
-                    'updated_by' => auth('sanctum')->user()->id
-                ];
+        if ($validator->fails()) {
+            return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
+        }
 
-                $last_id = User::insertGetId($crud);
-                
-                if($last_id)
-                    return response()->json(['status' => 200, 'message' => 'Record added successfully', 'id' => $last_id]);
-                else
-                    return response()->json(['status' => 201, 'message' => 'Faild to add record']);            
-            }
-        /** insert */
+        $data = User::select(DB::raw("COALESCE(id,'') AS id"), DB::raw("COALESCE(name,'') AS name"), DB::raw("COALESCE(uid,'') AS uid"), DB::raw("COALESCE(phone,'') AS phone"), DB::raw("COALESCE(display_image,'') AS display_image"), DB::raw("COALESCE(cover_image,'') AS cover_image"), DB::raw("COALESCE(email,'') AS email"), DB::raw("COALESCE(status,'') AS status"), DB::raw("COALESCE(profile_type,'') AS profile_type"))->where(['id' => $request->id])->first();
+        if (!$data) {
+            return response()->json(['status' => $this->databaseNodataCode, 'message' => 'No users found']);
+        }
+        return response()->json(['status' => $this->successCode, 'message' => 'User found', 'data' => $data]);
+    }
+    /* Get My Profile */
 
-        /** view */
-            public function view(Request $request, $id=''){
-                $id = $request->id;
-                $data = User::where(['id' => $id])->first();
-                
-                if($data)
-                    return response()->json(['status' => 200, 'message' => 'Data found', 'data' => $data]);
-                else
-                    return response()->json(['status' => 404, 'message' => 'No data found']);
-            }
-        /** view */
+    /* Update User Profile */
+    public function updateProfile(Request $request) {
+        $rules = [
+            'id' => 'required',
+            'email' => 'required'
+        ];
+        $validator = Validator::make($request->all(), $rules);
 
-        /** update */
-            public function update(Request $request){
-                $rules = [
-                    'name' => 'required',
-                    'email' => 'required|email|unique:users,email,'.$request->id
-                ];
+        if ($validator->fails()) {
+            return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
+        }
 
-                $validator = Validator::make($request->all(), $rules);
+        $id = $request->id;
+        $exst_rec = User::where(['id' => $id])->first();
 
-                if($validator->fails())
-                    return response()->json(['status' => 422, 'message' => $validator->errors()]);
+        $data = [
+            'name' => $request->name ?? null,
+            'email' => $request->email,
+            'phone' => $request->phone ?? null,
+            'display_image' => $exst_rec->display_image ?? null,
+            'cover_image' => $exst_rec->cover_image ?? null,
+            'updated_at' => date('Y-m-d H:i:s'),
+            'updated_by' => auth()->user()->id
+        ];
 
-                $crud = [
-                    'name' => ucfirst($request->name),
-                    'email' => $request->email,
-                    'phone' => $request->phone ?? NULL,
-                    'updated_at' => date('Y-m-d H:i:s'),
-                    'updated_by' => auth('sanctum')->user()->id
-                ];
-                    
-                if(isset($request->password) && !empty($request->password))
-                    $crud['password'] = bcrypt($request->password);
+        $folder_to_upload = public_path() . '/uploads/users/';
 
-                $update = User::where(['id' => $request->id])->update($crud);
-                if($update)
-                    return response()->json(['status' => 200, 'message' => 'Record updated successfully']);
-                else
-                    return response()->json(['status' => 404, 'message' => 'Faild to update record']);
-                
-            }
-        /** update */
+        if (!empty($request->file('display_image'))) {
+            $file = $request->file('display_image');
+            $filenameWithExtension = $request->file('display_image')->getClientOriginalName();
+            $filename = pathinfo($filenameWithExtension, PATHINFO_FILENAME);
+            $extension = $request->file('display_image')->getClientOriginalExtension();
+            $filenameToStore = time() . "dp_" . $filename . '.' . $extension;
 
-        /** change-status */
-            public function change_status(Request $request){
-                $rules = [
-                    'id' => 'required',
-                    'status' => 'required'
-                ];
+            if (!\File::exists($folder_to_upload))
+                \File::makeDirectory($folder_to_upload, 0777, true, true);
 
-                $validator = Validator::make($request->all(), $rules);
+            $data['display_image'] = $filenameToStore;
+        }
 
-                if($validator->fails())
-                    return response()->json(['status' => 422, 'message' => $validator->errors()]);
+        if (!empty($request->file('cover_image'))) {
+            $file1 = $request->file('cover_image');
+            $filenameWithExtension1 = $request->file('cover_image')->getClientOriginalName();
+            $filename1 = pathinfo($filenameWithExtension1, PATHINFO_FILENAME);
+            $extension1 = $request->file('cover_image')->getClientOriginalExtension();
+            $filenameToStore1 = time() . "cp_" . $filename1 . '.' . $extension1;
 
-                $data = User::where(['id' => $request->id])->first();
+            if (!\File::exists($folder_to_upload))
+                \File::makeDirectory($folder_to_upload, 0777, true, true);
 
-                if(!empty($data)){
-                    if($request->status == 'deleted'){
-                        $update = User::where('id', $request->id)->delete();
-                        
-                        if($update)
-                            return response()->json(['status' => 200 ,'message' => 'Record deleted successfully']);
-                        else
-                            return response()->json(['status' => 201, 'message' => 'Faild to delete record']);
-                    }else{
-                        $update = User::where(['id' => $request->id])->update(['status' => $request->status, 'updated_at' => date('Y-m-d H:i:s'), 'updated_by' => auth('sanctum')->user()->id]);
-                    
-                        if($update)
-                            return response()->json(['status' => 200 ,'message' => 'Record status change successfully']);
-                        else
-                            return response()->json(['status' => 201, 'message' => 'Faild to update status']);
+            $data['cover_image'] = $filenameToStore1;
+        }
+
+        $update = User::where(['id' => $id])->update($data);
+
+        if ($update) {
+            if (!empty($request->file('display_image'))) {
+                $file->move($folder_to_upload, $filenameToStore);
+
+                $file_path = public_path() . '/uploads/users/' . $exst_rec->display_image;
+
+                if (File::exists($file_path) && $file_path != '') {
+                    if ($exst_rec->display_image != 'user-icon.jpg') {
+                        @unlink($file_path);
                     }
-                }else{
-                    return response()->json(['status' => 201, 'message' => 'Somthing went wrong !']);
                 }
             }
-        /** change-status */
+            if (!empty($request->file('cover_image'))) {
+                $file1->move($folder_to_upload, $filenameToStore1);
+
+                $file_path1 = public_path() . '/uploads/users/' . $exst_rec->cover_image;
+
+                if (File::exists($file_path1) && $file_path1 != '') {
+                    if ($exst_rec->cover_image != 'user-icon.jpg') {
+                        @unlink($file_path1);
+                    }
+                }
+            }
+            $user = User::select(DB::raw("COALESCE(id,'') AS id"), DB::raw("COALESCE(name,'') AS name"), DB::raw("COALESCE(uid,'') AS uid"), DB::raw("COALESCE(phone,'') AS phone"), DB::raw("COALESCE(display_image,'') AS display_image"), DB::raw("COALESCE(cover_image,'') AS cover_image"), DB::raw("COALESCE(email,'') AS email"), DB::raw("COALESCE(status,'') AS status"), DB::raw("COALESCE(profile_type,'') AS profile_type"))->where('id', $id)->first();
+            return response()->json(['status' => $this->successCode, 'message' => 'Profile updated successfully.', 'data' => $user]);
+        } else {
+            return response()->json(['status' => $this->databaseErrorCode, 'message' => 'Failed to update profile!']);
+        }
     }
+    /* Update User Profile */
+
+    /* Fiend Friend */
+    public function findFriend(Request $request) {
+        $rules = [
+            'id' => 'required',
+            'search_name' => 'required'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
+        }
+
+        $find_user = User::where('name', 'LIKE', '%' . $request->search_name . '%')->where('status', 'active')->get(['id', 'name', 'display_image']);
+        if ($find_user->isNotEmpty()) {
+            return response()->json(['status' => $this->successCode, 'message' => 'user found', 'data' => $find_user]);
+        } else {
+            return response()->json(['status' => $this->databaseNodataCode, 'message' => 'No user found!']);
+        }
+    }
+    /* Fiend Friend */
+
+    /** Get User Profile */
+    public function getUserProfile(Request $request) {
+        $rules = [
+            'user_id' => 'required',
+        ];
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
+        }
+        $data = User::select(DB::raw("COALESCE(id,'') AS id"), DB::raw("COALESCE(name,'') AS name"), DB::raw("COALESCE(uid,'') AS uid"), DB::raw("COALESCE(phone,'') AS phone"), DB::raw("COALESCE(display_image,'') AS display_image"), DB::raw("COALESCE(cover_image,'') AS cover_image"), DB::raw("COALESCE(email,'') AS email"), DB::raw("COALESCE(status,'') AS status"), DB::raw("COALESCE(profile_type,'') AS profile_type"))->where(['id' => $request->user_id])->first();
+
+        if ($data) {
+            if($data->profile_type == 'private'){
+                $user = [
+                    'id' => $data->id,
+                    'name' => $data->name,
+                    'uid' => '',
+                    'phone' => '',
+                    'display_image' => $data->display_image,
+                    'cover_image' => $data->cover_image,
+                    'email' => '',
+                    'status' => $data->status,
+                    'profile_type' => $data->profile_type,
+                ];
+            }else if ($data->profile_type == 'public'){
+                $user = [
+                    'id' => $data->id,
+                    'name' => $data->name,
+                    'uid' => $data->uid,
+                    'phone' => $data->phone,
+                    'display_image' => $data->display_image,
+                    'cover_image' => $data->cover_image,
+                    'email' => $data->email,
+                    'status' => $data->status,
+                    'profile_type' => $data->profile_type,
+                ];
+            }
+            return response()->json(['status' => $this->successCode, 'message' => 'User found', 'data' => $user]);
+        } else {
+            return response()->json(['status' => $this->databaseNodataCode, 'message' => 'No users found']);
+        }
+    }
+    /** Get User Profile */
+
+    /* Send Friend Request */
+    public function sendFriendRequest(Request $request) {
+        $rules = [
+            'user_id' => 'required',
+            'friend_id' => 'required'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
+        }
+
+        $get_user = User::find($request->user_id);
+        $get_friend = User::find($request->friend_id);
+        if (!$get_user || !$get_friend) {
+            return response()->json(['status' => $this->databaseNodataCode, 'message' => 'User not found!']);
+        }
+        $crud = [
+            'user_id' => $request->user_id,
+            'friend_id' => $request->friend_id,
+            'created_at' => Carbon::now()->format("Y-m-d H:i:s")
+        ];
+        $friend_request = FriendList::insertGetId($crud);
+
+        if ($friend_request) {
+            return response()->json(['status' => $this->successCode, 'message' => 'Request send success.']);
+        } else {
+            return response()->json(['status' => $this->databaseErrorCode, 'message' => 'Faild to send request!']);
+        }
+    }
+    /* Send Friend Request */
+
+    /* Get Friend Request List */
+    public function getRequestList(Request $request) {
+        $rules = [
+            'id' => 'required',
+        ];
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
+        }
+
+        $get_request = FriendList::select('friend_lists.id', 'friend_lists.user_id', 'friend_lists.friend_id', 'friend_lists.status', 'users.name')->leftjoin('users', 'friend_lists.friend_id', 'users.id')->where(['friend_lists.status' => 'pending'])->where(['friend_lists.user_id' => $request->id])->get();
+
+        if ($get_request->isNotEmpty()) {
+            return response()->json(['status' => $this->successCode, 'message' => 'Data found.', 'data' => $get_request]);
+        } else {
+            return response()->json(['status' => $this->databaseErrorCode, 'message' => 'No data found.']);
+        }
+    }
+    /* Get Friend Request List */
+
+    /* Change Friend Request Status */
+    public function changeFriendRequestStatus(Request $request) {
+        $rules = [
+            'id' => 'required',
+            'status' => 'required'
+        ];
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
+        }
+
+        $crud = [
+            'status' => $request->status,
+            'updated_at' => Carbon::now()->format("Y-m-d H:i:s"),
+        ];
+        $change_status = FriendList::where(['id' => $request->id])->update($crud);
+        if ($change_status) {
+            return response()->json(['status' => $this->successCode, 'message' => "Status changed successfully."]);
+        } else {
+            return response()->json(['status' => $this->databaseErrorCode, 'message' => "Faild to change status!"]);
+        }
+    }
+    /* Change Friend Request Status */
+}

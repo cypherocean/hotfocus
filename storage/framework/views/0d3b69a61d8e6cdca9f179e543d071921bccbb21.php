@@ -1,1 +1,0 @@
-<?php echo $data->links(); ?><?php /**PATH C:\xampp\htdocs\ami-enterprise\resources\views/payment_reminder/report_pagination.blade.php ENDPATH**/ ?>

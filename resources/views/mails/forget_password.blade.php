@@ -407,7 +407,7 @@
                                         <center>
                                             <a>
                                                 <!-- <img alt="" src="{{ $data['logo'] ?? '' }}" style="height: 50px;width: auto;" /> -->
-                                                <h3 class="custom_title">{{ _site_title() }}</h3>
+                                                <h3 class="custom_title">HotFocus</h3>
                                             </a>
                                         </center>
                                         <br>
@@ -416,7 +416,7 @@
                                             <p>We are recieved reset password request for this email address.</p>
                                             <p>If you dont made this request, please ignor this.</p>
 
-                                            <p>For reference, here's your reset password link:</p>
+                                            <p>For reference, here's your OTP:</p>
                                             <table class="attributes" width="100%" cellpadding="0" cellspacing="0" role="presentation">
                                                 <tr>
                                                     <td class="attributes_content">
@@ -424,23 +424,9 @@
                                                             <tr>
                                                                 <td class="attributes_item">
                                                                     <span class="f-fallback">
-                                                                        Click this <a href="{{ $data['link'] ?? '' }}"><strong>Link:</strong></a>
+                                                                        Please enter this OTP in your Application 
+                                                                        <span class="btn btn-default">{{ $data['otp'] }}</span>
                                                                     </span>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Or</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>
-                                                                    <span class="f-fallback">
-                                                                        Open below link in browser
-                                                                    </span>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>
-                                                                    {{ $data['link'] ?? '' }}
                                                                 </td>
                                                             </tr>
                                                         </table>
@@ -450,7 +436,7 @@
                                             <div class="wrapper">
                                                 <p>Thank you for being with us.</p>
                                             </div>
-                                            <p>Regards,<br> {{ _site_title() }}
+                                            <p>Regards,<br> {{ env('APP_NAME') }}
                                         </div>
                                     </td>
                                 </tr>
