@@ -143,8 +143,9 @@ class UsersController extends Controller {
         if ($validator->fails()) {
             return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
         }
-
+        DB::enableQueryLog();
         $find_user = User::where('name', 'LIKE', '%' . $request->search_name . '%')->where('status', 'active')->get(['id', 'name', 'display_image']);
+        // dd(DB::getQueryLog());
         if ($find_user->isNotEmpty()) {
             return response()->json(['status' => $this->successCode, 'message' => 'user found', 'data' => $find_user]);
         } else {
@@ -166,7 +167,7 @@ class UsersController extends Controller {
         $data = User::select(DB::raw("COALESCE(id,'') AS id"), DB::raw("COALESCE(name,'') AS name"), DB::raw("COALESCE(uid,'') AS uid"), DB::raw("COALESCE(phone,'') AS phone"), DB::raw("COALESCE(display_image,'') AS display_image"), DB::raw("COALESCE(cover_image,'') AS cover_image"), DB::raw("COALESCE(email,'') AS email"), DB::raw("COALESCE(status,'') AS status"), DB::raw("COALESCE(profile_type,'') AS profile_type"))->where(['id' => $request->user_id])->first();
 
         if ($data) {
-            if($data->profile_type == 'private'){
+            if ($data->profile_type == 'private') {
                 $user = [
                     'id' => $data->id,
                     'name' => $data->name,
@@ -178,7 +179,7 @@ class UsersController extends Controller {
                     'status' => $data->status,
                     'profile_type' => $data->profile_type,
                 ];
-            }else if ($data->profile_type == 'public'){
+            } else if ($data->profile_type == 'public') {
                 $user = [
                     'id' => $data->id,
                     'name' => $data->name,
@@ -241,7 +242,19 @@ class UsersController extends Controller {
             return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
         }
 
-        $get_request = FriendList::select('friend_lists.id', 'friend_lists.user_id', 'friend_lists.friend_id', 'friend_lists.status', 'users.name')->leftjoin('users', 'friend_lists.friend_id', 'users.id')->where(['friend_lists.status' => 'pending'])->where(['friend_lists.user_id' => $request->id])->get();
+        $get_request = FriendList::
+        select('friend_lists.id', 
+        'friend_lists.user_id', 
+        'friend_lists.friend_id', 
+        'friend_lists.status', 
+        DB::raw("CASE WHEN `friend_lists`.`user_id` =" . $request->id . " THEN 'send' WHEN `friend_lists`.`friend_id` =" . $request->id . " THEN 'received' ELSE NULL END AS `type`"), 
+        DB::raw("CASE WHEN `friend_lists`.`user_id` =" . $request->id . " THEN `users`.`name` WHEN `friend_lists`.`friend_id` =" . $request->id . " THEN `friend`.`name` ELSE NULL END AS `user_name`"))
+        ->leftjoin('users', 'friend_lists.friend_id', 'users.id')
+        ->leftjoin('users AS friend', 'friend_lists.user_id', 'friend.id')
+        ->where(['friend_lists.status' => 'pending'])
+        ->where(['friend_lists.user_id' => $request->id])
+        ->orWhere(['friend_lists.friend_id' => $request->id])
+        ->get();
 
         if ($get_request->isNotEmpty()) {
             return response()->json(['status' => $this->successCode, 'message' => 'Data found.', 'data' => $get_request]);

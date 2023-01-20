@@ -35,8 +35,6 @@ class AuthController extends Controller {
                 'name' => 'required',
                 'email' => 'required|email|unique:users,email',
                 'password' => 'required',
-                'mobile_no' => 'required',
-                'dob' => 'required',
             ];
             $validator = Validator::make($request->all(), $rules);
 
@@ -298,4 +296,10 @@ class AuthController extends Controller {
             }
         }
     /* Recover Password */
+
+    /* Bloock User */
+    public function block_user(Request $request) {
+        // code here
+    }
+    /* Bloock User */
 }
