@@ -29,7 +29,7 @@ use Illuminate\Support\Facades\DB;
     
     if(!function_exists('_get_friends')){
         function _get_friends($id){
-            $friend_list = FriendList::select(DB::raw("CASE WHEN `user_id` = ".$id." THEN `friend_id` ELSE `user_id` END AS `friend_ids`"))->where('user_id', $id)->orWhere('friend_id', $id)->get();
+            $friend_list = FriendList::select(DB::raw("CASE WHEN `user_id` = ".$id." THEN `friend_id` ELSE `user_id` END AS `friend_ids`"))->where('user_id', $id)->orWhere('friend_id', $id)->where('status', 'accepted')->get();
             return $friend_list;
         }
     }
