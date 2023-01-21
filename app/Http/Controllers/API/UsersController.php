@@ -226,6 +226,27 @@ class UsersController extends Controller {
         }
     /** Get User Profile */
 
+    /* Get Follower */
+        public function getFollower(Request $request) {
+            $rules = [
+                'user_id' => 'required',
+            ];
+            $validator = Validator::make($request->all(), $rules);
+
+            if ($validator->fails()) {
+                return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
+            }
+
+            $find_user = FriendList::select(DB::raw("CASE WHEN `display_image` IS NULL THEN CONCAT('localhost/hotfocus/public/uploads/', 'defaultUser.jpg') ELSE CONCAT('localhost/hotfocus/public/uploads/', `display_image` ) END AS `display_image`"), 'name')->leftjoin('users', 'friend_lists.user_id', 'users.id')->get();
+            if($find_user->isNotEmpty()){
+                return response()->json(['status' => $this->successCode, 'message' => 'data found.', 'data' => $find_user]);
+            }else{
+                return response()->json(['status' => $this->databaseNodataCode, 'message' => 'no data found!']);
+            }
+
+        }
+    /* Get Follower */
+
     /* Send Friend Request */
         public function sendFriendRequest(Request $request) {
             $rules = [

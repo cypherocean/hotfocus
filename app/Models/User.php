@@ -30,8 +30,16 @@ class User extends Authenticatable {
     public function followers() {
         return $this->hasMany(FriendList::class, 'friend_id', 'id')->where('user_id', Auth::user()->id);
     }
-    
+
     public function following() {
         return $this->hasMany(FriendList::class, 'user_id', 'id')->where('friend_id', Auth::user()->id);
+    }
+
+    public function isFollowing(User $user) {
+        return !!$this->following()->where('user_id', $user->id)->count();
+    }
+
+    public function isFollowedBy(User $user) {
+        return !!$this->followers()->where('friend_id', $user->id)->count();
     }
 }
