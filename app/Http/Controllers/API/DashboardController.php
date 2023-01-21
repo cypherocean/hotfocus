@@ -55,7 +55,6 @@ class DashboardController extends Controller {
             ->offset(($page - 1) * $per_page)
             ->limit($per_page)
             ->get();
-        // dd(DB::getQueryLog());
         if (!empty($get_post)) {
             $get_post[0]->page = $page;
             return response()->json(['status' => $this->successCode, 'message' => 'Data found.', 'data' => $get_post]);

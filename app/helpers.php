@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\FriendList;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
     if(!function_exists('_site_title')){
@@ -31,6 +32,17 @@ use Illuminate\Support\Facades\DB;
         function _get_friends($id){
             $friend_list = FriendList::select(DB::raw("CASE WHEN `user_id` = ".$id." THEN `friend_id` ELSE `user_id` END AS `friend_ids`"))->where('user_id', $id)->orWhere('friend_id', $id)->where('status', 'accepted')->get();
             return $friend_list;
+        }
+    }
+    
+    if(!function_exists('_is_following')){
+        function _is_following($id){
+            $friend_list = FriendList::where('status', 'accepted')->where(['user_id' => Auth::user()->id, 'friend_id' => $id])->count();
+            if($friend_list > 0){
+                return true;
+            }else{
+                return false;
+            }
         }
     }
 ?>
