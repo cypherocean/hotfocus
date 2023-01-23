@@ -28,6 +28,12 @@ use Illuminate\Support\Facades\DB;
         }
     }
     
+    if(!function_exists('_image_path')){
+        function _image_path(){
+            return asset('/uploads/').'/';
+        }
+    }
+    
     if(!function_exists('_get_friends')){
         function _get_friends($id){
             $friend_list = FriendList::select(DB::raw("CASE WHEN `user_id` = ".$id." THEN `friend_id` ELSE `user_id` END AS `friend_ids`"))->where('user_id', $id)->orWhere('friend_id', $id)->where('status', 'accepted')->get();
@@ -35,11 +41,11 @@ use Illuminate\Support\Facades\DB;
         }
     }
     
-    if(!function_exists('_is_following')){
-        function _is_following($id){
-            $friend_list = FriendList::where('status', 'accepted')->where(['user_id' => Auth::user()->id, 'friend_id' => $id])->count();
-            if($friend_list > 0){
-                return true;
+    if(!function_exists('_is_friend')){
+        function _is_friend($id){
+            $friend_list = FriendList::where('status', '!=','pending')->where(['user_id' => Auth::user()->id, 'friend_id' => $id])->first('status');
+            if(count($friend_list) > 0){
+                return $friend_list->status;
             }else{
                 return false;
             }

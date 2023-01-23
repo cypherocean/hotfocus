@@ -167,8 +167,8 @@ class UsersController extends Controller {
             DB::enableQueryLog();
             $data = User::select(DB::raw("COALESCE(id,'') AS id"), DB::raw("COALESCE(name,'') AS name"), DB::raw("COALESCE(uid,'') AS uid"), DB::raw("COALESCE(phone,'') AS phone"), DB::raw("COALESCE(display_image,'') AS display_image"), DB::raw("COALESCE(cover_image,'') AS cover_image"), DB::raw("COALESCE(email,'') AS email"), DB::raw("COALESCE(status,'') AS status"), DB::raw("COALESCE(profile_type,'') AS profile_type"))->withCount('followers', 'following', 'posts')->with('posts')->where(['id' => $request->user_id])->first();
             if ($data) {
-                $is_friend = _is_following($request->user_id);
-                if ($is_friend) {
+                $is_friend = _is_friend($request->user_id);
+                if ($is_friend && $is_friend == 'accepted') {
                     $user = [
                         'id' => $data->id,
                         'name' => $data->name,
@@ -183,6 +183,22 @@ class UsersController extends Controller {
                         'following_count' => $data->following_count,
                         'posts_count' => $data->posts_count,
                         'posts' => $data->posts,
+                    ];
+                } else if ($is_friend && $is_friend == 'blocked') {
+                    $user = [
+                        'id' => $data->id,
+                        'name' => 'HotFocus User',
+                        'uid' => '',
+                        'phone' => '',
+                        'display_image' => _image_path().'default_dp.png',
+                        'cover_image' => _image_path().'default_ci.jpg',
+                        'email' => '',
+                        'status' => '',
+                        'profile_type' => $data->profile_type,
+                        'follower_count' => 0,
+                        'following_count' => 0,
+                        'posts_count' => 0,
+                        'posts' => [],
                     ];
                 } else {
                     if ($data->profile_type == 'private') {
@@ -238,12 +254,11 @@ class UsersController extends Controller {
             }
 
             $find_user = FriendList::select(DB::raw("CASE WHEN `display_image` IS NULL THEN CONCAT('localhost/hotfocus/public/uploads/', 'defaultUser.jpg') ELSE CONCAT('localhost/hotfocus/public/uploads/', `display_image` ) END AS `display_image`"), 'name')->leftjoin('users', 'friend_lists.user_id', 'users.id')->get();
-            if($find_user->isNotEmpty()){
+            if ($find_user->isNotEmpty()) {
                 return response()->json(['status' => $this->successCode, 'message' => 'data found.', 'data' => $find_user]);
-            }else{
+            } else {
                 return response()->json(['status' => $this->databaseNodataCode, 'message' => 'no data found!']);
             }
-
         }
     /* Get Follower */
 
@@ -289,12 +304,13 @@ class UsersController extends Controller {
             if ($validator->fails()) {
                 return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
             }
-
+            $path = _image_path();
             $get_request = FriendList::select(
                     'friend_lists.id',
                     'friend_lists.user_id',
                     'friend_lists.friend_id',
                     'friend_lists.status',
+                    DB::raw("CASE WHEN `users.display_image` IS NOT NULL THEN CONCAT($path, users.display_image) ELSE CONCAT($path, 'default_dp.png')"),
                     DB::raw("CASE WHEN `friend_lists`.`user_id` =" . $request->id . " THEN 'send' WHEN `friend_lists`.`friend_id` =" . $request->id . " THEN 'received' ELSE NULL END AS `type`"),
                     DB::raw("CASE WHEN `friend_lists`.`user_id` =" . $request->id . " THEN `users`.`name` WHEN `friend_lists`.`friend_id` =" . $request->id . " THEN `friend`.`name` ELSE NULL END AS `user_name`")
                 )
@@ -337,4 +353,29 @@ class UsersController extends Controller {
             }
         }
     /* Change Friend Request Status */
+    
+    /* Block User */
+        public function blockUser(Request $request) {
+            $rules = [
+                'user_id' => 'required',
+                'frient_id' => 'required'
+            ];
+            $validator = Validator::make($request->all(), $rules);
+
+            if ($validator->fails()) {
+                return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
+            }
+
+            $crud = [
+                'status' => 'blocked',
+                'updated_at' => Carbon::now()->format("Y-m-d H:i:s"),
+            ];
+            $change_status = FriendList::where(['user_id' => $request->user_id, 'friend_id' => $request->friend_id])->update($crud);
+            if ($change_status) {
+                return response()->json(['status' => $this->successCode, 'message' => "Status changed successfully."]);
+            } else {
+                return response()->json(['status' => $this->databaseErrorCode, 'message' => "Faild to change status!"]);
+            }
+        }
+    /* Block User */
 }

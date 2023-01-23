@@ -296,10 +296,4 @@ class AuthController extends Controller {
             }
         }
     /* Recover Password */
-
-    /* Bloock User */
-    public function block_user(Request $request) {
-        // code here
-    }
-    /* Bloock User */
 }
