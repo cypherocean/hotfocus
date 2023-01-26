@@ -37,25 +37,19 @@ class DashboardController extends Controller {
         $per_page = 50;
         $page = $request->input(key: 'page', default: 1);
         $get_post = new stdClass();
-        DB::enableQueryLog();
-        $get_post = Post::select('posts.id', 'user_id', 'caption', 'post_type', 'media_type', 'status', DB::Raw("CASE
-        WHEN " . 'file_name_one' . " != '' THEN CONCAT(" . "'" . $path . "'" . ", " . 'file_name_one' . ")
-        ELSE CONCAT(" . "'" . $path . "'" . ", null)
-        END as file_name_one"), DB::Raw("CASE
-        WHEN " . 'file_name_two' . " != '' THEN CONCAT(" . "'" . $path . "'" . ", " . 'file_name_two' . ")
-        ELSE CONCAT(" . "'" . $path . "'" . ", null)
-        END as file_name_two"))
-            ->with(['likes' => function ($query) {
-                $query->select('users.name AS user_name', 'post_id');
-            }, 'comments' => function ($query) {
-                $query->select('users.id', 'users.name', 'comments.comment', 'post_id');
-            }])
-            ->withCount('likes', 'comments')
-            ->whereIn('user_id' , $get_user_friend_list)
-            ->offset(($page - 1) * $per_page)
-            ->limit($per_page)
-            ->get();
-        if (!empty($get_post)) {
+        $get_post = Post::
+                        select('posts.id', 'user_id', 'caption', 'post_type', 'media_type', 'status', DB::Raw("CASE WHEN " . 'file_name' . " != '' THEN CONCAT(" . "'" . $path . "'" . ", " . 'file_name' . ") ELSE CONCAT(" . "'" . $path . "'" . ", null) END as file_name"))
+                        ->with(['likes' => function ($query) {
+                            $query->select('users.name AS user_name', 'post_id');
+                        }, 'comments' => function ($query) {
+                            $query->select('users.id', 'users.name', 'comments.comment', 'post_id');
+                        }])
+                        ->withCount('likes', 'comments')
+                        ->whereIn('user_id' , $get_user_friend_list)
+                        ->offset(($page - 1) * $per_page)
+                        ->limit($per_page)
+                        ->get();
+        if ($get_post->isNotEmpty()) {
             $get_post[0]->page = $page;
             return response()->json(['status' => $this->successCode, 'message' => 'Data found.', 'data' => $get_post]);
         } else {

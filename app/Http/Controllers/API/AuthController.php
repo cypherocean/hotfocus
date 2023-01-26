@@ -20,6 +20,7 @@ class AuthController extends Controller {
     private $databaseErrorCode;
     private $errorCode;
     private $validationErrorCode;
+    private $authErrorCode;
 
     public function __construct() {
         $this->successCode = 200;
@@ -27,6 +28,7 @@ class AuthController extends Controller {
         $this->databaseErrorCode = 201;
         $this->errorCode = 422;
         $this->validationErrorCode = 422;
+        $this->authErrorCode = 401;
     }
 
     /* SignUp */
@@ -137,20 +139,20 @@ class AuthController extends Controller {
             $validator = Validator::make($request->all(), $rules);
 
             if ($validator->fails())
-                return response()->json(['status' => 422, 'message' => 'Invalid Username or Password']);
+                return response()->json(['status' => $this->validationErrorCode, 'message' => 'Invalid Username or Password']);
 
             $auth = auth()->attempt(['email' => $request->email, 'password' => $request->password]);
 
             if (!$auth) {
-                return response()->json(['status' => 401, 'message' => 'Invalid login details']);
+                return response()->json(['status' => $this->authErrorCode, 'message' => 'Invalid login details']);
             } else {
                 $user = User::select(DB::raw("COALESCE(id,'') AS id"), DB::raw("COALESCE(name,'') AS name"), DB::raw("COALESCE(uid,'') AS uid"), DB::raw("COALESCE(phone,'') AS phone"), DB::raw("COALESCE(display_image,'') AS display_image"), DB::raw("COALESCE(cover_image,'') AS cover_image"), DB::raw("COALESCE(email,'') AS email"), DB::raw("COALESCE(status,'') AS status"), DB::raw("COALESCE(profile_type,'') AS profile_type"))->where('email', $request->email)->firstOrFail();
 
                 if ($user->status == 'active') {
                     $token = $user->createToken('auth_token')->plainTextToken;
-                    return response()->json(['status' => 200, 'message' => 'Login Successfully', 'token_type' => 'Bearer', 'access_token' => $token, 'data' => $user]);
+                    return response()->json(['status' => $this->successCode, 'message' => 'Login Successfully', 'token_type' => 'Bearer', 'access_token' => $token, 'data' => $user]);
                 } else {
-                    return response()->json(['status' => 201, 'message' => 'This account has been inactive or deleted, please contact admin']);
+                    return response()->json(['status' => $this->databaseErrorCode, 'message' => 'This account has been inactive or deleted, please verify email or contact admin']);
                 }
             }
         }
@@ -163,7 +165,7 @@ class AuthController extends Controller {
             $validator = Validator::make($request->all(), $rules);
 
             if ($validator->fails()) {
-                return response()->json(['status' => 422, 'message' => 'Social login fail!']);
+                return response()->json(['status' => $this->validationErrorCode, 'message' => 'Social login fail!']);
             }
 
             $x = false;
@@ -188,22 +190,21 @@ class AuthController extends Controller {
             }
 
             if ($x) {
-                // dd($user);
                 $auth = auth()->loginUsingId(['id' => $user->id]);
                 if (!$auth) {
-                    return response()->json(['status' => 401, 'message' => 'Invalid login details']);
+                    return response()->json(['status' => $this->authErrorCode, 'message' => 'Invalid login details']);
                 } else {
                     $user = User::select(DB::raw("COALESCE(id,'') AS id"), DB::raw("COALESCE(name,'') AS name"), DB::raw("COALESCE(uid,'') AS uid"), DB::raw("COALESCE(phone,'') AS phone"), DB::raw("COALESCE(display_image,'') AS display_image"), DB::raw("COALESCE(cover_image,'') AS cover_image"), DB::raw("COALESCE(email,'') AS email"), DB::raw("COALESCE(status,'') AS status"), DB::raw("COALESCE(profile_type,'') AS profile_type"))->where('email', $request->email)->firstOrFail();
 
                     if ($user->status == 'active') {
                         $token = $user->createToken('auth_token')->plainTextToken;
-                        return response()->json(['status' => 200, 'message' => $message, 'token_type' => 'Bearer', 'access_token' => $token, 'data' => $user]);
+                        return response()->json(['status' => $this->successCode, 'message' => $message, 'token_type' => 'Bearer', 'access_token' => $token, 'data' => $user]);
                     } else {
-                        return response()->json(['status' => 201, 'message' => 'This account has been inactive or deleted, please contact admin']);
+                        return response()->json(['status' => $this->databaseErrorCode, 'message' => 'This account has been inactive or deleted, please contact admin']);
                     }
                 }
             } else {
-                return response()->json(['status' => 201, 'message' => 'Somthing went wrong!']);
+                return response()->json(['status' => $this->databaseErrorCode, 'message' => 'Somthing went wrong!']);
             }
         }
     /* Social Login */
@@ -212,7 +213,7 @@ class AuthController extends Controller {
         public function logout(Request $request) {
             $request->user()->currentAccessToken()->delete();
 
-            return response()->json(['status' => 200, 'message' => 'Logout Successfully']);
+            return response()->json(['status' => $this->successCode, 'message' => 'Logout Successfully']);
         }
     /** logout */
 
@@ -239,10 +240,10 @@ class AuthController extends Controller {
             try {
                 Mail::to($request->email)->send(new ForgetPassword($mailData));
 
-                return response()->json(['status' => 200, 'message' => 'please check your email and follow steps for reset password', 'token' => $token]);
+                return response()->json(['status' => $this->successCode, 'message' => 'please check your email and follow steps for reset password', 'token' => $token]);
             } catch (\Exception $e) {
                 DB::table('password_resets')->where(['email' => $request->email])->delete();
-                return response()->json(['status' => 422, 'message' => 'something went wrong, please try again later']);
+                return response()->json(['status' => $this->errorCode, 'message' => 'something went wrong, please try again later']);
             }
         }
     /* Forget Password */
@@ -256,13 +257,13 @@ class AuthController extends Controller {
             ]);
 
             if ($validator->fails()) {
-                return response()->json(['status' => 422, 'message' => $validator->errors()]);
+                return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
             }
             $otp_verify = DB::table('password_resets')->where(['token' => $request->token, 'otp' => $request->otp])->first();
             if ($otp_verify) {
-                return response()->json(['status' => 200, 'message' => 'OTP verified successfully please enter new password', 'token' => $request->token]);
+                return response()->json(['status' => $this->successCode, 'message' => 'OTP verified successfully please enter new password', 'token' => $request->token]);
             } else {
-                return response()->json(['status' => 422, 'message' => 'OTP varification failed please enter valid OTP']);
+                return response()->json(['status' => $this->errorCode, 'message' => 'OTP varification failed please enter valid OTP']);
             }
         }
     /* Validate OTP */
@@ -275,13 +276,13 @@ class AuthController extends Controller {
             ]);
 
             if ($validator->fails()) {
-                return response()->json(['status' => 422, 'message' => $validator->errors()]);
+                return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
             }
 
             $user = \DB::table('users')->where('email', $request->email)->first();
 
             if (!isset($user) && $user == null) {
-                return response()->json(['status' => 404, 'message' => 'User not found']);
+                return response()->json(['status' => $this->databaseNodataCode, 'message' => 'User not found']);
             }
 
             $crud = array(
@@ -292,7 +293,7 @@ class AuthController extends Controller {
             if ($token_verify) {
                 DB::table('password_resets')->where('email', $request->email)->delete();
                 DB::table('users')->where('email', $request->email)->limit(1)->update($crud);
-                return response()->json(['status' => 200, 'message' => 'Password changed successfully.']);
+                return response()->json(['status' => $this->successCode, 'message' => 'Password changed successfully.']);
             }
         }
     /* Recover Password */

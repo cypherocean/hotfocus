@@ -15,7 +15,7 @@ class CreatePostsTable extends Migration {
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('user_id')->nullable()->unsigned();
-            $table->string('file_name_one');
+            $table->string('file_name');
             $table->text('caption')->nullable();
             $table->enum('post_type', ['post', 'story'])->default('post');
             $table->enum('media_type', ['image', 'video']);

@@ -1,14 +1,16 @@
 <?php
 
-    namespace Database\Seeders;
-    use App\Models\User;
+namespace Database\Seeders;
 
-    use Illuminate\Database\Seeder;
+use App\Models\User;
 
-    class UserSeeder extends Seeder{
+use Illuminate\Database\Seeder;
 
-        public function run(){
-            User::create([
+class UserSeeder extends Seeder {
+
+    public function run() {
+        $users = [
+            [
                 'name' => 'Super Admin',
                 'phone' => '1234567890',
                 'email' => 'superadmin@mail.com',
@@ -18,6 +20,47 @@
                 'created_by' => 1,
                 'updated_at' => date('Y-m-d H:i:s'),
                 'updated_by' => 1
-            ]);
+            ],
+            [
+                'name' => 'Gajjar Mitul',
+                'phone' => '1234567899',
+                'email' => 'gajjarmitul@yopmail.com',
+                'password' => bcrypt('12345678'),
+                'status' => 'active',
+                'created_at' => date('Y-m-d H:i:s'),
+                'created_by' => 1,
+                'updated_at' => date('Y-m-d H:i:s'),
+                'updated_by' => 1
+            ],
+            [
+                'name' => 'Mustansir Makda',
+                'phone' => '1234567809',
+                'email' => 'mustan@yopmail.com',
+                'password' => bcrypt('12345678'),
+                'status' => 'active',
+                'created_at' => date('Y-m-d H:i:s'),
+                'created_by' => 1,
+                'updated_at' => date('Y-m-d H:i:s'),
+                'updated_by' => 1
+            ],
+        ];
+
+        foreach ($users as $user) {
+            User::updateOrCreate(
+
+                ['email' => $user['email']],
+                [
+                    'name' => $user['name'],
+                    'phone' => $user['phone'],
+                    'email' => $user['email'],
+                    'password' => $user['password'],
+                    'status' => $user['status'],
+                    'created_at' => $user['created_at'],
+                    'created_by' => $user['created_by'],
+                    'updated_at' => $user['updated_at'],
+                    'updated_by' => $user['updated_by']
+                ]
+            );
         }
     }
+}

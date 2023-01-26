@@ -33,8 +33,7 @@ class PostController extends Controller {
         public function makePost(Request $request) {
             $rules = [
                 'id' => 'required',
-                'file_one' => 'required',
-                'file_two' => 'required',
+                'file' => 'required',
                 'post_type' => 'required',
                 'media_type' => 'required'
             ];
@@ -56,38 +55,27 @@ class PostController extends Controller {
                 'created_at' => Carbon::now()->format("Y-m-d H:i:s")
             ];
 
-            $file = $request->file('file_one');
-            $filenameWithExtension = $request->file('file_one')->getClientOriginalName();
+            $file = $request->file('file');
+            $filenameWithExtension = $request->file('file')->getClientOriginalName();
             $filename = pathinfo($filenameWithExtension, PATHINFO_FILENAME);
-            $extension = $request->file('file_one')->getClientOriginalExtension();
-            $filenameToStore = time() . "post_one_" . $filename . '.' . $extension;
+            $extension = $request->file('file')->getClientOriginalExtension();
+            $filenameToStore = time() . "post_" . $filename . '.' . $extension;
 
             if (!File::exists($folder_to_upload))
                 File::makeDirectory($folder_to_upload, 0777, true, true);
 
-            $crud['file_name_one'] = $filenameToStore;
-            
-            $file1 = $request->file('file_two');
-            $filenameWithExtension1 = $request->file('file_one')->getClientOriginalName();
-            $filename1 = pathinfo($filenameWithExtension1, PATHINFO_FILENAME);
-            $extension1 = $request->file('file_two')->getClientOriginalExtension();
-            $filenameToStore1 = time() . "post_two_" . $filename1 . '.' . $extension1;
+            $crud['file_name'] = $filenameToStore;
 
             if (!File::exists($folder_to_upload))
                 File::makeDirectory($folder_to_upload, 0777, true, true);
-
-            $crud['file_name_two'] = $filenameToStore1;
 
             DB::beginTransaction();
             try {
                 $makePost = Post::insertGetId($crud);
 
                 if ($makePost) {
-                    if (!empty($request->file('file_one'))) {
+                    if (!empty($request->file('file'))) {
                         $file->move($folder_to_upload, $filenameToStore);
-                    }
-                    if (!empty($request->file('file_two'))) {
-                        $file1->move($folder_to_upload, $filenameToStore);
                     }
                     DB::commit();
                     return response()->json(['status' => $this->successCode, 'message' => 'Post created successfully.']);
@@ -112,13 +100,10 @@ class PostController extends Controller {
 
             $path = _post_path();
 
-            $post = Post::select('id', 'user_id', 'caption', 'post_type', 'media_type', 'status',  DB::Raw("CASE
-            WHEN " . 'file_name_one' . " != '' THEN CONCAT(" . "'" . $path . "'" . ", " . 'file_name_one' . ")
-            ELSE CONCAT(" . "'" . $path . "'" . ", null)
-            END as file_name_one"), DB::Raw("CASE
-            WHEN " . 'file_name_two' . " != '' THEN CONCAT(" . "'" . $path . "'" . ", " . 'file_name_two' . ")
-            ELSE CONCAT(" . "'" . $path . "'" . ", null)
-            END as file_name_two"))->where('user_id', $request->id)->get();
+            $post = Post::
+                    select('id', 'user_id', 'caption', 'post_type', 'media_type', 'status',  DB::Raw("CASE WHEN " . 'file_name' . " != '' THEN CONCAT(" . "'" . $path . "'" . ", " . 'file_name' . ") ELSE CONCAT(" . "'" . $path . "'" . ", null) END as file_name"))
+                    ->where('user_id', $request->id)
+                    ->get();
             if($post->isNotEmpty()){
                 return response()->json(['status' => $this->successCode, 'message' => 'Data found.', 'data' => $post]);
             }else{
