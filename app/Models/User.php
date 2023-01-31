@@ -42,4 +42,8 @@ class User extends Authenticatable {
     public function isFollowedBy(User $user) {
         return !!$this->followers()->where('friend_id', $user->id)->count();
     }
+
+    public function chat() {
+        return $this->hasMany(User::class);
+    }
 }

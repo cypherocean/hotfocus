@@ -59,14 +59,14 @@ Route::group(['middleware' => 'api', 'namespace' => 'API'], function () {
                 Route::post('comment_post', 'commentPost');
             });
         /* My Post */
-        
-        /** products */
-        // Route::get('products', 'ProductsController@products');
-        // Route::get('product/{id}', 'ProductsController@product');
-        // Route::post('product/insert', 'ProductsController@insert');
-        // Route::post('product/update', 'ProductsController@update');
-        // Route::post('product/delete', 'ProductsController@delete');
-        /** products */
+       
+        /* Chat */
+            Route::controller(ChatController::class)
+            ->group(function () {
+                Route::get('get_chat', 'getChat');
+                Route::post('make_chat', 'makeChat');
+            });
+        /* Chat */
     });
 });
 
