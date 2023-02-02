@@ -32,6 +32,7 @@ Route::group(['middleware' => 'api', 'namespace' => 'API'], function () {
             Route::controller(DashboardController::class)
             ->group(function () {
                 Route::post('dashboard', 'dashboard');
+                Route::post('discover', 'discover');
             });
         /* Dashboard */
 
