@@ -38,7 +38,7 @@ class UsersController extends Controller {
                 return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
             }
 
-            $data = User::select(DB::raw("COALESCE(id,'') AS id"), DB::raw("COALESCE(name,'') AS name"), DB::raw("COALESCE(uid,'') AS uid"), DB::raw("COALESCE(phone,'') AS phone"), DB::raw("COALESCE(display_image,'') AS display_image"), DB::raw("COALESCE(cover_image,'') AS cover_image"), DB::raw("COALESCE(email,'') AS email"), DB::raw("COALESCE(status,'') AS status"), DB::raw("COALESCE(profile_type,'') AS profile_type"))->where(['id' => $request->id])->first();
+            $data = User::select(DB::raw("COALESCE(id,'') AS id"), DB::raw("COALESCE(name,'') AS name"), DB::raw("COALESCE(uid,'') AS uid"), DB::raw("COALESCE(phone,'') AS phone"), DB::raw("COALESCE(display_image,'') AS display_image"), DB::raw("COALESCE(cover_image,'') AS cover_image"), DB::raw("COALESCE(email,'') AS email"), DB::raw("COALESCE(status,'') AS status"), DB::raw("COALESCE(profile_type,'') AS profile_type"))->with('posts')->where(['id' => $request->id])->first();
             if (!$data) {
                 return response()->json(['status' => $this->databaseNodataCode, 'message' => 'No users found']);
             }
@@ -167,8 +167,11 @@ class UsersController extends Controller {
             DB::enableQueryLog();
             $data = User::select(DB::raw("COALESCE(id,'') AS id"), DB::raw("COALESCE(name,'') AS name"), DB::raw("COALESCE(uid,'') AS uid"), DB::raw("COALESCE(phone,'') AS phone"), DB::raw("COALESCE(display_image,'') AS display_image"), DB::raw("COALESCE(cover_image,'') AS cover_image"), DB::raw("COALESCE(email,'') AS email"), DB::raw("COALESCE(status,'') AS status"), DB::raw("COALESCE(profile_type,'') AS profile_type"))->withCount('followers', 'following', 'posts')->with('posts')->where(['id' => $request->user_id])->first();
             if ($data) {
-                $is_friend = _is_friend($request->user_id);
-                if ($is_friend && $is_friend == 'accepted') {
+                $is_follower = _is_follower($request->user_id);
+                $is_follower = _is_friend($request->user_id);
+                $user['user_to_friend'] = $is_follower['user_to_friend'];
+                $user['friend_to_user'] = $is_follower['friend_to_user'];
+                if ($is_follower && $is_follower == 'accepted') {
                     $user = [
                         'id' => $data->id,
                         'name' => $data->name,
@@ -184,7 +187,7 @@ class UsersController extends Controller {
                         'posts_count' => $data->posts_count,
                         'posts' => $data->posts,
                     ];
-                } else if ($is_friend && $is_friend == 'blocked') {
+                } else if ($is_follower && $is_follower == 'blocked') {
                     $user = [
                         'id' => $data->id,
                         'name' => 'HotFocus User',
@@ -305,12 +308,13 @@ class UsersController extends Controller {
                 return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
             }
             $path = _image_path();
+            // dd($path);
             $get_request = FriendList::select(
                     'friend_lists.id',
                     'friend_lists.user_id',
                     'friend_lists.friend_id',
                     'friend_lists.status',
-                    DB::raw("CASE WHEN `users.display_image` IS NOT NULL THEN CONCAT($path, users.display_image) ELSE CONCAT($path, 'default_dp.png')"),
+                    DB::raw("CASE WHEN `users`.`display_image` IS NOT NULL THEN CONCAT('".$path."', `users`.`display_image`) ELSE CONCAT('".$path."', 'default_dp.png') END AS `display_image`"),
                     DB::raw("CASE WHEN `friend_lists`.`user_id` =" . $request->id . " THEN 'send' WHEN `friend_lists`.`friend_id` =" . $request->id . " THEN 'received' ELSE NULL END AS `type`"),
                     DB::raw("CASE WHEN `friend_lists`.`user_id` =" . $request->id . " THEN `users`.`name` WHEN `friend_lists`.`friend_id` =" . $request->id . " THEN `friend`.`name` ELSE NULL END AS `user_name`")
                 )

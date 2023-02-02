@@ -37,23 +37,53 @@ class DashboardController extends Controller {
         $per_page = 50;
         $page = $request->input(key: 'page', default: 1);
         $get_post = new stdClass();
-        $get_post = Post::
-                        select('posts.id', 'user_id', 'caption', 'post_type', 'media_type', 'status', DB::Raw("CASE WHEN " . 'file_name' . " != '' THEN CONCAT(" . "'" . $path . "'" . ", " . 'file_name' . ") ELSE CONCAT(" . "'" . $path . "'" . ", null) END as file_name"))
-                        ->with(['likes' => function ($query) {
-                            $query->select('users.name AS user_name', 'post_id');
-                        }, 'comments' => function ($query) {
-                            $query->select('users.id', 'users.name', 'comments.comment', 'post_id');
-                        }])
-                        ->withCount('likes', 'comments')
-                        ->whereIn('user_id' , $get_user_friend_list)
-                        ->offset(($page - 1) * $per_page)
-                        ->limit($per_page)
-                        ->get();
+        $get_post = Post::select('posts.id', 'user_id', 'caption', 'post_type', 'media_type', 'status', DB::Raw("CASE WHEN " . 'file_name' . " != '' THEN CONCAT(" . "'" . $path . "'" . ", " . 'file_name' . ") ELSE CONCAT(" . "'" . $path . "'" . ", null) END as file_name"))
+            ->with(['likes' => function ($query) {
+                $query->select('users.name AS user_name', 'post_id');
+            }, 'comments' => function ($query) {
+                $query->select('users.id', 'users.name', 'comments.comment', 'post_id');
+            }])
+            ->withCount('likes', 'comments')
+            ->whereIn('user_id', $get_user_friend_list)
+            ->offset(($page - 1) * $per_page)
+            ->limit($per_page)
+            ->get();
         if ($get_post->isNotEmpty()) {
             $get_post[0]->page = $page;
             return response()->json(['status' => $this->successCode, 'message' => 'Data found.', 'data' => $get_post]);
         } else {
-            return response()->json(['status' => $this->databaseNodataCode, 'message' => 'No data found!']);
+            return response()->json(['status' => $this->databaseNodataCode, 'message' => 'No data found!', 'data' => array()]);
+        }
+    }
+
+    public function discover(Request $request) {
+        $rules = [
+            'id' => 'required',
+        ];
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
+        }
+        $path = _post_path();
+        $per_page = 50;
+        $page = $request->input(key: 'page', default: 1);
+        $get_post = new stdClass();
+        $get_post = Post::select('posts.id', 'user_id', 'caption', 'post_type', 'media_type', 'status', DB::Raw("CASE WHEN " . 'file_name' . " != '' THEN CONCAT(" . "'" . $path . "'" . ", " . 'file_name' . ") ELSE CONCAT(" . "'" . $path . "'" . ", null) END as file_name"))
+            ->with(['likes' => function ($query) {
+                $query->select('users.name AS user_name', 'post_id');
+            }, 'comments' => function ($query) {
+                $query->select('users.id', 'users.name', 'comments.comment', 'post_id');
+            }])
+            ->withCount('likes', 'comments')
+            ->offset(($page - 1) * $per_page)
+            ->limit($per_page)
+            ->get();
+        if ($get_post->isNotEmpty()) {
+            $get_post[0]->page = $page;
+            return response()->json(['status' => $this->successCode, 'message' => 'Data found.', 'data' => $get_post]);
+        } else {
+            return response()->json(['status' => $this->databaseNodataCode, 'message' => 'No data found!', 'data' => array()]);
         }
     }
 }

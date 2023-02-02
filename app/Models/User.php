@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable {
@@ -20,7 +21,8 @@ class User extends Authenticatable {
     protected $casts = ['email_verified_at' => 'datetime'];
 
     public function posts() {
-        return $this->hasMany(Post::class);
+        $path = _post_path();
+        return $this->hasMany(Post::class)->select('id', 'user_id', DB::Raw("CASE WHEN " . 'file_name' . " != '' THEN CONCAT(" . "'" . $path . "'" . ", " . 'file_name' . ") ELSE CONCAT(" . "'" . $path . "'" . ", null) END as file_name"), 'caption', 'post_type', 'media_type', 'status', 'created_at');
     }
 
     public function likes() {
