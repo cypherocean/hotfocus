@@ -13,19 +13,6 @@ use App\Models\FriendList;
 
 
 class UsersController extends Controller {
-    private $successCode;
-    private $databaseNodataCode;
-    private $databaseErrorCode;
-    private $errorCode;
-    private $validationErrorCode;
-
-    public function __construct() {
-        $this->successCode = 200;
-        $this->databaseNodataCode = 404;
-        $this->databaseErrorCode = 201;
-        $this->errorCode = 422;
-        $this->validationErrorCode = 422;
-    }
 
     /* Get My Profile */
         public function myProfile(Request $request) {

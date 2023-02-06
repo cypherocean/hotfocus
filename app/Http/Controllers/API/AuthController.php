@@ -3,6 +3,13 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ForgotPasswordRequest;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\ResetPasswordRequest;
+use App\Http\Requests\SignupRequest;
+use App\Http\Requests\SocialAuthRequest;
+use App\Http\Requests\ValidateOTPRequest;
+use App\Http\Requests\VerifyEmailRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -15,35 +22,9 @@ use App\Mail\ConfirmEmail;
 use stdClass;
 
 class AuthController extends Controller {
-    private $successCode;
-    private $databaseNodataCode;
-    private $databaseErrorCode;
-    private $errorCode;
-    private $validationErrorCode;
-    private $authErrorCode;
-
-    public function __construct() {
-        $this->successCode = 200;
-        $this->databaseNodataCode = 404;
-        $this->databaseErrorCode = 201;
-        $this->errorCode = 422;
-        $this->validationErrorCode = 422;
-        $this->authErrorCode = 401;
-    }
 
     /* SignUp */
-        public function signup(Request $request) {
-            $rules = [
-                'name' => 'required',
-                'email' => 'required|email|unique:users,email',
-                'password' => 'required',
-            ];
-            $validator = Validator::make($request->all(), $rules);
-
-            if ($validator->fails()) {
-                return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
-            }
-
+        public function signup(SignupRequest $request) {
             $crud = [
                 'name' => $request->name ?? null,
                 'email' => $request->email,
@@ -54,7 +35,8 @@ class AuthController extends Controller {
             ];
 
             $folder_to_upload = public_path() . '/uploads/users/';
-
+            $crud['display_image'] = 'default_dp.png';
+            $crud['cover_image'] = 'default_ci.jpg';
             if (!empty($request->file('display_image'))) {
                 $file = $request->file('display_image');
                 $filenameWithExtension = $request->file('display_image')->getClientOriginalName();
@@ -111,16 +93,7 @@ class AuthController extends Controller {
     /* SignUp */
 
     /* Verify OTP */
-        public function verifyEmail(Request $request) {
-            $rules = [
-                'email' => 'required',
-                'otp' => 'required',
-            ];
-            $validator = Validator::make($request->all(), $rules);
-
-            if ($validator->fails()) {
-                return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
-            }
+        public function verifyEmail(VerifyEmailRequest $request) {
             $verify_otp = DB::table('password_resets')->where(['email' => $request->email, 'otp' => $request->otp])->first();
             if ($verify_otp) {
                 User::where('email', $request->email)->update(['status' => 'active']);
@@ -133,14 +106,7 @@ class AuthController extends Controller {
     /* Verify OTP */
 
     /** login */
-        public function login(Request $request) {
-            $rules = ['email' => 'required', 'password' => 'required'];
-
-            $validator = Validator::make($request->all(), $rules);
-
-            if ($validator->fails())
-                return response()->json(['status' => $this->validationErrorCode, 'message' => 'Invalid Username or Password']);
-
+        public function login(LoginRequest $request) {
             $auth = auth()->attempt(['email' => $request->email, 'password' => $request->password]);
 
             if (!$auth) {
@@ -159,15 +125,7 @@ class AuthController extends Controller {
     /** login */
 
     /* Social Login */
-        public function socialAuth(Request $request) {
-            $rules = ['uid' => 'required', 'email' => 'required'];
-
-            $validator = Validator::make($request->all(), $rules);
-
-            if ($validator->fails()) {
-                return response()->json(['status' => $this->validationErrorCode, 'message' => 'Social login fail!']);
-            }
-
+        public function socialAuth(SocialAuthRequest $request) {
             $x = false;
 
             $message = 'Login Successfully';
@@ -218,7 +176,7 @@ class AuthController extends Controller {
     /** logout */
 
     /* Forget Password */
-        public function password_forget(Request $request) {
+        public function password_forget(ForgotPasswordRequest $request) {
             $user = DB::table('users')->where(['email' => $request->email])->first();
 
             if (!isset($user) && $user == null) {
@@ -249,16 +207,7 @@ class AuthController extends Controller {
     /* Forget Password */
 
     /* Validate OTP */
-        public function validate_otp(Request $request) {
-            $validator = Validator::make($request->all(), [
-                'otp' => 'required',
-                'email' => 'required',
-                'token' => 'required'
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
-            }
+        public function validate_otp(ValidateOTPRequest $request) {
             $otp_verify = DB::table('password_resets')->where(['token' => $request->token, 'otp' => $request->otp])->first();
             if ($otp_verify) {
                 return response()->json(['status' => $this->successCode, 'message' => 'OTP verified successfully please enter new password', 'token' => $request->token]);
@@ -269,17 +218,8 @@ class AuthController extends Controller {
     /* Validate OTP */
 
     /* Recover Password */
-        public function reset_password(Request $request) {
-            $validator = Validator::make($request->all(), [
-                'email' => 'required|email|exists:users,email',
-                'password' => 'required'
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
-            }
-
-            $user = \DB::table('users')->where('email', $request->email)->first();
+        public function reset_password(ResetPasswordRequest $request) {
+            $user = DB::table('users')->where('email', $request->email)->first();
 
             if (!isset($user) && $user == null) {
                 return response()->json(['status' => $this->databaseNodataCode, 'message' => 'User not found']);
