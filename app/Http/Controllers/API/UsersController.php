@@ -3,6 +3,15 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\BlockUserRequest;
+use App\Http\Requests\ChangeRequestStatusRequest;
+use App\Http\Requests\FindFriendRequest;
+use App\Http\Requests\GetFollowerRequest;
+use App\Http\Requests\GetRequestListRequest;
+use App\Http\Requests\GetUserProfileRequest;
+use App\Http\Requests\MyProfileRequest;
+use App\Http\Requests\SendFriendRequest;
+use App\Http\Requests\UpdateProfileRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -15,16 +24,7 @@ use App\Models\FriendList;
 class UsersController extends Controller {
 
     /* Get My Profile */
-        public function myProfile(Request $request) {
-            $rules = [
-                'id' => 'required'
-            ];
-            $validator = Validator::make($request->all(), $rules);
-
-            if ($validator->fails()) {
-                return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
-            }
-
+        public function myProfile(MyProfileRequest $request) {
             $data = User::select(DB::raw("COALESCE(id,'') AS id"), DB::raw("COALESCE(name,'') AS name"), DB::raw("COALESCE(uid,'') AS uid"), DB::raw("COALESCE(phone,'') AS phone"), DB::raw("COALESCE(display_image,'') AS display_image"), DB::raw("COALESCE(cover_image,'') AS cover_image"), DB::raw("COALESCE(email,'') AS email"), DB::raw("COALESCE(status,'') AS status"), DB::raw("COALESCE(profile_type,'') AS profile_type"))->with('posts')->where(['id' => $request->id])->first();
             if (!$data) {
                 return response()->json(['status' => $this->databaseNodataCode, 'message' => 'No users found']);
@@ -34,17 +34,7 @@ class UsersController extends Controller {
     /* Get My Profile */
 
     /* Update User Profile */
-        public function updateProfile(Request $request) {
-            $rules = [
-                'id' => 'required',
-                'email' => 'required'
-            ];
-            $validator = Validator::make($request->all(), $rules);
-
-            if ($validator->fails()) {
-                return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
-            }
-
+        public function updateProfile(UpdateProfileRequest $request) {
             $id = $request->id;
             $exst_rec = User::where(['id' => $id])->first();
 
@@ -120,19 +110,8 @@ class UsersController extends Controller {
     /* Update User Profile */
 
     /* Fiend Friend */
-        public function findFriend(Request $request) {
-            $rules = [
-                'id' => 'required',
-                'search_name' => 'required'
-            ];
-            $validator = Validator::make($request->all(), $rules);
-
-            if ($validator->fails()) {
-                return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
-            }
-            DB::enableQueryLog();
+        public function findFriend(FindFriendRequest $request) {
             $find_user = User::where('name', 'LIKE', '%' . $request->search_name . '%')->where('status', 'active')->get(['id', 'name', 'display_image']);
-            // dd(DB::getQueryLog());
             if ($find_user->isNotEmpty()) {
                 return response()->json(['status' => $this->successCode, 'message' => 'user found', 'data' => $find_user]);
             } else {
@@ -142,16 +121,7 @@ class UsersController extends Controller {
     /* Fiend Friend */
 
     /** Get User Profile */
-        public function getUserProfile(Request $request) {
-            $rules = [
-                'user_id' => 'required',
-            ];
-            $validator = Validator::make($request->all(), $rules);
-
-            if ($validator->fails()) {
-                return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
-            }
-            DB::enableQueryLog();
+        public function getUserProfile(GetUserProfileRequest $request) {
             $data = User::select(DB::raw("COALESCE(id,'') AS id"), DB::raw("COALESCE(name,'') AS name"), DB::raw("COALESCE(uid,'') AS uid"), DB::raw("COALESCE(phone,'') AS phone"), DB::raw("COALESCE(display_image,'') AS display_image"), DB::raw("COALESCE(cover_image,'') AS cover_image"), DB::raw("COALESCE(email,'') AS email"), DB::raw("COALESCE(status,'') AS status"), DB::raw("COALESCE(profile_type,'') AS profile_type"))->withCount('followers', 'following', 'posts')->with('posts')->where(['id' => $request->user_id])->first();
             if ($data) {
                 $is_follower = _is_follower($request->user_id);
@@ -233,16 +203,7 @@ class UsersController extends Controller {
     /** Get User Profile */
 
     /* Get Follower */
-        public function getFollower(Request $request) {
-            $rules = [
-                'user_id' => 'required',
-            ];
-            $validator = Validator::make($request->all(), $rules);
-
-            if ($validator->fails()) {
-                return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
-            }
-
+        public function getFollower(GetFollowerRequest $request) {
             $find_user = FriendList::select(DB::raw("CASE WHEN `display_image` IS NULL THEN CONCAT('localhost/hotfocus/public/uploads/', 'defaultUser.jpg') ELSE CONCAT('localhost/hotfocus/public/uploads/', `display_image` ) END AS `display_image`"), 'name')->leftjoin('users', 'friend_lists.user_id', 'users.id')->get();
             if ($find_user->isNotEmpty()) {
                 return response()->json(['status' => $this->successCode, 'message' => 'data found.', 'data' => $find_user]);
@@ -253,17 +214,7 @@ class UsersController extends Controller {
     /* Get Follower */
 
     /* Send Friend Request */
-        public function sendFriendRequest(Request $request) {
-            $rules = [
-                'user_id' => 'required',
-                'friend_id' => 'required'
-            ];
-            $validator = Validator::make($request->all(), $rules);
-
-            if ($validator->fails()) {
-                return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
-            }
-
+        public function sendFriendRequest(SendFriendRequest $request) {
             $get_user = User::find($request->user_id);
             $get_friend = User::find($request->friend_id);
             if (!$get_user || !$get_friend) {
@@ -285,17 +236,8 @@ class UsersController extends Controller {
     /* Send Friend Request */
 
     /* Get Friend Request List */
-        public function getRequestList(Request $request) {
-            $rules = [
-                'id' => 'required',
-            ];
-            $validator = Validator::make($request->all(), $rules);
-
-            if ($validator->fails()) {
-                return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
-            }
+        public function getRequestList(GetRequestListRequest $request) {
             $path = _image_path();
-            // dd($path);
             $get_request = FriendList::select(
                     'friend_lists.id',
                     'friend_lists.user_id',
@@ -321,17 +263,7 @@ class UsersController extends Controller {
     /* Get Friend Request List */
 
     /* Change Friend Request Status */
-        public function changeFriendRequestStatus(Request $request) {
-            $rules = [
-                'id' => 'required',
-                'status' => 'required'
-            ];
-            $validator = Validator::make($request->all(), $rules);
-
-            if ($validator->fails()) {
-                return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
-            }
-
+        public function changeFriendRequestStatus(ChangeRequestStatusRequest $request) {
             $crud = [
                 'status' => $request->status,
                 'updated_at' => Carbon::now()->format("Y-m-d H:i:s"),
@@ -346,17 +278,7 @@ class UsersController extends Controller {
     /* Change Friend Request Status */
     
     /* Block User */
-        public function blockUser(Request $request) {
-            $rules = [
-                'user_id' => 'required',
-                'frient_id' => 'required'
-            ];
-            $validator = Validator::make($request->all(), $rules);
-
-            if ($validator->fails()) {
-                return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
-            }
-
+        public function blockUser(BlockUserRequest $request) {
             $crud = [
                 'status' => 'blocked',
                 'updated_at' => Carbon::now()->format("Y-m-d H:i:s"),

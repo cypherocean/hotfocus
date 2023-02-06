@@ -8,36 +8,16 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\File;
 use App\Events\chatEvent;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\GetChatRequest;
+use App\Http\Requests\MakeChatRequest;
 use App\Models\Chat;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class ChatController extends Controller {
-    private $successCode;
-    private $databaseNodataCode;
-    private $databaseErrorCode;
-    private $errorCode;
-    private $validationErrorCode;
 
-    public function __construct() {
-        $this->successCode = 200;
-        $this->databaseNodataCode = 404;
-        $this->databaseErrorCode = 201;
-        $this->errorCode = 422;
-        $this->validationErrorCode = 422;
-    }
-
-    public function getChat(Request $request) {
-        $rules = [
-            'id' => 'required',
-        ];
-        $validator = Validator::make($request->all(), $rules);
-
-        if ($validator->fails()) {
-            return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
-        }
-
+    public function getChat(GetChatRequest $request) {
         $id = $request->id;
         $data = Chat::select('chats.id', 'chats.sender_id', 'chats.receiver_id', 'chats.message', 'sender.name AS sender_name', 'receiver.name AS receiver_name')->leftjoin('users AS sender', 'chats.sender_id', 'sender.id')->leftjoin('users AS receiver', 'chats.receiver_id', 'receiver.id')
             ->where(['chats.sender_id' => Auth::user()->id, 'chats.receiver_id' => $id])
@@ -50,26 +30,13 @@ class ChatController extends Controller {
         }
     }
 
-    public function makeChat(Request $request) {
-
-        $rules = [
-            'sender_id' => 'required',
-            'receiver_id' => 'required',
-            'message' => 'required',
-        ];
-        $validator = Validator::make($request->all(), $rules);
-
-        if ($validator->fails()) {
-            return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
-        }
-
+    public function makeChat(MakeChatRequest $request) {
         $sender_id = Auth::user()->id;
         $receiver_id  = $request->receiver_id;
         $user = User::find($receiver_id);
 
         $folder_to_upload = public_path() . '/uploads/chats/';
-
-
+        
         $crud = [
             'sender_id' => $sender_id,
             'receiver_id' => $receiver_id,

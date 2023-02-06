@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\DashboardRequest;
+use App\Http\Requests\DiscoverRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Post;
@@ -10,28 +12,8 @@ use DB;
 use stdClass;
 
 class DashboardController extends Controller {
-    private $successCode;
-    private $databaseNodataCode;
-    private $databaseErrorCode;
-    private $errorCode;
-    private $validationErrorCode;
-
-    public function __construct() {
-        $this->successCode = 200;
-        $this->databaseNodataCode = 404;
-        $this->databaseErrorCode = 201;
-        $this->errorCode = 422;
-        $this->validationErrorCode = 422;
-    }
-    public function dashboard(Request $request) {
-        $rules = [
-            'id' => 'required',
-        ];
-        $validator = Validator::make($request->all(), $rules);
-
-        if ($validator->fails()) {
-            return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
-        }
+ 
+    public function dashboard(DashboardRequest $request) {
         $get_user_friend_list = _get_friends($request->id);
         $path = _post_path();
         $per_page = 50;
@@ -56,15 +38,7 @@ class DashboardController extends Controller {
         }
     }
 
-    public function discover(Request $request) {
-        $rules = [
-            'id' => 'required',
-        ];
-        $validator = Validator::make($request->all(), $rules);
-
-        if ($validator->fails()) {
-            return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
-        }
+    public function discover(DiscoverRequest $request) {
         $path = _post_path();
         $per_page = 50;
         $page = $request->input(key: 'page', default: 1);

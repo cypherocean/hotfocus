@@ -4,6 +4,11 @@ namespace App\Http\Controllers\API;
 
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CommentPostRequest;
+use App\Http\Requests\EditPostRequest;
+use App\Http\Requests\GetPostRequest;
+use App\Http\Requests\LikePostRequest;
+use App\Http\Requests\MakePostRequest;
 use App\Models\Comment;
 use App\Models\Like;
 use App\Models\Post;
@@ -16,36 +21,10 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class PostController extends Controller {
-    private $successCode;
-    private $databaseNodataCode;
-    private $databaseErrorCode;
-    private $errorCode;
-    private $validationErrorCode;
 
-    public function __construct(){
-        $this->successCode = 200;
-        $this->databaseNodataCode = 404;
-        $this->databaseErrorCode = 201;
-        $this->errorCode = 422;
-        $this->validationErrorCode = 422;
-    }
     /* Make a Post */
-        public function makePost(Request $request) {
-            $rules = [
-                'id' => 'required',
-                'file' => 'required',
-                'post_type' => 'required',
-                'media_type' => 'required'
-            ];
-            $validator = Validator::make($request->all(), $rules);
-
-            if ($validator->fails()) {
-                return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
-            }
-
+        public function makePost(MakePostRequest $request) {
             $folder_to_upload = public_path() . '/uploads/posts/';
-
-
             $crud = [
                 'user_id' => $request->id,
                 'post_type' => $request->post_type,
@@ -88,16 +67,7 @@ class PostController extends Controller {
     /* Make a Post */
 
     /* Get Post */
-        public function getPost(Request $request) {
-            $rules = [
-                'id' => 'required',
-            ];
-            $validator = Validator::make($request->all(), $rules);
-
-            if ($validator->fails()) {
-                return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
-            }
-
+        public function getPost(GetPostRequest $request) {
             $path = _post_path();
 
             $post = Post::
@@ -113,17 +83,7 @@ class PostController extends Controller {
     /* Get Post */
 
     /* Edit Post */
-        public function editPost(Request $request) {
-            $rules = [
-                'id' => 'required',
-                'caption' => 'required'
-            ];
-            $validator = Validator::make($request->all(), $rules);
-
-            if ($validator->fails()) {
-                return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
-            }
-
+        public function editPost(EditPostRequest $request) {
             $crud = [
                 'caption' => $request->caption,
                 'updated_at' => Carbon::now()->format("Y-m-d H:i:s"),
@@ -141,18 +101,7 @@ class PostController extends Controller {
     /* Edit Post */
 
     /* Like Post */
-        public function likePost(Request $request) {
-            $rules = [
-                'id' => 'required',
-                'post_id' => 'required',
-                'status' => 'required'
-            ];
-            $validator = Validator::make($request->all(), $rules);
-
-            if ($validator->fails()) {
-                return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
-            }
-
+        public function likePost(LikePostRequest $request) {
             if($request->status == true){
                 $crud = [
                     'post_id' => $request->post_id,
@@ -179,18 +128,7 @@ class PostController extends Controller {
     /* Like Post */
 
     /* Comment Post */
-        public function commentPost(Request $request) {
-            $rules = [
-                'id' => 'required',
-                'post_id' => 'required',
-                'comment' => 'required'
-            ];
-            $validator = Validator::make($request->all(), $rules);
-
-            if ($validator->fails()) {
-                return response()->json(['status' => $this->validationErrorCode, 'message' => $validator->errors()]);
-            }
-
+        public function commentPost(CommentPostRequest $request) {
             if($request->comment != '' || $request->comment != null) {
                 $crud = [
                     'user_id' => $request->id,
