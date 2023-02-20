@@ -5,7 +5,7 @@
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '290c4afc01ea1013726d14a7ce6c910f42658fb6',
+        'reference' => '27ebd3f0ab3a27b6ff9838f8ea0304c827eb2f64',
         'name' => 'laravel/laravel',
         'dev' => true,
     ),
@@ -499,7 +499,7 @@
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '290c4afc01ea1013726d14a7ce6c910f42658fb6',
+            'reference' => '27ebd3f0ab3a27b6ff9838f8ea0304c827eb2f64',
             'dev_requirement' => false,
         ),
         'laravel/sail' => array(
@@ -957,12 +957,12 @@
             'dev_requirement' => false,
         ),
         'pusher/pusher-php-server' => array(
-            'pretty_version' => '5.0.3',
-            'version' => '5.0.3.0',
+            'pretty_version' => '7.2.2',
+            'version' => '7.2.2.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../pusher/pusher-php-server',
             'aliases' => array(),
-            'reference' => '1024077ff60beebaf5706b4e0208a1e648d20cf4',
+            'reference' => '4ace4873873b06c25cecb2dd6d9fdcbf2f20b640',
             'dev_requirement' => false,
         ),
         'ralouphie/getallheaders' => array(

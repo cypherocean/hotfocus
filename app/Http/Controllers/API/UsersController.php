@@ -7,6 +7,7 @@ use App\Http\Requests\BlockUserRequest;
 use App\Http\Requests\ChangeRequestStatusRequest;
 use App\Http\Requests\FindFriendRequest;
 use App\Http\Requests\GetFollowerRequest;
+use App\Http\Requests\GetFollowingRequest;
 use App\Http\Requests\GetRequestListRequest;
 use App\Http\Requests\GetUserProfileRequest;
 use App\Http\Requests\MyProfileRequest;
@@ -19,7 +20,7 @@ use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\FriendList;
-
+use Illuminate\Support\Facades\Auth;
 
 class UsersController extends Controller {
 
@@ -204,7 +205,27 @@ class UsersController extends Controller {
 
     /* Get Follower */
         public function getFollower(GetFollowerRequest $request) {
-            $find_user = FriendList::select(DB::raw("CASE WHEN `display_image` IS NULL THEN CONCAT('localhost/hotfocus/public/uploads/', 'defaultUser.jpg') ELSE CONCAT('localhost/hotfocus/public/uploads/', `display_image` ) END AS `display_image`"), 'name')->leftjoin('users', 'friend_lists.user_id', 'users.id')->get();
+            DB::enableQueryLog();
+            $myFriends = FriendList::select(DB::raw("GROUP_CONCAT(`user_id`) AS user_id"))->where('friend_id', Auth::user()->id)->first('user_id');
+            $query = "CASE WHEN 
+            `friend_lists`.`status` != 'pending' AND `friend_lists`.`user_id` =".Auth::user()->id." THEN 'self' ";
+
+            if (isset($myFriends->user_id) && $myFriends->user_id != null) {
+                $query .= "WHEN 
+                `friend_lists`.`status` != 'pending' AND `friend_lists`.`friend_id` NOT IN (".$myFriends->user_id.") THEN 'not_following' ";
+            }
+            
+            $query .= "ELSE 'following' 
+            END AS friend_status";
+            $find_user = FriendList::
+                        select(
+                            DB::raw("CASE WHEN `display_image` IS NULL THEN CONCAT('localhost/hotfocus/public/uploads/', 'defaultUser.jpg') ELSE CONCAT('localhost/hotfocus/public/uploads/', `display_image` ) END AS `display_image`"), 'name', 
+                            DB::raw($query)
+                            )
+                        ->leftjoin('users', 'friend_lists.user_id', 'users.id')
+                        ->where('user_id', $request->user_id)
+                        ->get();
+            // dd(DB::getQueryLog());
             if ($find_user->isNotEmpty()) {
                 return response()->json(['status' => $this->successCode, 'message' => 'data found.', 'data' => $find_user]);
             } else {
@@ -212,6 +233,37 @@ class UsersController extends Controller {
             }
         }
     /* Get Follower */
+    
+    /* Get Following */
+        public function getFollowing(GetFollowingRequest $request) {
+            DB::enableQueryLog();
+            $myFriends = FriendList::select(DB::raw("GROUP_CONCAT(`user_id`) AS user_id"))->where('friend_id', Auth::user()->id)->first('user_id');
+            $query = "CASE WHEN 
+            `friend_lists`.`status` != 'pending' AND `friend_lists`.`user_id` =".Auth::user()->id." THEN 'self' ";
+
+            if (isset($myFriends->user_id) && $myFriends->user_id != null) {
+                $query .= "WHEN 
+                `friend_lists`.`status` != 'pending' AND `friend_lists`.`friend_id` NOT IN (".$myFriends->user_id.") THEN 'not_following' ";
+            }
+            
+            $query .= "ELSE 'following' 
+            END AS friend_status";
+            $find_user = FriendList::
+                        select(
+                            DB::raw("CASE WHEN `display_image` IS NULL THEN CONCAT('localhost/hotfocus/public/uploads/', 'defaultUser.jpg') ELSE CONCAT('localhost/hotfocus/public/uploads/', `display_image` ) END AS `display_image`"), 'name', 
+                            DB::raw($query)
+                            )
+                        ->leftjoin('users', 'friend_lists.user_id', 'users.id')
+                        ->where('friend_id', $request->user_id)
+                        ->get();
+            // dd(DB::getQueryLog());
+            if ($find_user->isNotEmpty()) {
+                return response()->json(['status' => $this->successCode, 'message' => 'data found.', 'data' => $find_user]);
+            } else {
+                return response()->json(['status' => $this->databaseNodataCode, 'message' => 'no data found!']);
+            }
+        }
+    /* Get Following */
 
     /* Send Friend Request */
         public function sendFriendRequest(SendFriendRequest $request) {

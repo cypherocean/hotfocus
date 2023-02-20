@@ -1,11 +1,11 @@
 <header class="header">
     <div class="page-brand" style="display: flex; justify-content: center;" >
-        <a class="link" href="{{ route('dashboard') }}">
+        <a class="link" href="<?php echo e(route('dashboard')); ?>">
             <span class="brand">
-                <img src="{{ asset('logo.png') }}" alt="{{ _site_title() }}" style="width: 50px; height: 50px;">
+                <img src="<?php echo e(asset('logo.png')); ?>" alt="<?php echo e(_site_title()); ?>" style="width: 50px; height: 50px;">
             </span>
             <span class="brand-mini">
-                <img src="{{ asset('logo.png') }}" alt="{{ _site_title() }}" style="width: 40px; height: 40px;">
+                <img src="<?php echo e(asset('logo.png')); ?>" alt="<?php echo e(_site_title()); ?>" style="width: 40px; height: 40px;">
             </span>
         </a>
     </div>
@@ -40,7 +40,7 @@
                             <a class="list-group-item">
                                 <div class="media">
                                     <div class="media-img">
-                                        <img src="{{ asset('assets/img/users/u1.jpg') }}" />
+                                        <img src="<?php echo e(asset('assets/img/users/u1.jpg')); ?>" />
                                     </div>
                                     <div class="media-body">
                                         <div class="font-strong"> </div>Jeanne Gonzalez<small class="text-muted float-right">Just now</small>
@@ -51,7 +51,7 @@
                             <a class="list-group-item">
                                 <div class="media">
                                     <div class="media-img">
-                                        <img src="{{ asset('assets/img/users/u2.jpg') }}" />
+                                        <img src="<?php echo e(asset('assets/img/users/u2.jpg')); ?>" />
                                     </div>
                                     <div class="media-body">
                                         <div class="font-strong"></div>Becky Brooks<small class="text-muted float-right">18 mins</small>
@@ -62,7 +62,7 @@
                             <a class="list-group-item">
                                 <div class="media">
                                     <div class="media-img">
-                                        <img src="{{ asset('assets/img/users/u3.jpg') }}" />
+                                        <img src="<?php echo e(asset('assets/img/users/u3.jpg')); ?>" />
                                     </div>
                                     <div class="media-body">
                                         <div class="font-strong"></div>Frank Cruz<small class="text-muted float-right">18 mins</small>
@@ -73,7 +73,7 @@
                             <a class="list-group-item">
                                 <div class="media">
                                     <div class="media-img">
-                                        <img src="{{ asset('assets/img/users/u4.jpg') }}" />
+                                        <img src="<?php echo e(asset('assets/img/users/u4.jpg')); ?>" />
                                     </div>
                                     <div class="media-body">
                                         <div class="font-strong"></div>Rose Pearson<small class="text-muted float-right">3 hrs</small>
@@ -138,8 +138,8 @@
             </li> -->
             <li class="dropdown dropdown-user">
                 <a class="nav-link dropdown-toggle link" data-toggle="dropdown">
-                    <img src="{{ asset('assets/img/admin-avatar.png') }}" />
-                    <span></span>{{ auth()->user()->name ?? '' }}<i class="fa fa-angle-down m-l-5"></i></a>
+                    <img src="<?php echo e(asset('assets/img/admin-avatar.png')); ?>" />
+                    <span></span><?php echo e(auth()->user()->name ?? ''); ?><i class="fa fa-angle-down m-l-5"></i></a>
                 <ul class="dropdown-menu dropdown-menu-right">
                     <!-- <a class="dropdown-item" href="profile.html"><i class="fa fa-user"></i>Profile</a>
                     <a class="dropdown-item" href="profile.html"><i class="fa fa-cog"></i>Settings</a>
@@ -151,3 +151,4 @@
         </ul>
     </div>
 </header>
+<?php /**PATH C:\xampp\htdocs\hotfocus\resources\views/layout/header.blade.php ENDPATH**/ ?>

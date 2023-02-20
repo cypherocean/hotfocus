@@ -23,8 +23,12 @@ window.Pusher = require('pusher-js');
 window.Echo = new Echo({
     broadcaster: 'pusher',
     key: process.env.MIX_PUSHER_APP_KEY,
-    cluster: process.env.MIX_PUSHER_APP_CLUSTER,
-    forceTLS: false,
+    cluster: 'ap2',
+    forceTLS: true,
     wsHost: window.location.hostname,
     wsPort: 6001
+});
+var channel = Echo.channel('status-liked');
+channel.listen('.status-liked', function(data) {
+  alert(JSON.stringify(data));
 });

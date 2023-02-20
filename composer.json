@@ -6,6 +6,7 @@
     "license": "MIT",
     "require": {
         "php": "^7.3|^8.0",
+        "beyondcode/laravel-websockets": "^1.13",
         "doctrine/dbal": "^3.5",
         "fideloper/proxy": "^4.4",
         "fruitcake/laravel-cors": "^2.0",
@@ -13,10 +14,8 @@
         "laravel/framework": "^8.12",
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
-        "yajra/laravel-datatables": "^1.5",
-
-        "beyondcode/laravel-websockets": "^1.13",
-        "pusher/pusher-php-server": "^5.0"
+        "pusher/pusher-php-server": "^7.2",
+        "yajra/laravel-datatables": "^1.5"
     },
     "require-dev": {
         "facade/ignition": "^2.5",

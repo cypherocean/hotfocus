@@ -47,6 +47,7 @@ Route::group(['middleware' => 'api', 'namespace' => 'API'], function () {
                 Route::post('get_request_list', 'getRequestList');
                 Route::post('change_request_status', 'changeFriendRequestStatus');
                 Route::post('get_follower', 'getFollower');
+                Route::post('get_following', 'getFollowing');
             });
         /* My Profile */
        
