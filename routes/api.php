@@ -58,7 +58,9 @@ Route::group(['middleware' => 'api', 'namespace' => 'API'], function () {
                 Route::post('get_post', 'getPost');
                 Route::post('edit_post', 'editPost');
                 Route::post('like_post', 'likePost');
+                Route::post('delete_post', 'deletePost');
                 Route::post('comment_post', 'commentPost');
+                Route::post('delete_comment', 'deleteComment');
             });
         /* My Post */
        

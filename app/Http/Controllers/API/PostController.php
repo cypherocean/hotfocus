@@ -4,11 +4,6 @@ namespace App\Http\Controllers\API;
 
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\CommentPostRequest;
-use App\Http\Requests\EditPostRequest;
-use App\Http\Requests\GetPostRequest;
-use App\Http\Requests\LikePostRequest;
-use App\Http\Requests\MakePostRequest;
 use App\Models\Comment;
 use App\Models\Like;
 use App\Models\Post;
@@ -23,7 +18,7 @@ use Illuminate\Support\Facades\DB;
 class PostController extends Controller {
 
     /* Make a Post */
-        public function makePost(MakePostRequest $request) {
+        public function makePost(\App\Http\Requests\MakePostRequest $request) {
             $folder_to_upload = public_path() . '/uploads/posts/';
             $crud = [
                 'user_id' => $request->id,
@@ -67,11 +62,17 @@ class PostController extends Controller {
     /* Make a Post */
 
     /* Get Post */
-        public function getPost(GetPostRequest $request) {
+        public function getPost(\App\Http\Requests\GetPostRequest $request) {
             $path = _post_path();
 
             $post = Post::
                     select('id', 'user_id', 'caption', 'post_type', 'media_type', 'status',  DB::Raw("CASE WHEN " . 'file_name' . " != '' THEN CONCAT(" . "'" . $path . "'" . ", " . 'file_name' . ") ELSE CONCAT(" . "'" . $path . "'" . ", null) END as file_name"))
+                    ->with(['likes' => function ($query) {
+                        $query->select('users.name AS user_name', 'post_id');
+                    }, 'comments' => function ($query) {
+                        $query->select('comments.id', 'users.id AS user_id', 'users.name', 'comments.comment', 'post_id');
+                    }])
+                    ->withCount('likes', 'comments')
                     ->where('user_id', $request->id)
                     ->get();
             if($post->isNotEmpty()){
@@ -83,7 +84,7 @@ class PostController extends Controller {
     /* Get Post */
 
     /* Edit Post */
-        public function editPost(EditPostRequest $request) {
+        public function editPost(\App\Http\Requests\EditPostRequest $request) {
             $crud = [
                 'caption' => $request->caption,
                 'updated_at' => Carbon::now()->format("Y-m-d H:i:s"),
@@ -101,7 +102,7 @@ class PostController extends Controller {
     /* Edit Post */
 
     /* Like Post */
-        public function likePost(LikePostRequest $request) {
+        public function likePost(\App\Http\Requests\LikePostRequest $request) {
             if($request->status == true){
                 $crud = [
                     'post_id' => $request->post_id,
@@ -122,13 +123,22 @@ class PostController extends Controller {
                     return response()->json(['status' => $this->databaseErrorCode, 'message' => 'Failed to unlike post']);
                 }
             }
-
-
         }
     /* Like Post */
 
+    /* Delete Post */
+        public function deletePost(\App\Http\Requests\DeletePostRequest $request) {
+            $post = Post::where('id', $request->post_id)->delete();
+            if($post){
+                return response()->json(['status' => $this->successCode, 'message' => 'Post deleted successfully.']);
+            }else{
+                return response()->json(['status' => $this->databaseErrorCode, 'message' => 'Failed to delete post']);
+            }
+        }
+    /* Delete Post */
+
     /* Comment Post */
-        public function commentPost(CommentPostRequest $request) {
+        public function commentPost(\App\Http\Requests\CommentPostRequest $request) {
             if($request->comment != '' || $request->comment != null) {
                 $crud = [
                     'user_id' => $request->id,
@@ -148,4 +158,15 @@ class PostController extends Controller {
 
         }
     /* Comment Post */
+    
+    /* Delete Comment */
+        public function deleteComment(\App\Http\Requests\DeleteCommentRequest $request) {
+            $comment = Comment::where('id', $request->comment_id)->delete();
+            if($comment){
+                return response()->json(['status' => $this->successCode, 'message' => 'Comment deleted successfully.']);
+            }else{
+                return response()->json(['status' => $this->databaseErrorCode, 'message' => 'Failed to delete comment']);
+            }
+        }
+    /* Delete Comment */
 }

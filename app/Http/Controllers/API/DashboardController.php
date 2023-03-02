@@ -23,7 +23,7 @@ class DashboardController extends Controller {
             ->with(['likes' => function ($query) {
                 $query->select('users.name AS user_name', 'post_id');
             }, 'comments' => function ($query) {
-                $query->select('users.id', 'users.name', 'comments.comment', 'post_id');
+                $query->select('comments.id', 'users.id AS user_id', 'users.name', 'comments.comment', 'post_id');
             }])
             ->withCount('likes', 'comments')
             ->whereIn('user_id', $get_user_friend_list)
@@ -47,7 +47,7 @@ class DashboardController extends Controller {
             ->with(['likes' => function ($query) {
                 $query->select('users.name AS user_name', 'post_id');
             }, 'comments' => function ($query) {
-                $query->select('users.id', 'users.name', 'comments.comment', 'post_id');
+                $query->select('comments.id', 'users.id AS user_id', 'users.name', 'comments.comment', 'post_id');
             }])
             ->withCount('likes', 'comments')
             ->offset(($page - 1) * $per_page)
